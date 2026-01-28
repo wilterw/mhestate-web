@@ -1,0 +1,26 @@
+{
+    "siteName": "MH Estate",
+    "theme": {
+        "primaryColor": "#1A1A1A",      
+        "secondaryColor": "#8C8C8C",    
+        "accentColor": "#C5A059",       
+        "backgroundColor": "#FFFFFF",
+        "fontFamily": "'Helvetica Neue', Helvetica, Arial, sans-serif"
+    },
+    "branding": {
+        "logoUrl": "https://dummyimage.com/150x50/000/fff&text=MH+ESTATE",
+        "favicon": "/assets/img/favicon.png"
+    },
+    "contact": {
+        "email": "sales@mhestate.es",
+        "phone": "+34 951 777 877",
+        "address": "Calle Castilla Pérez 17, 29780 Nerja"
+    },
+    "social": {
+        "instagram": "#",
+        "facebook": "#"
+    },
+    "api": {
+        "xmlUrl": "https://api.allorigins.win/raw?url=http%3A%2F%2Fprocesos.apinmo.com%2Fxml%2Fv2%2F5ohUsDPQ%2F13467-web.xml"
+    }
+}

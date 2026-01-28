@@ -1,0 +1,212 @@
+/* =========================================
+   SELL.CSS - COMPACT EDITORIAL VERSION
+   ========================================= */
+
+/* --- RESET & GLOBALES (COLOR NEGRO POR DEFECTO) --- */
+section { margin: 0; padding: 0; box-sizing: border-box; }
+img { max-width: 100%; height: auto; display: block; }
+
+/* Forzamos negro en todo el sitio excepto el statement */
+h1, h2, h3, p, span { color: #000; }
+
+.container-compact {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 40px;
+}
+
+/* Bloques con fondo Beige #F0EAE3 */
+.experience-section, 
+.images-grid-section, 
+.craft-section, 
+.professional-section,
+.full-width-image-section,
+.visual-interactive-section { 
+    width: 100%; 
+    background-color: #F0EAE3; 
+}
+
+/* --- HERO SECTION --- */
+.sell-hero {
+    position: relative; width: 100%; height: 500px; 
+    background: url('../img/sell-hero-bg.jpg') center/cover no-repeat;
+    display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; color: #fff;
+}
+.hero-logo { max-width: 450px; margin-bottom: 30px; z-index: 2; }
+.btn-valuation { z-index: 2; padding: 15px 40px; background-color: #C5BDA8; color: #000; font-family: 'Inter'; font-weight: 700; border-radius: 50px; text-decoration: none; }
+
+/* --- GRIDS --- */
+.experience-grid, .images-grid, .craft-grid, .professional-grid, .vi-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+}
+
+/* Textos */
+.exp-col-right, .craft-text-col, .vi-text-col { display: flex; flex-direction: column; justify-content: center; padding: 40px; }
+h1 { font-family: 'Gilda Display'; font-size: 42px; line-height: 1.1; margin-bottom: 20px; font-weight: 700; color: #000; }
+p { font-family: 'Inter'; font-size: 16px; line-height: 1.6; color: #000; }
+
+/* Imágenes */
+.grid-image, .ceo-img { width: 100%; height: 450px; object-fit: cover; }
+
+/* --- PROFESSIONAL SECTION (ANCLADO ABAJO) --- */
+.professional-grid { align-items: stretch; min-height: 400px; padding-bottom: 80px; }
+.prof-col-left { display: flex; flex-direction: column; justify-content: flex-end; padding-right: 50px; }
+.prof-giant-title { font-family: 'Inter'; font-size: 46px; font-weight: 600; line-height: 1.1; margin-bottom: 25px; color: #000; }
+.prof-subtitle { font-family: 'Inter'; font-size: 17px; font-weight: 600; color: #000; }
+
+.prof-col-right { display: flex; flex-direction: column; justify-content: flex-end; padding-left: 50px; }
+.prof-description p { margin-bottom: 20px; color: #000; }
+
+/* --- FULL WIDTH IMAGE COMPACT --- */
+.full-width-image-section { padding: 40px 0; }
+.full-width-img { width: 100%; height: 450px; object-fit: cover; }
+
+/* --- STATEMENT SECTION (ÚNICA CON COLOR #56503D) --- */
+.statement-section { background-color: #fff; padding: 100px 0; text-align: center; }
+.statement-text {
+    font-family: 'Gilda Display';
+    font-size: 22px; 
+    line-height: 1.6;
+    color: #56503D !important; /* Color solicitado aplicado solo aquí */
+    font-weight: 400; /* Sin negrilla */
+    margin: 0 auto;
+    max-width: 950px;
+}
+
+/* --- VISUAL & INTERACTIVE --- */
+.visual-interactive-section { padding: 80px 0; }
+.vi-text-col { padding-right: 60px; }
+.vi-block { margin-bottom: 60px; } /* Aumentamos separación entre bloques */
+
+/* MODIFICACIÓN PRINCIPAL AQUÍ */
+.vi-block h1 { 
+    font-family: 'Inter'; 
+    font-size: 64px;       /* Aumentado considerablemente */
+    font-weight: 600; 
+    line-height: 1.05;     /* Más compacto */
+    margin-bottom: 20px; 
+    color: #000; 
+    letter-spacing: -1.5px; /* Estilo editorial */
+}
+
+/* RESPONSIVE */
+@media (max-width: 992px) {
+    .experience-grid, .craft-grid, .professional-grid, .vi-grid { grid-template-columns: 1fr; }
+    .exp-col-right, .craft-text-col, .prof-col-left, .prof-col-right, .vi-text-col { padding: 40px 0; text-align: center; }
+}
+/* --- MARKETING SECTION --- */
+.marketing-section {
+    padding: 100px 20px;
+    background-color: #fff;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.marketing-container {
+    width: 100%;
+    max-width: 1150px; /* Aumentado para dar mas amplitud al texto */
+    margin: 0 auto;
+}
+
+.marketing-section h1 {
+    font-family: 'Gilda Display', serif;
+    font-size: 52px;       
+    font-weight: 400;
+    margin-bottom: 25px;
+    color: #56503D;
+    line-height: 1.2;
+}
+
+.marketing-section p {
+    font-family: 'Inter', sans-serif;
+    font-size: 18px;
+    line-height: 1.6;
+    color: #000;
+    font-weight: 500;      /* Medium / Leve negrilla */
+    margin: 0 auto;
+    width: 100%;
+}
+/* --- SOLD PROPERTIES SECTION --- */
+.sold-section {
+    padding: 60px 0 0 0; /* Padding inferior a 0 para pegar al footer */
+    background-color: #fff;
+    width: 100%;
+}
+
+.sold-container {
+    max-width: 1800px;
+    width: 98%;
+    margin: 0 auto;
+    padding: 0;
+}
+
+.sold-section h2 {
+    font-family: 'Inter', sans-serif;
+    font-size: 24px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 0;  /* Margen cero para pegar a la imagen */
+    margin-left: 20px;
+    text-align: left;
+    color: #000;
+    line-height: 1;
+    padding-bottom: 15px;
+}
+
+.sold-img {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+    margin-top: 0;
+    margin-bottom: 0; /* Aseguramos que no haya margen inferior en la imagen */
+}
+
+/* =========================================
+   RESPONSIVE (AJUSTES MÓVILES)
+   ========================================= */
+
+@media (max-width: 768px) {
+    /* HERO */
+    .sell-hero {
+        height: auto;
+        min-height: 450px;
+        padding: 80px 20px;
+    }
+    .hero-logo {
+        width: 80%; /* Logo más pequeño en móvil */
+        height: auto;
+    }
+
+    /* PADDINGS Y MÁRGENES */
+    .exp-col-right, .craft-text-col, .vi-text-col {
+        padding: 50px 25px; /* Dar aire a los lados */
+    }
+    .prof-col-left, .prof-col-right {
+        padding: 30px 20px;
+    }
+    .container-compact {
+        padding: 0 20px;
+    }
+
+    /* TÍTULOS GIGANTES (REDUCCIÓN) */
+    .vi-block h1 {
+        font-size: 36px; /* Reducido de 64px */
+    }
+    .prof-giant-title {
+        font-size: 32px; /* Reducido de 46px */
+    }
+    .marketing-section h1 {
+        font-size: 36px; /* Reducido de 52px */
+    }
+
+    /* IMÁGENES */
+    .grid-image, .ceo-img, .full-width-img {
+        height: 300px; /* Menor altura para que no sea infinito */
+    }
+}

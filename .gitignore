@@ -1,0 +1,11 @@
+# Archivos de sistema y logs que no deben subirse
+.DS_Store
+node_modules/
+.env
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IMPORTANTE: Aseguramos que la carpeta de datos SÍ se suba
+!assets/data/
+assets/data/propiedades.xml

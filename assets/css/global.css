@@ -1,0 +1,72 @@
+body {
+    background-color: var(--color-blanco);
+    color: var(--color-negro);
+    font-family: var(--font-body);
+    font-size: 15px; /* Base legible estándar */
+    font-weight: 400;
+    margin: 0;
+    padding-top: var(--header-height); 
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+    width: 100%; /* Asegura que no se exceda del viewport */
+}
+
+h1, h2, h3 {
+    font-family: var(--font-heading);
+    color: var(--color-dorado);
+    font-weight: 400;
+    margin: 0;
+}
+
+.container {
+    max-width: var(--container-max-width);
+    margin: 0 auto;
+    padding: 0 40px;
+}
+
+/* REGLA RESPONSIVE FUNDAMENTAL */
+img { 
+    max-width: 100%; 
+    height: auto; /* IMPORTANTE: Mantiene la proporción */
+    display: block; 
+}
+
+button { cursor: pointer; border: none; outline: none; transition: 0.3s; }
+
+/* --- BOTÓN FLOTANTE WHATSAPP (MÁS GRANDE) --- */
+.whatsapp-float {
+    position: fixed;
+    width: 80px; /* Tamaño aumentado */
+    height: 80px;
+    bottom: 40px;
+    right: 40px;
+    background-color: transparent;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s ease;
+}
+
+.whatsapp-float img {
+    width: 100%; /* Ocupa todo el contenedor de 80px */
+    height: auto;
+    display: block;
+}
+
+.whatsapp-float:hover {
+    transform: scale(1.1); /* Efecto de crecimiento al pasar el mouse */
+}
+
+/* Ajuste para móviles: un poco más pequeño que en escritorio pero más grande que antes */
+@media (max-width: 768px) {
+    .container {
+        padding: 0 20px;
+    }
+    .whatsapp-float {
+        width: 65px;
+        height: 65px;
+        bottom: 25px;
+        right: 25px;
+    }
+}

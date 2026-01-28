@@ -1,0 +1,354 @@
+/* =========================================
+   ABOUT.CSS - V19 (MODAL BIOGRAFÍA)
+   ========================================= */
+
+/* ... (Todo el CSS anterior se mantiene igual) ... */
+
+/* --- HERO SECTION --- */
+.about-hero {
+    position: relative;
+    width: 100%; 
+    height: 835px; 
+    margin-top: 0; 
+    background-image: url('../img/about hero.jpg'); 
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    flex-direction: column; 
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: #fff;
+}
+
+.about-hero h1 {
+    font-family: 'Gilda Display', serif;
+    font-size: 2.8rem;
+    font-weight: 400;
+    text-transform: none; 
+    letter-spacing: 0.02em;
+    position: relative;
+    z-index: 2;
+    padding: 0 20px;
+    color: #ffffff;
+    margin-bottom: 230px; 
+}
+
+/* ESTILO DEL BOTÓN DEL HERO */
+.btn-hero-contact {
+    position: relative;
+    z-index: 2;
+    display: inline-block;
+    padding: 12px 30px;
+    border: 1px solid #fff;
+    color: #fff;
+    text-decoration: none;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+    background: transparent;
+}
+
+.btn-hero-contact:hover {
+    background: #fff;
+    color: #000;
+}
+
+.hero-overlay {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.2); 
+    z-index: 1;
+}
+
+/* --- INTRO SECTION --- */
+.about-intro-section {
+    padding: 80px 20px;
+    background-color: #fff;
+    text-align: center;
+}
+.container-narrow {
+    max-width: 800px;
+    margin: 0 auto;
+}
+.intro-lead {
+    font-family: 'Gilda Display', serif;
+    font-size: 28px; 
+    line-height: 1.4;
+    color: #000;
+    margin: 0;
+}
+
+/* --- TITLE SECTION --- */
+.about-title-section {
+    padding: 40px 20px 20px;
+    background-color: #fff;
+}
+.about-us-heading {
+    font-family: 'Gilda Display', serif;
+    font-size: 48px;
+    font-weight: 400;
+    margin: 0;
+    color: #000;
+    text-align: left; 
+}
+
+/* --- DIRECTIVA SECTION --- */
+.about-directiva-section {
+    padding: 20px 20px 80px;
+    background-color: #fff;
+}
+.directiva-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; 
+    gap: 50px;
+    align-items: start;
+}
+.directiva-text-col {
+    display: flex;
+    flex-direction: column;
+    gap: 30px; 
+}
+.directiva-text {
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #333;
+    margin: 0;
+}
+.directiva-img-col img {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+}
+
+/* --- TEAM SECTION --- */
+.about-team-section {
+    padding: 60px 20px 100px;
+    background-color: #fff;
+}
+.team-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); 
+    gap: 40px;
+}
+.team-card {
+    display: flex;
+    flex-direction: column; 
+    text-align: left; 
+}
+
+.team-name {
+    font-family: 'Inter', sans-serif;
+    font-size: 20px; 
+    font-weight: 500;
+    text-transform: none; 
+    color: #000;
+    margin: 0 0 20px 0; 
+}
+
+.team-img-new {
+    width: 100%;
+    aspect-ratio: 3/4; 
+    overflow: hidden;
+    background-color: #ddd;
+    margin-bottom: 25px;
+}
+
+.team-img-new img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.team-role {
+    font-family: 'Gilda Display', serif;
+    font-size: 26px; 
+    font-weight: 400; 
+    font-style: normal;
+    line-height: 1; 
+    letter-spacing: 0;
+    color: #56503D; 
+    margin: 0 0 10px 0; 
+}
+
+.team-lang {
+    font-family: 'Inter', sans-serif;
+    font-size: 15px; 
+    color: #666;
+    margin: 0 0 15px 0;
+}
+
+/* --- DATOS DE CONTACTO ESTILIZADOS --- */
+.team-contact-details {
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.team-contact-details a {
+    font-family: 'Inter', sans-serif;
+    font-size: 15px; 
+    color: #000;     
+    font-weight: 600; 
+    text-decoration: none; 
+    transition: opacity 0.3s ease;
+    word-break: break-all;
+}
+
+.team-contact-details a:hover {
+    opacity: 0.7; 
+}
+
+/* --- BOTÓN "LEER MÁS" --- */
+.btn-text-link {
+    display: inline-block;
+    font-family: 'Inter', sans-serif;
+    font-size: 15px; 
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #C5BDA8; 
+    text-decoration: none; 
+    border: none;
+    padding-bottom: 0;
+    align-self: flex-start;
+    transition: color 0.3s ease;
+    margin-top: auto;
+    letter-spacing: 1px;
+    background: none; /* Asegura que no parezca botón default */
+    cursor: pointer;
+}
+
+.btn-text-link:hover {
+    color: #000;
+    text-decoration: none;
+}
+
+/* --- NUEVO: ESTILOS MODAL BIOGRAFÍA (ACTUALIZADO) --- */
+.bio-modal-container {
+    background: #fff;
+    width: 90%;
+    max-width: 700px;
+    padding: 50px;
+    position: relative;
+    border-radius: 8px;
+    text-align: center;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 15px 50px rgba(0,0,0,0.2);
+}
+
+.bio-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    width: 100%;
+}
+
+/* Transición suave para el contenido al cambiar de persona */
+.bio-person-content {
+    transition: opacity 0.3s ease;
+    width: 100%;
+}
+
+/* Imagen Circular */
+.bio-img-wrapper {
+    width: 150px;
+    height: 150px;
+    margin: 0 auto 20px;
+}
+
+.bio-img-circle {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid #C5BDA8; /* Borde Crema */
+    padding: 3px; 
+    background: #fff;
+}
+
+.bio-content h3 {
+    font-family: 'Gilda Display', serif;
+    font-size: 28px;
+    color: #000;
+    margin: 0 0 15px 0;
+    line-height: 1.2;
+}
+
+.bio-content p {
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #333;
+    margin: 0 0 15px 0;
+    text-align: center;
+}
+
+.bio-highlight {
+    font-weight: 700; /* Texto en negrilla */
+    color: #000 !important;
+    margin-top: 10px !important;
+}
+
+/* =========================================
+   RESPONSIVE (AJUSTES MÓVILES)
+   ========================================= */
+
+@media (max-width: 900px) {
+    .bio-modal-container {
+        padding: 30px 20px;
+    }
+}
+
+/* MOBILE FIXES */
+@media (max-width: 768px) {
+    /* HERO: Ajuste de altura y eliminación de márgenes gigantes */
+    .about-hero {
+        height: auto; 
+        min-height: 500px;
+        padding: 100px 20px;
+        background-position: center top; 
+    }
+    .about-hero h1 {
+        font-size: 2.2rem;
+        margin-bottom: 40px; /* Reducido de 230px */
+    }
+
+    /* TEXTOS */
+    .about-us-heading {
+        font-size: 36px;
+        text-align: center;
+    }
+    .intro-lead {
+        font-size: 22px;
+    }
+
+    /* DIRECTIVA: Apilar columnas */
+    .directiva-grid {
+        grid-template-columns: 1fr;
+        gap: 30px;
+    }
+    .directiva-img-col {
+        order: -1; /* Poner imagen primero */
+    }
+
+    /* EQUIPO: 1 columna */
+    .team-grid {
+        grid-template-columns: 1fr;
+        gap: 50px;
+    }
+    .team-card {
+        align-items: center;
+        text-align: center;
+    }
+    .btn-text-link {
+        align-self: center; /* Centrar botón */
+    }
+}

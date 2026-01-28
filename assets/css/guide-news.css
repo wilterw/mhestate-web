@@ -1,0 +1,305 @@
+/* =========================================
+   CARGA DE FUENTES LOCALES (Inter Static)
+   ========================================= */
+
+@font-face {
+    font-family: 'Inter Local';
+    src: url('../fonts/Inter/static/Inter_18pt-Regular.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Inter Local';
+    src: url('../fonts/Inter/static/Inter_18pt-Medium.ttf') format('truetype');
+    font-weight: 500; /* Medium */
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Inter Local';
+    src: url('../fonts/Inter/static/Inter_18pt-Bold.ttf') format('truetype');
+    font-weight: 700;
+    font-style: normal;
+}
+
+/* =========================================
+   HERO SECTION
+   ========================================= */
+.guide-hero {
+    background-color: #F0EAE3; 
+    padding: 70px 20px 40px; 
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden; 
+}
+
+.guide-hero h1 {
+    font-family: 'Inter Local', sans-serif;
+    font-size: 70px; 
+    font-weight: 500; 
+    line-height: 1.1;
+    color: #000;
+    margin-bottom: 20px; 
+    letter-spacing: -1.5px;
+    display: inline-block; 
+}
+
+.guide-hero p {
+    font-family: 'Inter Local', sans-serif;
+    font-size: 17px; 
+    font-weight: 500; 
+    line-height: 1.5;
+    color: #000;
+    max-width: 440px; 
+    width: 100%;
+    margin: 0 auto;
+}
+
+/* =========================================
+   ESTRUCTURA GENERAL
+   ========================================= */
+.content-section {
+    padding: 60px 40px;
+    max-width: 1400px;
+    margin: 0 auto;
+    width: 100%;
+    box-sizing: border-box; 
+}
+
+/* Franjas de Encabezado (Guides & News) */
+.guides-header-strip,
+.news-header-strip {
+    background-color: #D9D2C8; 
+    width: 100%;
+    padding: 40px 0; 
+    box-sizing: border-box;
+}
+
+.strip-content {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 40px; 
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* TÍTULOS DE SECCIÓN: Medium (500) */
+.section-title {
+    font-family: 'Inter Local', sans-serif; 
+    color: #56503D; 
+    font-size: 2.5rem;
+    font-weight: 500; 
+    margin: 0;
+}
+
+/* Botón Redondeado */
+.btn-rounded-custom {
+    background-color: #C5BDA8; 
+    color: #000000 !important;
+    font-family: 'Inter Local', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 400; 
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-radius: 50px; 
+    padding: 12px 30px;
+    display: inline-block;
+    transition: transform 0.3s ease, opacity 0.3s;
+    white-space: nowrap; 
+}
+.btn-rounded-custom:hover {
+    transform: translateY(-2px);
+    opacity: 0.9;
+}
+
+
+/* =========================================
+   ESTILOS BASE PARA SECCIONES DE GRILLA
+   ========================================= */
+.guides-grid-section,
+.news-grid-section,
+.news-content-section { 
+    background-color: #F0EAE3; 
+    padding-top: 60px; 
+}
+
+/* Grid por defecto (se usa en Guides) */
+.cards-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+    width: 100%;
+}
+
+/* Tarjeta Base (Guides) */
+.info-card {
+    display: flex;
+    flex-direction: column;
+    
+    /* CAMBIO IMPORTANTE: Fondo transparente en lugar de blanco (#fff) */
+    background-color: transparent; 
+    
+    transition: transform 0.3s ease;
+}
+.info-card:hover { transform: translateY(-5px); }
+
+/* Imagen Base (formato 9:16 por defecto en guides) */
+.card-img-container {
+    width: 100%;
+    aspect-ratio: 9 / 16; 
+    overflow: hidden;
+    background-color: #ccc;
+    margin-bottom: 20px;
+}
+.card-img-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+.info-card:hover .card-img-container img { transform: scale(1.05); }
+
+/* Contenido Base */
+.card-content {
+    text-align: left;
+}
+
+/* Tipografía Base (Títulos Marrones, Texto Negro) */
+.card-content h3 {
+    font-family: var(--font-heading, 'Gilda Display', serif);
+    color: #918872; 
+    font-weight: 700; 
+    font-size: 1.6rem; 
+    margin-bottom: 15px;
+    line-height: 1.2;
+}
+
+.card-content p {
+    font-family: 'Inter Local', sans-serif;
+    font-weight: 500; 
+    color: #000; 
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 15px;
+}
+
+
+/* =========================================
+   BLOQUE 5: REDISEÑO ESPECÍFICO NEWS
+   (Soporte legacy si se usa esta clase en lugar de news.css)
+   ========================================= */
+
+.news-grid-section .cards-grid {
+    display: flex;
+    flex-direction: column; 
+    gap: 60px; 
+}
+
+.news-grid-section .info-card {
+    display: grid;
+    grid-template-columns: 1fr 2fr 1fr; 
+    gap: 40px;
+    align-items: start; 
+    background-color: transparent; 
+    box-shadow: none; 
+}
+.news-grid-section .info-card:hover { transform: none; }
+
+
+.news-grid-section .card-img-container {
+    width: 100%;
+    aspect-ratio: 1 / 1; 
+    margin-bottom: 0;
+}
+
+.news-grid-section .card-content {
+    padding-top: 10px; 
+}
+
+.card-tag {
+    font-family: 'Inter Local', sans-serif;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    color: #918872; 
+    letter-spacing: 1px;
+    margin-bottom: 15px;
+    font-weight: 700;
+}
+
+
+/* =========================================
+   RESPONSIVE
+   ========================================= */
+
+/* TABLET */
+@media (max-width: 1024px) {
+    .cards-grid { grid-template-columns: repeat(2, 1fr); }
+    .guide-hero h1 { font-size: 56px; } 
+    
+    .news-grid-section .info-card {
+        grid-template-columns: 1fr 1.5fr; 
+    }
+}
+
+/* MÓVIL */
+@media (max-width: 768px) {
+    
+    /* 1. Ajuste de Padding del Contenedor */
+    .content-section, 
+    .guides-grid-section,
+    .news-grid-section,
+    .news-content-section {
+        padding: 50px 20px !important; 
+    }
+
+    /* 2. Header Strips */
+    .strip-content { 
+        flex-direction: column; 
+        align-items: center; 
+        gap: 20px; 
+        padding: 0 20px;
+    }
+    .guides-header-strip, .news-header-strip { padding: 30px 0; }
+
+    /* 3. Hero */
+    .guide-hero { padding: 80px 20px 40px; } 
+    .guide-hero h1 { font-size: 42px; letter-spacing: -1px; }
+    .guide-hero p { font-size: 16px; max-width: 100%; }
+    
+    /* 4. GUIDES: Grid a 1 Columna */
+    .cards-grid { 
+        grid-template-columns: 1fr !important; 
+        gap: 40px;
+    }
+
+    /* 5. NEWS: Ajustes Móvil */
+    .news-grid-section .info-card {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+    .news-grid-section .card-img-container {
+        width: 100%; 
+        aspect-ratio: 16 / 9; 
+    }
+
+    /* Soporte clases news.css */
+    .news-item {
+        display: flex !important;
+        flex-direction: column !important;
+        grid-template-columns: 1fr !important;
+        gap: 20px !important;
+    }
+    .news-img-box {
+        aspect-ratio: 16 / 9 !important;
+    }
+    .news-spacer { display: none !important; }
+}

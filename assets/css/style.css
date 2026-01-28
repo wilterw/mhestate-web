@@ -1,0 +1,146 @@
+/* Grid Layout: Malla de tarjetas */
+.properties-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 30px;
+}
+
+/* Diseño de la Tarjeta (Card) */
+.property-card {
+    background: #fff;
+    border: 1px solid #eee;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+    position: relative;
+}
+
+.property-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+}
+
+/* Imagen */
+.card-image {
+    height: 220px;
+    width: 100%;
+    object-fit: cover;
+    background-color: #f0f0f0;
+}
+
+.card-tag {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background-color: var(--accent-color); /* Usa el color del settings.json */
+    color: #fff; /* Texto blanco para contraste */
+    padding: 5px 10px;
+    font-size: 11px;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+/* Contenido */
+.card-content {
+    padding: 20px;
+}
+
+.card-price {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 5px;
+}
+
+.card-location {
+    font-size: 12px;
+    color: var(--secondary-color);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 15px;
+    display: block;
+}
+
+.card-title {
+    font-size: 16px;
+    margin-bottom: 15px;
+    line-height: 1.4;
+    height: 44px; /* Limita a 2 líneas */
+    overflow: hidden;
+    color: var(--primary-color);
+}
+
+/* Características (Cama, Baño, M2) */
+.card-features {
+    display: flex;
+    gap: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #f5f5f5;
+    font-size: 13px;
+    color: var(--secondary-color);
+}
+
+.feature {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+/* --- Estilos para el Carrusel de Propiedades Destacadas --- */
+
+/* Contenedor principal: define el área visible */
+.carousel-container {
+    position: relative;
+    overflow: hidden; /* Oculta lo que se sale del contenedor */
+    width: 100%;
+    padding: 0 40px; /* Espacio para las flechas */
+    box-sizing: border-box;
+}
+
+/* Pista (Track): Contiene todas las tarjetas en una sola fila larga */
+.carousel-track {
+    display: flex;
+    transition: transform 0.5s ease-in-out; /* Animación suave */
+    width: 100%;
+}
+
+/* Ajuste de las tarjetas dentro del carrusel */
+.carousel-track .property-card {
+    flex: 0 0 50%; /* IMPORTANTE: 50% para mostrar 2 por vez */
+    max-width: 50%;
+    box-sizing: border-box;
+    padding: 10px; /* Espacio entre tarjetas */
+}
+
+/* Estilos de los botones (Flechas) */
+.carousel-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(26, 26, 26, 0.8); /* Color primario con transparencia */
+    color: white;
+    border: none;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.3s;
+}
+
+.carousel-btn:hover {
+    background-color: #C5A059; /* Color de acento */
+}
+
+.carousel-btn.prev { left: 0; }
+.carousel-btn.next { right: 0; }
+
+/* Responsive: En móviles mostramos solo 1 tarjeta */
+@media (max-width: 768px) {
+    .carousel-track .property-card {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+}

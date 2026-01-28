@@ -1,0 +1,203 @@
+/* =========================================
+   CONTACT.CSS - V18 (LAYOUT ROBUSTO: FLEXBOX)
+   ========================================= */
+
+/* CONTENEDOR PRINCIPAL */
+.contact-section {
+    background-color: #F0EAE3; 
+    width: 100%;
+    min-height: 100vh;
+    padding-top: 100px; /* Header normal */
+    padding-bottom: 50px;
+    display: flex;
+    justify-content: center;
+    box-sizing: border-box;
+}
+
+/* Ajuste para Modal (Popup) */
+.modal-body .contact-section {
+    padding-top: 0 !important;
+    min-height: auto;
+    background: transparent;
+}
+
+.contact-container {
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 40px; /* Separación vertical entre bloque superior y mapa */
+}
+
+/* --- 1. FILA SUPERIOR (INFO + FORM) --- */
+.contact-upper-row {
+    display: flex;           /* ¡FLEXBOX ACTIVADO! */
+    flex-direction: row;     /* Forzar fila horizontal */
+    justify-content: space-between;
+    align-items: flex-start;
+    width: 100%;
+    gap: 40px;
+}
+
+/* IZQUIERDA: INFO */
+.contact-col-left {
+    width: 35%; /* Ocupa el 35% del ancho */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+.contact-header h1 {
+    font-family: 'Gilda Display', serif;
+    font-size: 2.5rem;
+    margin: 0 0 10px 0;
+    line-height: 1.1;
+    color: #000;
+}
+
+.contact-header p {
+    color: #666;
+    margin-bottom: 30px;
+    font-size: 1rem;
+}
+
+.info-list {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.info-item {
+    display: flex;
+    align-items: flex-start; /* Icono alineado arriba */
+    gap: 15px;
+}
+
+.info-item .icon {
+    font-size: 1.4rem;
+    line-height: 1;
+}
+
+.info-text strong {
+    display: block;
+    color: #56503D;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+}
+
+.info-text p {
+    margin: 0;
+    color: #333;
+    font-size: 1rem;
+}
+
+/* DERECHA: FORMULARIO */
+.contact-col-right {
+    width: 60%; /* Ocupa el 60% del ancho */
+}
+
+.form-wrapper {
+    background: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+}
+
+.contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.form-row-inputs {
+    display: flex;
+    gap: 20px; /* Espacio entre inputs de la misma fila */
+    width: 100%;
+}
+
+.form-group {
+    flex: 1; /* Inputs se reparten el espacio */
+}
+
+.form-group.full {
+    width: 100%;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    background-color: #F9F9F9;
+    border: 1px solid #E5E5E5;
+    padding: 14px;
+    font-size: 0.95rem;
+    color: #000;
+    border-radius: 4px;
+    font-family: 'Inter', sans-serif;
+    box-sizing: border-box; /* Vital para que no se salga */
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    background-color: #fff;
+    border-color: #C5BDA8;
+    outline: none;
+}
+
+.form-group textarea {
+    resize: none;
+}
+
+.btn-send {
+    background-color: #000;
+    color: #fff;
+    border: none;
+    padding: 14px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: 0.3s;
+    border-radius: 4px;
+    letter-spacing: 1px;
+    width: 100%;
+}
+
+.btn-send:hover {
+    background-color: #56503D;
+}
+
+/* --- 2. FILA INFERIOR (MAPA) --- */
+.contact-map-row {
+    width: 100%;
+    height: 350px; /* Altura fija visible */
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #ddd;
+    margin-top: 0; /* Ya separado por el gap del container */
+}
+
+/* --- RESPONSIVE (SOLO MOVIL) --- */
+@media (max-width: 850px) {
+    .contact-section {
+        padding-top: 80px;
+    }
+
+    .contact-upper-row {
+        flex-direction: column; /* Apilar en móvil */
+        gap: 30px;
+    }
+
+    .contact-col-left, 
+    .contact-col-right {
+        width: 100%; /* Ancho completo en móvil */
+    }
+
+    .form-row-inputs {
+        flex-direction: column;
+        gap: 15px;
+    }
+}

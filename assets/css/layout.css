@@ -1,0 +1,595 @@
+/* =========================================
+   LAYOUT.CSS - ESTRUCTURA GENERAL, HEADER Y FOOTER
+   ========================================= */
+
+/* --- HEADER FIJO --- */
+.main-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: var(--header-height, 80px); 
+    z-index: 9999;
+    background-color: #C5BDA8;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px); 
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.header-content {
+    height: 100%;
+    max-width: 1440px; 
+    margin: 0 auto;
+    padding: 0 40px;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr; 
+    align-items: center;
+}
+
+/* Navegación (Links) */
+.nav-left, .nav-right { display: flex; gap: 30px; }
+.nav-left { justify-content: flex-start; }
+.nav-right { justify-content: flex-end; align-items: center; }
+
+.nav-left a, .nav-right a, .lang-selector span {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    text-transform: uppercase;
+    text-decoration: none;
+    letter-spacing: 0.05em;
+    color: #000;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.nav-left a:hover, .nav-right a:hover { color: #666; }
+
+/* --- LOGO CENTRAL --- */
+.logo-container {
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.main-logo {
+    display: flex; 
+    align-items: center;
+    text-decoration: none;
+}
+
+.main-logo img {
+    height: 22px; 
+    width: auto;  
+    display: block;
+}
+
+/* --- LENGUAJE DROPDOWN --- */
+.lang-dropdown {
+    position: relative;
+    display: inline-block;
+    margin-left: 20px;
+    display: flex; 
+    align-items: center;
+}
+
+.lang-dropdown::after {
+    content: '';
+    position: absolute;
+    top: 100%; 
+    left: 0;
+    width: 100%;
+    height: 20px; 
+    background: transparent;
+}
+
+.lang-btn {
+    background: transparent;
+    border: 1px solid rgba(0,0,0,0.2);
+    color: #000;
+    padding: 5px 12px;
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 4px;
+    text-transform: uppercase;
+    min-width: 60px;
+    text-align: center;
+    transition: 0.3s;
+}
+
+.lang-btn:hover {
+    border-color: #000;
+    background-color: rgba(255,255,255,0.5);
+}
+
+.lang-content {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 100%; 
+    background-color: #fff;
+    min-width: 100px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.1);
+    z-index: 10000;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-top: 5px; 
+}
+
+.lang-content a {
+    color: black;
+    padding: 10px 15px;
+    text-decoration: none;
+    display: block;
+    font-size: 13px;
+    text-transform: none;
+    cursor: pointer;
+    margin-right: 0 !important;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.lang-content a:last-child { border-bottom: none; }
+.lang-content a:hover { background-color: var(--color-crema, #C5BDA8); }
+
+.lang-dropdown:hover .lang-content { display: block; }
+
+
+/* =========================================
+   MENÚ MÓVIL (PROFESIONAL)
+   ========================================= */
+
+.mobile-menu-btn {
+    display: none; /* Oculto en escritorio */
+    background: none;
+    border: none;
+    cursor: pointer;
+    flex-direction: column;
+    gap: 5px;
+    padding: 5px;
+    z-index: 10001; /* Encima del overlay */
+}
+
+.hamburger-line {
+    width: 24px;
+    height: 2px;
+    background-color: #000;
+    display: block;
+    transition: 0.3s;
+}
+
+/* OVERLAY DE PANTALLA COMPLETA */
+.mobile-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background-color: rgba(255, 255, 255, 0.98); /* Blanco casi opaco */
+    backdrop-filter: blur(5px);
+    z-index: 10000;
+    
+    /* Animación de entrada: Deslizar desde derecha */
+    transform: translateX(100%); 
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Header arriba, Footer abajo */
+    padding: 30px 40px;
+    box-sizing: border-box;
+}
+
+/* Estado Activo */
+.mobile-overlay.open {
+    transform: translateX(0);
+}
+
+.mobile-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.mobile-logo {
+    height: 24px;
+    width: auto;
+}
+
+.close-menu-btn {
+    background: none;
+    border: none;
+    font-size: 32px;
+    color: #000;
+    cursor: pointer;
+    padding: 0 10px;
+    line-height: 1;
+}
+
+/* Enlaces del Menú Móvil */
+.mobile-links {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    margin-top: -40px; /* Ajuste visual */
+}
+
+.mobile-links a {
+    font-family: 'Gilda Display', serif; /* Fuente elegante para móvil */
+    font-size: 18px;
+    color: #000;
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: color 0.3s, transform 0.3s;
+}
+
+.mobile-links a:hover {
+    color: #C5A059; /* Dorado */
+    transform: scale(1.05);
+}
+
+/* Footer del menú (Idioma) */
+.mobile-footer {
+    display: flex;
+    justify-content: center;
+    padding-bottom: 20px;
+}
+
+.mobile-lang-switch {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.lang-opt {
+    background: none;
+    border: none;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    color: #000;
+}
+
+.lang-opt:hover { text-decoration: underline; }
+.divider { color: #ccc; }
+
+
+/* =========================================
+   FOOTER SECTION 
+   ========================================= */
+.main-footer {
+    background-color: var(--color-crema, #C5BDA8); 
+    color: #000;
+    padding: 60px 0;
+    font-family: 'Inter', sans-serif;
+    border-top: 1px solid rgba(0,0,0,0.05);
+}
+
+.footer-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 40px;
+    display: flex;
+    flex-direction: column; /* Apila header sobre columnas */
+    gap: 40px;
+}
+
+/* --- PARTE ARRIBA: LOGO Y TAGLINE --- */
+.footer-header {
+    display: flex;
+    justify-content: space-between; 
+    align-items: center; /* Centrado verticalmente */
+    border-bottom: 2px solid #000; 
+    padding-bottom: 30px;
+    width: 100%;
+}
+
+.footer-logo { display: block; text-decoration: none; }
+.footer-logo img { height: 30px; width: auto; display: block; }
+
+.footer-tagline {
+    font-family: 'Gilda Display', serif;
+    font-size: 24px; /* Ajustado para mejor proporción */
+    font-weight: 400; 
+    color: #000; 
+    margin: 0;
+    text-align: right;
+}
+
+/* --- PARTE ABAJO: 3 COLUMNAS --- */
+.footer-columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr; /* 3 columnas iguales */
+    gap: 40px;
+    width: 100%;
+}
+
+.footer-col {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.footer-col h3 {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 20px;
+    color: #000;
+}
+
+.footer-col a, .footer-col address {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 500; 
+    line-height: 1.8;
+    color: #000;
+    text-decoration: none;
+    display: block;
+    font-style: normal;
+}
+.footer-col address { margin-top: 0; }
+.footer-col a:hover { text-decoration: underline; opacity: 0.7; }
+.contact-info a { display: block; } 
+
+/* --- REDES SOCIALES VERTICALES Y GRANDES --- */
+.social-links-vertical {
+    display: flex;
+    flex-direction: column; /* Uno debajo del otro */
+    gap: 20px;              /* Espacio entre filas */
+    margin-top: 15px;
+}
+
+.social-links-vertical a {
+    display: flex;
+    align-items: center;    /* Alinea el logo con el texto */
+    gap: 12px;              /* Espacio entre logo y texto */
+    text-decoration: none;
+    color: inherit;         /* Mantiene el color del texto del footer */
+    transition: transform 0.3s ease;
+}
+
+.social-icon-large {
+    width: 32px;            /* Tamaño más grande */
+    height: 32px;
+    object-fit: contain;
+    transition: opacity 0.3s ease;
+}
+
+.social-links-vertical a span {
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.social-links-vertical a:hover {
+    transform: translateX(8px); /* Se desplaza un poco a la derecha al pasar el mouse */
+}
+
+.social-links-vertical a:hover .social-icon-large {
+    opacity: 0.7;
+}
+
+/* Ajuste para centrar en móviles si es necesario */
+@media (max-width: 768px) {
+    .social-links-vertical {
+        align-items: center;
+    }
+}
+
+/* --- RESPONSIVE / MÓVIL --- */
+@media (max-width: 900px) {
+    /* Header Móvil */
+    .header-content { display: flex; justify-content: space-between; }
+    .nav-left, .nav-right { display: none; } 
+    .mobile-menu-btn { display: flex; } 
+
+    /* Footer Móvil */
+    .footer-header { 
+        flex-direction: column; 
+        align-items: center; 
+        text-align: center; 
+        gap: 15px; 
+    }
+    
+    .footer-columns {
+        grid-template-columns: 1fr; /* Una sola columna */
+        text-align: center;
+        gap: 40px;
+    }
+
+    .footer-col { 
+        align-items: center; 
+    }
+    
+    .footer-tagline { 
+        text-align: center;
+        font-size: 20px;
+    }
+}
+/* =========================================
+   ESTILOS DEL MODAL DE CONTACTO
+   ========================================= */
+
+/* Fondo oscuro (Overlay) */
+.modal-overlay {
+    display: none; /* Oculto por defecto */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8); /* Fondo negro semitransparente */
+    z-index: 10000;
+    justify-content: center;
+    align-items: center;
+    overflow-y: auto; /* Permite scroll si la pantalla es pequeña */
+    padding: 20px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+/* Contenedor del Modal (Estilo Mejorado) */
+.modal-container {
+    /* Fondo base */
+    background-color: #fff; 
+    
+    /* --- CAMBIOS SOLICITADOS --- */
+    /* 1. Borde grueso del color del Header (Blanco con transparencia leve si se desea, o sólido) */
+    border: 8px solid rgba(255, 255, 255, 0.95); 
+    
+    /* 2. Bordes Redondeados */
+    border-radius: 20px; 
+    
+    /* 3. Margen interno para el contenido (Padding) */
+    padding: 40px; 
+    /* --------------------------- */
+
+    /* Dimensiones y Posición */
+    width: 90%; 
+    max-width: 1000px; 
+    margin: auto; /* Centrado automático */
+    position: relative;
+    
+    /* Sombra profunda para que flote sobre el fondo oscuro */
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4); 
+    
+    /* Comportamiento */
+    transform: translateY(20px);
+    transition: transform 0.3s ease;
+    max-height: 90vh; /* Evita que sea más alto que la pantalla */
+    overflow-y: auto; /* Scroll interno si el formulario es muy largo */
+}
+
+/* Ajuste Opcional: Mover la X un poco para que coincida con el nuevo margen */
+.modal-close-btn {
+    top: 15px;
+    right: 20px;
+    background-color: #f5f5f5; /* Un fondo suave para la X queda bien con el borde */
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    transition: all 0.2s;
+}
+.modal-close-btn:hover {
+    background-color: var(--primary-color); /* Tu color dorado/negro al pasar el mouse */
+    color: #fff;
+}
+
+/* Clases activas (para animación JS) */
+.modal-overlay.active {
+    display: flex;
+    opacity: 1;
+}
+.modal-overlay.active .modal-container {
+    transform: translateY(0);
+}
+/* Estilos para el Logo del Modal */
+.modal-header-logo {
+    text-align: center;
+    margin-bottom: 30px; /* Separación con el formulario */
+    padding-bottom: 20px;
+    border-bottom: 1px solid #eee; /* Línea divisoria sutil opcional */
+}
+
+.modal-header-logo img {
+    max-width: 200px; /* Tamaño controlado */
+    height: auto;
+    display: inline-block;
+}
+
+/* Ajuste Responsive para el logo */
+@media (max-width: 768px) {
+    .modal-header-logo img {
+        max-width: 150px;
+    }
+}
+/* --- AJUSTES ACTUALIZADOS PARA EL OVERLAY --- */
+
+.mobile-overlay {
+    /* ... (mantener propiedades de posición y animación anteriores) ... */
+    justify-content: flex-start; /* Cambiado para que todo empiece arriba y fluya */
+    padding: 30px 20px;
+    overflow-y: auto;
+}
+
+.mobile-links {
+    margin-top: 40px;
+    gap: 20px; /* Un poco más compacto para que quepa todo */
+    width: 100%;
+}
+
+.mobile-links a {
+    font-size: 24px; /* Un poco más pequeño para dejar espacio a lo nuevo */
+}
+
+/* CONTENEDOR DE BANDERAS */
+.mobile-lang-flags {
+    display: flex;
+    gap: 30px;
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(0,0,0,0.1); /* Línea divisoria sutil */
+    width: 100%;
+    justify-content: center;
+}
+
+.flag-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column; /* Bandera arriba, Texto abajo */
+    align-items: center;
+    gap: 8px;
+    padding: 0;
+}
+
+.flag-btn img {
+    width: 26px;    /* Tamaño sutil */
+    height: 26px;
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border: 1px solid rgba(0,0,0,0.05);
+}
+.flag-btn span {
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    color: #666;    /* Un gris elegante para las iniciales */
+    text-transform: uppercase;
+}
+
+.flag-btn:hover img { transform: scale(1.1); transition: 0.3s; }
+.flag-btn:hover span { color: #000; }
+
+/* BOTÓN CERRAR INFERIOR */
+.mobile-close-bottom {
+    background: none;
+    border: none;
+    font-size: 35px; /* Más discreto */
+    color: #bbb;
+    cursor: pointer;
+    margin-top: 10px;
+    font-family: Arial, sans-serif;
+}
+
+.mobile-close-bottom:hover { color: #000; }
+
+/* Ocultar el footer viejo si existía */
+.mobile-footer {
+    display: none;
+}

@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us | MH ESTATE</title>
+    
+    <link rel="icon" type="image/png" href="assets/img/favicon.png">
+
+    <link rel="stylesheet" href="assets/css/variables.css">
+    <link rel="stylesheet" href="assets/css/global.css">
+    <link rel="stylesheet" href="assets/css/layout.css">
+    <link rel="stylesheet" href="assets/css/about.css"> 
+    <link rel="stylesheet" href="assets/css/contact.css">
+        
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Gilda+Display&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div id="header-placeholder"></div>
+
+    <main>
+        <section class="about-hero">
+            <div class="hero-overlay"></div>
+            <div class="hero-content">
+                <h1 class="animate-up" data-i18n="about-hero-title">A premium real estate service</h1>
+                <a href="contact.html" class="btn-hero-contact btn-contact-trigger animate-up delay-1" data-i18n="btn-contact-us">CONTACT US</a>
+            </div>
+        </section>
+
+        <section class="about-intro-section">
+            <div class="container-narrow">
+                <p class="intro-lead animate-up delay-1" data-i18n="about-intro-lead">
+                    MH Estate offers a premium real estate service, backed by experience dating back to 2003. We do more than just sell homes — we help our clients make the most of life.
+                </p>
+            </div>
+        </section>
+
+        <section class="about-title-section">
+            <div class="container">
+                <h1 class="about-us-heading animate-up" data-i18n="about-us-title">About us</h1>
+            </div>
+        </section>
+
+        <section class="about-directiva-section">
+            <div class="container">
+                <div class="directiva-grid">
+                    
+                    <div class="directiva-text-col animate-up delay-1">
+                        <p class="directiva-text top-text" data-i18n="about-us-text">
+                            Driven by a commitment to five-star service, our approach is to guide you every step of the way, turning dreams into reality while helping you spot opportunities as they arise. We combine local expertise, international reach, and personalized support to ensure a seamless and tailored experience.
+                        </p>
+
+                        <p class="directiva-text bottom-text" data-i18n="about-team-intro">
+                            Whether you are buying, selling, or renting, our dedicated and multilingual team is here for you throughout the year, every day, every step of the process. With MH Estate, you have a partner who is always ready to make your property journey simple, rewarding, and inspiring.
+                        </p>
+                    </div>
+
+                    <div class="directiva-img-col animate-up delay-2">
+                        <img src="assets/img/Directiva 1.jpg" alt="MH Estate Team" onerror="this.src='assets/img/client-placeholder.jpg'">
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <section class="about-team-section">
+            <div class="container">
+                <div class="team-grid">
+                    
+                    <div class="team-card animate-up delay-1">
+                        <h3 class="team-name">Cecilia Andersson</h3>
+                        <div class="team-img-new">
+                            <img src="assets/img/cecilia.jpg" alt="Cecilia Andersson" onerror="this.src='assets/img/client-placeholder.jpg'">
+                        </div>
+                        <p class="team-role" data-i18n="role-founder">Founder & Real Estate Agent</p>
+                        <p class="team-lang" data-i18n="lang-cecilia">Swedish, English, Spanish</p>
+                        
+                        <div class="team-contact-details">
+                            <a href="mailto:cecilia@mhestate.es">cecilia@mhestate.es</a>
+                            <a href="tel:+34683571945">+34 683 571 945</a>
+                        </div>
+                        <button onclick="openBioModal('cecilia')" class="btn-text-link" data-i18n="btn-more-info">READ MORE ></button>
+                    </div>
+
+                    <div class="team-card animate-up delay-2">
+                        <h3 class="team-name">Rebecca Velin</h3>
+                        <div class="team-img-new">
+                            <img src="assets/img/Rebbeca.jpg" alt="Rebecca Velin" onerror="this.src='assets/img/client-placeholder.jpg'">
+                        </div>
+                        <p class="team-role" data-i18n="role-agent">Real Estate Agent</p>
+                        <p class="team-lang" data-i18n="lang-rebecca">Swedish, English</p>
+
+                        <div class="team-contact-details">
+                            <a href="mailto:rebecca@mhestate.es">rebecca@mhestate.es</a>
+                            <a href="tel:+34951777877">+34 951 777 877</a>
+                        </div>
+                        <button onclick="openBioModal('rebecca')" class="btn-text-link" data-i18n="btn-more-info">READ MORE ></button>
+                    </div>
+
+                    <div class="team-card animate-up delay-3">
+                        <h3 class="team-name">Isidora Polanco Cañon</h3>
+                        <div class="team-img-new">
+                            <img src="assets/img/Isidora.jpg" alt="Isidora Polanco Cañon" onerror="this.src='assets/img/client-placeholder.jpg'">
+                        </div>
+                        <p class="team-role" data-i18n="role-manager">Rental Manager</p>
+                        <p class="team-lang" data-i18n="lang-isidora">English, Spanish</p>
+
+                        <div class="team-contact-details">
+                            <a href="mailto:rentals@mhestate.es">rentals@mhestate.es</a>
+                            <a href="tel:+34951777877">+34 951 777 877</a>
+                        </div>
+                        <button onclick="openBioModal('isidora')" class="btn-text-link" data-i18n="btn-more-info">READ MORE ></button>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <div id="footer-placeholder"></div>
+
+    <script src="assets/js/config.js"></script>
+    <script src="assets/js/i18n.js"></script>
+    <script src="assets/js/components.js"></script>
+    <script src="assets/js/scroll.js"></script>
+    <script src="assets/js/app.js"></script>
+    
+    <div id="contact-modal" class="modal-overlay">
+        <div class="modal-container">
+            <button class="modal-close-btn">&times;</button>
+            <div class="modal-header-logo">
+                <img src="assets/img/logo mh state negro.png" alt="MH ESTATE Logo">
+            </div>
+            <div id="modal-content-injector"></div>
+        </div>
+    </div>
+
+    <div id="bio-modal" class="modal-overlay">
+        <div class="bio-modal-container">
+            <button class="modal-close-btn" onclick="closeBioModal()">&times;</button>
+            
+            <div class="bio-content">
+                
+                <div id="bio-content-cecilia" class="bio-person-content" style="display: none;">
+                    <div class="bio-img-wrapper">
+                        <img src="assets/img/cecilia.jpg" alt="Cecilia Andersson" class="bio-img-circle">
+                    </div>
+                    <h3 data-i18n="bio-cecilia-title">Cecilia – Here to Support You Every Step of the Way</h3>
+                    <p data-i18n="bio-cecilia-p1">
+                        With over 20 years of experience as a real estate agent...
+                    </p>
+                    <p data-i18n="bio-cecilia-p2">
+                        Today, I help both buyers and sellers...
+                    </p>
+                    <p class="bio-highlight" data-i18n="bio-cecilia-p3">
+                        Whether you are buying your dream home...
+                    </p>
+                </div>
+
+                <div id="bio-content-rebecca" class="bio-person-content" style="display: none;">
+                    <div class="bio-img-wrapper">
+                        <img src="assets/img/Rebbeca.jpg" alt="Rebecca Velin" class="bio-img-circle">
+                    </div>
+                    <h3 data-i18n="bio-rebecca-title">Rebecca - With a Strong Passion for Helping Clients</h3>
+                    <p data-i18n="bio-rebecca-p1">Living locally gives me valuable insight...</p>
+                    <p data-i18n="bio-rebecca-p2">I approach every client with energy...</p>
+                    <p class="bio-highlight" data-i18n="bio-rebecca-p3">
+                        For me, it’s not just about property...
+                    </p>
+                </div>
+
+                <div id="bio-content-isidora" class="bio-person-content" style="display: none;">
+                    <div class="bio-img-wrapper">
+                        <img src="assets/img/Isidora.jpg" alt="Isidora Polanco" class="bio-img-circle">
+                    </div>
+                    <h3 data-i18n="bio-isidora-title">Isidora - Rental Management with Care and Commitment</h3>
+                    <p data-i18n="bio-isidora-p1">I am responsible for rental management...</p>
+                    <p class="bio-highlight" data-i18n="bio-isidora-p2">
+                        I manage bookings, guest communication...
+                    </p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openBioModal(person) {
+            const modal = document.getElementById('bio-modal');
+            if(!modal) return;
+
+            // 1. Ocultar todos los contenidos
+            const contents = document.querySelectorAll('.bio-person-content');
+            contents.forEach(el => el.style.display = 'none');
+
+            // 2. Mostrar el específico
+            const target = document.getElementById(`bio-content-${person}`);
+            if(target) {
+                target.style.display = 'block';
+                // Animación simple de entrada
+                target.style.opacity = '0';
+                setTimeout(() => target.style.opacity = '1', 50);
+            }
+
+            // 3. Abrir modal
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeBioModal() {
+            const modal = document.getElementById('bio-modal');
+            if(modal) {
+                modal.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        }
+
+        document.getElementById('bio-modal')?.addEventListener('click', (e) => {
+            if(e.target.id === 'bio-modal') closeBioModal();
+        });
+    </script>
+</body>
+</html>

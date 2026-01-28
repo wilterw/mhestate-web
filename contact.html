@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contacto | MH Estate</title>
+    <link rel="icon" type="image/png" href="assets/img/favicon.png">
+    
+    <link rel="stylesheet" href="assets/css/variables.css">
+    <link rel="stylesheet" href="assets/css/global.css">
+    <link rel="stylesheet" href="assets/css/layout.css">
+    <link rel="stylesheet" href="assets/css/contact.css">
+    
+    <link rel="icon" type="image/png" href="assets/img/favicon.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Gilda+Display&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div id="header-placeholder"></div>
+
+    <main>
+        <section class="contact-section">
+            <div class="contact-container">
+                
+                <div class="contact-upper-row">
+                    
+                    <div class="contact-col-left">
+                        <div class="contact-header">
+                            <h1 data-i18n="contact-title">Contáctanos</h1>
+                            <p data-i18n="contact-subtitle">Estamos aquí para ayudarte.</p>
+                        </div>
+                        
+                        <div class="info-list">
+                            <div class="info-item">
+                                <span class="icon">📍</span>
+                                <div class="info-text">
+                                    <strong data-i18n="lbl-address">Dirección</strong>
+                                    <p>Calle Castilla Perez 17</p>
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <span class="icon">📞</span>
+                                <div class="info-text">
+                                    <strong data-i18n="lbl-phone">Teléfono</strong>
+                                    <p>+34 951 777 877</p>
+                                    <strong style="display:block; margin-top:5px;">Móvil</strong>
+                                    <p>+34 683 571 945</p>
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <span class="icon">✉️</span>
+                                <div class="info-text">
+                                    <strong>Email</strong>
+                                    <p>sales@mhestate.com</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="contact-col-right">
+                        <div class="form-wrapper">
+                            <form class="contact-form">
+                                <div class="form-row-inputs">
+                                    <div class="form-group">
+                                        <input type="text" data-i18n="ph-name" placeholder="Nombre" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <input type="text" data-i18n="ph-lastname" placeholder="Apellido" required>
+                                    </div>
+                                </div>
+                                <div class="form-row-inputs">
+                                    <div class="form-group">
+                                        <input type="email" data-i18n="ph-email" placeholder="Email" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <input type="tel" data-i18n="ph-phone" placeholder="Teléfono">
+                                    </div>
+                                </div>
+                                <div class="form-group full">
+                                    <textarea rows="4" data-i18n="ph-message" placeholder="Mensaje" required></textarea>
+                                </div>
+                                <button type="submit" class="btn-send" data-i18n="btn-send">ENVIAR MENSAJE</button>
+                            </form>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="contact-map-row">
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3202.433256038334!2d-3.8824151241712423!3d36.74819777226242!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xd72250917246471%3A0x6336e4f165a6c38b!2sC.%20Castilla%20P%C3%A9rez%2C%2017%2C%2029780%20Nerja%2C%20M%C3%A1laga%2C%20Espa%C3%B1a!5e0!3m2!1ses!2sve!4v1700000000000!5m2!1ses!2sve" 
+                            width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+                </div>
+
+            </div>
+        </section>
+    </main>
+
+    <div id="footer-placeholder"></div>
+
+    <script src="assets/js/config.js"></script>
+    <script src="assets/js/i18n.js"></script>
+    <script src="assets/js/components.js"></script>
+    <script src="assets/js/app.js"></script>
+
+</body>
+</html>

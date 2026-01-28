@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>Inmobiliaria en Nerja y Marbella | Venta de Propiedades | MH ESTATE</title>
+    <link rel="icon" type="image/png" href="assets/img/favicon.png">
+    
+    <meta name="description" content="Agencia inmobiliaria experta en Nerja, Torrox, Fuengirola y Marbella. Compra y venta de villas, áticos y apartamentos exclusivos. Asesoramiento en español, sueco e inglés.">
+    <meta name="keywords" content="inmobiliaria nerja, real estate marbella, svensk mäklare nerja, comprar casa torrox, villas costa del sol, mh estate">
+    <meta name="author" content="MH ESTATE">
+    <meta name="robots" content="index, follow">
+
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://mhestate.com/">
+    <meta property="og:title" content="MH ESTATE | Propiedades Exclusivas en la Costa del Sol">
+    <meta property="og:description" content="Descubre las mejores villas y apartamentos en Nerja, Torrox y Marbella. Tu agencia de confianza con servicio internacional.">
+    <meta property="og:image" content="assets/img/social-share.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+
+    <link rel="stylesheet" href="assets/css/variables.css">
+    <link rel="stylesheet" href="assets/css/global.css">
+    <link rel="stylesheet" href="assets/css/layout.css">
+    <link rel="stylesheet" href="assets/css/home.css">
+    <link rel="stylesheet" href="assets/css/contact.css">
+
+    <link rel="preload" href="assets/fonts/Inter/Inter-VariableFont_opsz,wght.ttf" as="font" type="font/ttf" crossorigin>
+</head>
+<body>
+
+    <div id="header-placeholder"></div>
+
+    <main>
+        <section class="hero-section">
+            <div class="hero-overlay"></div>
+            <img src="assets/img/logo mh state.png" alt="MH ESTATE Logo" class="hero-logo">
+        </section>
+
+        <section class="intro-bar">
+            <div class="container-narrow">
+                <p data-i18n="intro-text"></p>
+            </div>
+        </section>
+
+        <section class="search-main-section">
+            <div class="search-container-centered">
+                
+                <h2 class="search-title" data-i18n="search-title">Property Search</h2>
+                
+                <form id="search-form" class="search-flex-container">
+                    <div class="search-col">
+                        <div class="field-group">
+                            <label data-i18n="label-type">Property Type</label>
+                            <div class="checkbox-list">
+                                <label><input type="checkbox" name="type" value="Apartamento"> <span data-i18n="type-apt">Apartment</span></label>
+                                <label><input type="checkbox" name="type" value="Villa"> <span data-i18n="type-villa">Detached House/Villa</span></label>
+                                <label><input type="checkbox" name="type" value="Adosado"> <span data-i18n="type-town">Town House</span></label>
+                                <label><input type="checkbox" name="type" value="Cortijo"> <span data-i18n="type-country">Country house</span></label>
+                                <label><input type="checkbox" name="type" value="Parcela"> <span data-i18n="type-plot">Plot</span></label>
+                                <label><input type="checkbox" name="type" value="Garaje"> <span data-i18n="type-garage">Garage</span></label>
+                            </div>
+                        </div>
+                        <div class="field-group">
+                            <label data-i18n="label-area">Select Area</label>
+                            <select id="s-area" class="custom-input-select">
+                                <option value="" data-i18n="opt-all">All areas</option>
+                                <option value="Nerja">Nerja</option>
+                                <option value="Torrox">Torrox</option>
+                                <option value="Frigiliana">Frigiliana</option>
+                                <option value="Almuñécar">Almuñécar</option>
+                                <option value="Marbella">Marbella</option>
+                                <option value="Fuengirola">Fuengirola</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="search-col">
+                        <div class="field-group">
+                            <label data-i18n="label-price">Price</label>
+                            <div class="price-split">
+                                <div class="input-with-symbol"><input type="number" id="s-min" placeholder="min"><span>€</span></div>
+                                <div class="input-with-symbol"><input type="number" id="s-max" placeholder="max"><span>€</span></div>
+                            </div>
+                        </div>
+                        <div class="field-group">
+                            <label data-i18n="label-beds">Bedrooms</label>
+                            <div class="selector-buttons" id="beds-selector">
+                                <button type="button" data-val="1">+1</button>
+                                <button type="button" data-val="2">+2</button>
+                                <button type="button" data-val="3">+3</button>
+                                <button type="button" data-val="4">+4</button>
+                            </div>
+                        </div>
+                        <div class="field-group">
+                            <label data-i18n="label-baths">Bathrooms</label>
+                            <div class="selector-buttons" id="baths-selector">
+                                <button type="button" data-val="1">+1</button>
+                                <button type="button" data-val="2">+2</button>
+                                <button type="button" data-val="3">+3</button>
+                                <button type="button" data-val="4">+4</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="search-col search-col-actions">
+                        <div class="field-group no-margin-bottom">
+                            <label data-i18n="label-keyword">Keyword</label>
+                            <div class="keyword-wrapper">
+                                <input type="text" id="s-keyword" class="custom-input">
+                            </div>
+                        </div>
+                        
+                        <div class="checkbox-list status-list">
+                            <label><input type="checkbox" name="status" value="new"> <span data-i18n="link-new">New Promotion</span></label>
+                            <label><input type="checkbox" name="status" value="second"> <span data-i18n="link-second">Second Hand</span></label>
+                        </div>
+
+                        <div class="search-actions-row">
+                            <button type="button" class="btn-clear-rounded" onclick="resetSearch()" data-i18n="btn-clear">CLEAR ALL</button>
+                            <button type="button" class="btn-search-rounded" onclick="executeSearch()" data-i18n="btn-search">SEARCH</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <section class="featured-section">
+            <div class="container-narrow">
+                
+                <div class="featured-header">
+                    <h2 class="title-gold" data-i18n="featured-title">Featured Properties</h2>
+                </div>
+    
+                <div id="featured-grid" class="properties-grid-layout"></div>
+    
+                <div id="home-pagination" class="pagination-container"></div>
+                
+            </div>
+        </section>
+
+        <section class="about-team-section">
+            <div class="container-narrow">
+                <p class="about-quote" data-i18n="about-text">
+                    Within our team, we bring together extensive experience of the real estate market, dating back to 2003. Over the years, we have guided countless clients through successful transactions. We always evaluate each deal to keep improving — because your success is the foundation of ours.
+                </p>
+                <div class="about-actions">
+                    <a href="contact.html" class="btn-contact-white" data-i18n="btn-contact">CONTACT US</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="newsletter-section">
+            <div class="container-narrow">
+                <h2 class="title-newsletter" data-i18n="newsletter-title">Subscribe Newsletter</h2>
+                <form class="newsletter-form">
+                    <input type="email" placeholder="email" class="newsletter-input">
+                    <button type="submit" class="btn-subscribe-rounded" data-i18n="btn-subscribe">SUBSCRIBE</button>
+                </form>
+            </div>
+        </section>
+
+        <section class="testimonials-section">
+            <div class="container-narrow">
+                <h2 class="section-title-testimonials" data-i18n="testimonials-title">What our clients say</h2>
+                <div class="testimonial-content">
+                    <div class="testimonial-img">
+                        <img src="assets/img/client-placeholder.jpg" alt="Client" onerror="this.src='https://via.placeholder.com/100'">
+                    </div>
+                    
+                    <p class="testimonial-text-body" data-i18n="testimonial-body">
+                        "MH Estate provided an exceptional service during our search for a vacation home. Their team was professional, patient, and truly understood our needs. We found the perfect villa in Nerja thanks to their expertise. Highly recommended!"
+                    </p>
+                    <span class="testimonial-author" data-i18n="testimonial-author">- Sarah & James Jenkins</span>
+                    
+                </div>
+            </div>
+        </section>
+
+        <section class="cta-journey-section">
+            <div class="container-narrow">
+                <div class="cta-flex-container">
+                    <div class="cta-text-col">
+                        <h2 class="cta-title" data-i18n="cta-title">
+                            Let's start your<br>
+                            real estate<br>
+                            journey today.
+                        </h2>
+                        <p class="cta-subtitle" data-i18n="cta-subtitle">Contact our multilingual team.</p>
+                        <a href="contact.html" class="btn-cta-rounded" data-i18n="btn-contact-us">CONTACT US</a>
+                    </div>
+                    
+                    <div class="cta-image-col">
+                        <img src="assets/img/cta-bg.jpg" alt="Real Estate Journey" loading="lazy" onerror="this.src='https://via.placeholder.com/600x400'">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <div id="footer-placeholder"></div>
+    
+    <script src="assets/js/config.js"></script>
+    <script src="assets/js/i18n.js"></script>
+    <script src="assets/js/components.js"></script>
+
+    <script src="assets/js/app.js"></script>
+      
+    <a href="#" id="whatsapp-btn" class="whatsapp-float" target="_blank" rel="noopener noreferrer">
+        <img src="assets/img/whatsapp.png" alt="WhatsApp">
+    </a>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                // Datos directos para asegurar el funcionamiento
+                const phone = "34683571945";
+                const message = "Hola, vengo de la página web y me gustaría hablar con un ejecutivo.";
+                
+                const waBtn = document.getElementById('whatsapp-btn');
+                if(waBtn) {
+                    const encodedMessage = encodeURIComponent(message);
+                    waBtn.href = `https://wa.me/${phone}?text=${encodedMessage}`;
+                }
+            });
+        </script>
+    
+    <div id="contact-modal" class="modal-overlay">
+        <div class="modal-container">
+            <button class="modal-close-btn">&times;</button>
+            <div class="modal-header-logo">
+                <img src="assets/img/logo mh state negro.png" alt="MH ESTATE Logo">
+            </div>
+            <div id="modal-content-injector"></div>
+        </div>
+    </div>
+</body>
+</html>

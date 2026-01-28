@@ -1,0 +1,1008 @@
+/* =========================================
+   DETAIL.CSS - ESTILOS COMPLETOS (V4.0)
+   ========================================= */
+
+/* --- 1. HERO SECTION --- */
+.property-hero-bg {
+    background-color: #F9F7F2; /* Color crema suave */
+    padding: 120px 0 40px; /* Ajustado para header fijo */
+    border-bottom: 1px solid #EAEAEA;
+    width: 100%;
+}
+
+.hero-wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.back-btn-container {
+    margin-bottom: 15px;
+}
+
+.btn-back-pill {
+    background: #fff;
+    border: 1px solid #000;
+    padding: 5px 15px;
+    border-radius: 20px;
+    text-decoration: none;
+    color: #000;
+    font-size: 0.8rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    transition: 0.3s;
+}
+
+.btn-back-pill:hover {
+    background: #000;
+    color: #fff;
+}
+
+.hero-header {
+    margin-top: 10px;
+}
+
+.prop-tag {
+    background: #56503D;
+    color: #fff;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    display: inline-block;
+    margin-bottom: 10px;
+}
+
+.prop-title {
+    font-family: 'Gilda Display', serif;
+    font-size: 2.8rem;
+    margin: 0 0 10px;
+    line-height: 1.1;
+    color: #000;
+}
+
+.hero-meta {
+    color: #666;
+    font-size: 1.1rem;
+    display: flex;
+    gap: 15px;
+    margin-bottom: 15px;
+    font-family: 'Inter', sans-serif;
+}
+
+.prop-ref {
+    color: #999;
+}
+
+.hero-price {
+    font-family: 'Gilda Display', serif;
+    font-size: 2.2rem;
+    color: #56503D;
+    font-weight: 400;
+}
+
+/* --- 2. GALERÍA MULTIMEDIA (GRID AVANZADO) --- */
+.gallery-section {
+    padding: 40px 0;
+}
+
+.container-narrow {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.gallery-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+}
+
+/* Fila 1: Medio Principal (Video o Foto) */
+.gallery-main-media {
+    width: 100%;
+    height: 500px;
+    position: relative;
+    cursor: pointer;
+    overflow: hidden;
+    border-radius: 8px;
+}
+
+.gallery-main-media img, 
+.gallery-main-media iframe {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.play-overlay {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0,0,0,0.6);
+    color: #fff;
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+    pointer-events: none;
+    transition: 0.3s;
+}
+
+.gallery-main-media:hover .play-overlay {
+    background: rgba(86, 80, 61, 0.9);
+    transform: translate(-50%, -50%) scale(1.1);
+}
+
+/* Fila 2: Dividida (Imagen Media + Grid Pequeño) */
+.gallery-split-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    height: 350px;
+}
+
+.gallery-secondary-media {
+    height: 100%;
+    overflow: hidden;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.gallery-secondary-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s;
+}
+
+.gallery-secondary-media:hover img {
+    transform: scale(1.03);
+}
+
+.gallery-small-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 10px;
+    height: 100%;
+}
+
+.gallery-small-item {
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.gallery-small-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s;
+}
+
+.gallery-small-item:hover img {
+    transform: scale(1.05);
+}
+
+/* Overlay "+X Fotos" */
+.overlay-container::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5);
+    transition: 0.3s;
+}
+
+.more-photos-overlay {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    color: #fff;
+    font-size: 1.5rem;
+    font-weight: 700;
+    z-index: 2;
+}
+
+.gallery-small-item.overlay-container:hover::after {
+    background: rgba(0,0,0,0.3);
+}
+
+/* --- 3. LIGHTBOX (VENTANA EMERGENTE) --- */
+.lightbox {
+    display: none;
+    position: fixed;
+    z-index: 10000;
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(0,0,0,0.95);
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.lightbox.active {
+    display: flex;
+}
+
+.lightbox-content {
+    position: relative;
+    width: 90%;
+    max-width: 1200px;
+    height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#lightbox-media-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#lightbox-media-container img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+#lightbox-media-container iframe {
+    width: 100%;
+    height: 100%;
+    max-width: 1000px;
+}
+
+.close-lightbox {
+    position: absolute;
+    top: 20px; right: 30px;
+    color: #fff;
+    font-size: 40px;
+    cursor: pointer;
+    z-index: 10001;
+}
+
+.lb-nav {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 50px;
+    cursor: pointer;
+    padding: 20px;
+    transition: 0.2s;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.lb-nav.prev { left: -60px; }
+.lb-nav.next { right: -60px; }
+.lb-nav:hover { color: #56503D; }
+
+.lightbox-counter {
+    color: #ccc;
+    margin-top: 15px;
+    font-family: 'Inter', sans-serif;
+}
+
+/* --- 4. CONTENIDO PRINCIPAL --- */
+.content-split-section {
+    padding-bottom: 80px;
+}
+
+/* --- 5. SISTEMA DE PESTAÑAS (TABS) --- */
+.tabs-nav-wrapper {
+    width: 100%;
+    overflow-x: auto; /* Scroll horizontal en móvil */
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 40px;
+    margin-top: 20px;
+}
+
+.tabs-nav {
+    display: flex;
+    gap: 30px;
+    min-width: max-content; /* Evita que los botones se rompan */
+    padding-bottom: 1px;
+}
+
+.tab-btn {
+    background: none;
+    border: none;
+    padding: 15px 0;
+    font-family: 'Inter', sans-serif;
+    font-size: 1.1rem;
+    color: #888;
+    cursor: pointer;
+    position: relative;
+    white-space: nowrap;
+    transition: color 0.3s;
+}
+
+.tab-btn:hover {
+    color: #555;
+}
+
+.tab-btn.active {
+    color: #000;
+    font-weight: 600;
+}
+
+.tab-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px; left: 0;
+    width: 100%; height: 3px;
+    background-color: #56503D;
+}
+
+.tab-pane {
+    display: none;
+}
+
+.tab-pane.active {
+    display: block;
+    animation: fadeIn 0.5s;
+}
+
+.tab-inner-title {
+    font-family: 'Gilda Display', serif;
+    font-size: 1.8rem;
+    margin-bottom: 25px;
+    color: #000;
+}
+
+/* Placeholder para pestañas vacías (Map, Plan, Tour) */
+.media-placeholder {
+    width: 100%;
+    height: 300px;
+    background-color: #f8f8f8;
+    border: 2px dashed #ddd;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #999;
+    font-size: 1.1rem;
+}
+
+/* --- 6. LAYOUT 2 COLUMNAS (DESCRIPCIÓN + AGENTE) --- */
+.desc-layout-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr; /* 66% Contenido - 33% Agente */
+    gap: 60px;
+    align-items: start;
+}
+
+/* Formato de Texto */
+.formatted-text p {
+    margin-bottom: 1.5rem;
+    line-height: 1.8;
+    color: #444;
+    font-size: 1.05rem;
+    text-align: justify;
+}
+
+.formatted-text ul {
+    margin: 20px 0;
+    padding-left: 20px;
+    list-style: disc;
+    color: #444;
+}
+
+/* --- 7. FICHA DE AGENTE (SIDEBAR) --- */
+.agent-sidebar-col {
+    position: sticky;
+    top: 100px; /* Sticky bajo el header */
+    height: fit-content;
+}
+
+.agent-card {
+    background: #fff;
+    border: 1px solid #EAEAEA;
+    border-radius: 8px;
+    padding: 30px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+}
+
+.agent-photo-wrapper {
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 20px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 3px solid #F0EAE3;
+}
+
+.agent-photo-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.agent-label {
+    display: block;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    color: #999;
+    letter-spacing: 1px;
+    margin-bottom: 5px;
+}
+
+.agent-info h3 {
+    font-family: 'Gilda Display', serif;
+    font-size: 1.5rem;
+    color: #000;
+    margin: 0 0 15px;
+}
+
+/* Biografía Ejecutiva */
+.agent-bio {
+    font-size: 0.95rem;
+    color: #555;
+    margin-bottom: 15px;
+    line-height: 1.5;
+    font-style: italic;
+    padding: 0 5px;
+}
+
+.agent-contact-text {
+    font-size: 0.9rem;
+    color: #888;
+    margin-bottom: 20px;
+    word-break: break-all;
+}
+
+.agent-contact-text a {
+    color: #56503D;
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: 0.3s;
+}
+
+.agent-contact-text a:hover {
+    border-bottom-color: #56503D;
+}
+
+.btn-agent {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    border-radius: 4px;
+    text-decoration: none;
+    font-weight: 500;
+    margin-bottom: 10px;
+    transition: 0.3s;
+    font-size: 0.9rem;
+}
+
+.btn-agent.primary {
+    background-color: #56503D;
+    color: #fff;
+}
+
+.btn-agent.primary:hover {
+    background-color: #3E3A2C;
+}
+
+.btn-agent.secondary {
+    border: 1px solid #56503D;
+    color: #56503D;
+}
+
+.btn-agent.secondary:hover {
+    background-color: #F9F7F2;
+}
+
+/* =========================================
+   PESTAÑA FACTS: FICHA TÉCNICA ELEGANTE
+   ========================================= */
+
+.technical-sheet {
+    display: grid;
+    /* Grilla de columnas auto-ajustables (mínimo 200px de ancho cada dato) */
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); 
+    gap: 40px 30px; /* Separación vertical y horizontal */
+    padding: 40px 0;
+    border-top: 1px solid #eee;
+}
+
+/* Cada Bloque de Dato */
+.tech-item {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    border-left: 2px solid #C5BDA8; /* Línea decorativa lateral */
+    padding-left: 15px; /* Espacio para separar de la línea */
+    transition: transform 0.3s ease;
+}
+
+.tech-item:hover {
+    transform: translateX(5px); /* Pequeño movimiento al pasar el mouse */
+}
+
+/* Etiqueta (Label) - Ej: "BEDROOMS" */
+.tech-label {
+    font-family: 'Inter Local', sans-serif;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #999;
+    font-weight: 600;
+}
+
+/* Valor (Value) - Ej: "4 Suites" */
+.tech-value {
+    font-family: 'Gilda Display', serif;
+    font-size: 1.5rem; /* Tamaño grande y legible */
+    color: #000;
+    line-height: 1.1;
+}
+
+/* ESTADO DE CARGA / ERROR */
+.tech-loading {
+    grid-column: 1 / -1;
+    text-align: center;
+    color: #999;
+    font-style: italic;
+    padding: 40px;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    .technical-sheet {
+        grid-template-columns: 1fr 1fr; /* 2 columnas en móvil */
+        gap: 30px 20px;
+    }
+}
+@media (max-width: 480px) {
+    .tech-value { font-size: 1.3rem; }
+}
+
+/* --- 9. RESPONSIVE --- */
+@media (max-width: 900px) {
+    /* Galería */
+    .gallery-split-row {
+        height: auto;
+        grid-template-columns: 1fr;
+    }
+    .gallery-secondary-media {
+        height: 250px;
+    }
+    .gallery-small-grid {
+        height: auto;
+        grid-template-rows: 150px 150px;
+    }
+    
+    /* Layout Columnas */
+    .desc-layout-grid {
+        grid-template-columns: 1fr;
+        gap: 40px;
+    }
+    
+    /* Agente arriba en móvil (opcional, o dejar abajo) */
+    .agent-sidebar-col {
+        position: static;
+        order: -1;
+        margin-bottom: 40px;
+    }
+    
+    /* Lightbox */
+    .lightbox-content {
+        flex-direction: column;
+        height: auto;
+        width: 100%;
+    }
+    .lb-nav {
+        position: static;
+        transform: none;
+        margin: 10px 20px;
+        font-size: 40px;
+    }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+/* Sección Similares */
+.similar-section {
+    padding: 60px 0 100px;
+    background-color: #fcfcfc;
+    border-top: 1px solid #eee;
+}
+
+.section-title {
+    font-family: 'Gilda Display', serif;
+    font-size: 2.2rem;
+    text-align: center;
+    margin-bottom: 40px;
+    color: #000;
+}
+
+.carousel-wrapper {
+    position: relative;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Contenedor Flex para Scroll */
+#similar-container {
+    display: flex;
+    gap: 20px;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    padding-bottom: 20px;
+    /* Ocultar barra de scroll visualmente pero mantener funcionalidad */
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE */
+}
+#similar-container::-webkit-scrollbar { display: none; } /* Chrome */
+
+/* Modo Grid Centrado (cuando hay pocas props) */
+.grid-center-mode {
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+/* Modo Carrusel (cuando hay muchas) */
+.carousel-mode {
+    justify-content: flex-start;
+    flex-wrap: nowrap;
+}
+
+/* Tarjeta Miniatura */
+.prop-card-mini {
+    min-width: 280px;
+    max-width: 280px;
+    background: #fff;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.prop-card-mini:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+}
+
+.mini-img-wrapper {
+    width: 100%;
+    height: 180px;
+    position: relative;
+}
+
+.mini-img-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.mini-tag {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: rgba(0,0,0,0.6);
+    color: #fff;
+    font-size: 0.7rem;
+    padding: 3px 8px;
+    border-radius: 4px;
+    text-transform: uppercase;
+}
+
+.mini-content {
+    padding: 15px;
+}
+
+.mini-content h4 {
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    margin: 0 0 5px;
+    color: #000;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.mini-loc {
+    font-size: 0.85rem;
+    color: #666;
+    margin-bottom: 10px;
+}
+
+.mini-price {
+    font-family: 'Gilda Display', serif;
+    font-size: 1.2rem;
+    color: #56503D;
+    font-weight: 600;
+}
+
+/* Botones Navegación Carrusel */
+.carousel-nav-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 50px;
+    height: 50px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 20px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    z-index: 10;
+    transition: 0.3s;
+}
+
+.carousel-nav-btn:hover {
+    background: #56503D;
+    color: #fff;
+    border-color: #56503D;
+}
+
+.prev-btn { left: -20px; }
+.next-btn { right: -20px; }
+
+/* Responsive Similares */
+@media (max-width: 900px) {
+    .carousel-nav-btn { display: none !important; } /* Ocultar flechas en móvil, usar swipe */
+    .prop-card-mini { min-width: 260px; }
+    .prev-btn { left: 0; }
+    .next-btn { right: 0; }
+}
+/* =========================================
+   FICHA TÉCNICA (FACTS) - ESTILO ELEGANTE
+   ========================================= */
+
+.technical-grid {
+    display: grid;
+    /* Columnas automáticas: mínimo 200px de ancho cada dato */
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); 
+    gap: 30px; 
+    padding: 30px 0;
+    border-top: 1px solid #eee;
+}
+
+.tech-card {
+    display: flex;
+    flex-direction: column;
+    padding-left: 15px;
+    border-left: 2px solid #C5BDA8; /* Línea dorada a la izquierda */
+    transition: transform 0.2s ease;
+}
+
+.tech-card:hover {
+    transform: translateX(5px);
+}
+
+.tech-label {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #888;
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+
+.tech-value {
+    font-family: 'Gilda Display', serif;
+    font-size: 1.4rem;
+    color: #000;
+    line-height: 1.1;
+}
+
+/* RESPONSIVE */
+@media (max-width: 480px) {
+    .technical-grid {
+        grid-template-columns: 1fr 1fr; /* 2 columnas en móvil */
+        gap: 20px;
+    }
+    .tech-value { font-size: 1.1rem; }
+}
+/* =========================================
+   ESTILOS PARA EL PLANO (TAB PLAN)
+   ========================================= */
+#plan-container {
+    width: 100%;
+    min-height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #eee;
+}
+
+#plan-container img {
+    max-width: 100%;
+    max-height: 80vh; /* Que no sea más alto que la pantalla */
+    display: block;
+    margin: 0 auto;
+    object-fit: contain;
+    transition: transform 0.3s ease;
+}
+
+#plan-container:hover img {
+    transform: scale(1.02); /* Pequeño zoom al pasar el mouse */
+}
+/* Botones del Agente */
+.agent-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.btn-agent {
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Centra el texto horizontalmente */
+    text-align: center;
+    padding: 12px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: 0.3s;
+}
+
+/* Botón WhatsApp */
+.btn-whatsapp {
+    background-color: #25D366;
+    color: white;
+    border: none;
+}
+
+.btn-whatsapp:hover {
+    background-color: #128C7E;
+    color: white;
+}
+
+/* Botón Email (Primary) */
+.btn-agent.primary {
+    background-color: #000;
+    color: #fff;
+}
+/* Contenedor de acciones del agente */
+.agent-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+/* Estilo base para ambos botones */
+.btn-agent {
+    display: flex !important;
+    align-items: center;
+    justify-content: center; /* ESTO CENTRA EL TEXTO */
+    text-align: center;
+    width: 100%;
+    padding: 14px;
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+/* WhatsApp específico */
+.btn-whatsapp {
+    background-color: #25D366 !important;
+    color: white !important;
+}
+
+.btn-whatsapp:hover {
+    background-color: #128C7E !important;
+}
+
+/* Email específico */
+.btn-agent.primary {
+    background-color: #000;
+    color: #fff;
+}
+
+/* Asegurar que la foto no se rompa */
+.agent-photo-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+.agent-actions {
+    position: relative;
+    z-index: 10; /* Asegura que los botones estén al frente */
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.btn-agent {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    width: 100%;
+    padding: 14px;
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none !important; /* Quitar subrayados */
+    cursor: pointer !important; /* Forzar cursor de mano */
+    transition: 0.3s;
+}
+
+.btn-whatsapp {
+    background-color: #25D366 !important;
+    color: white !important;
+}
+
+.btn-whatsapp:hover {
+    background-color: #128C7E !important;
+    transform: translateY(-2px);
+}
+
+/* =======================================================
+   CLASES ADICIONALES PARA COMPACTAR GALERÍA Y MENÚ (V5.0)
+   ======================================================= */
+
+/* 1. CONTENEDOR DE SEGURIDAD PARA LA GALERÍA */
+/* Esto crea una caja estanca que impide que las fotos salgan */
+.gallery-enclosure {
+    width: 100%;
+    display: block; 
+    overflow: hidden; /* Corta cualquier sobrante */
+    position: relative;
+    margin-bottom: 20px; /* Separación segura */
+    background-color: #fff;
+}
+
+/* Forzar alturas compactas y recorte de imagen */
+.gallery-enclosure .gallery-main-media {
+    height: 500px !important; /* Altura estricta */
+}
+.gallery-enclosure .gallery-split-row {
+    height: 350px !important; /* Altura estricta */
+}
+.gallery-enclosure img {
+    object-fit: cover !important; /* Recorte inteligente */
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+/* 2. MENÚ STICKY (PEGAJOSO) INDEPENDIENTE Y ALINEADO IZQ */
+.sticky-nav-section {
+    position: -webkit-sticky;
+    position: sticky;
+    top: 70px; /* AJUSTA ESTE VALOR A LA ALTURA DE TU HEADER (Ej: 80px, 100px) */
+    z-index: 999; /* Siempre encima */
+    background-color: #ffffff; /* Fondo sólido anti-transparencia */
+    border-bottom: 1px solid #EAEAEA;
+    padding: 10px 0;
+    margin-top: 0;
+}
+
+.sticky-nav-section .tabs-nav {
+    justify-content: flex-start; /* Alineado a la izquierda */
+    padding-left: 0;
+    margin: 0;
+}

@@ -1,0 +1,69 @@
+<header class="main-header">
+    <div class="header-content">
+        <nav class="nav-group nav-left">
+            <a href="buy.html" data-i18n="nav-buy">BUY</a>
+            <a href="rent.html" data-i18n="nav-rent">RENT</a>
+            <a href="sell.html" data-i18n="nav-sell">SELL</a>
+        </nav>
+
+        <div class="logo-container">
+            <a href="index.html" class="main-logo">
+                <img src="assets/img/logo mh state negro.png" alt="MH ESTATE">
+            </a>
+        </div>
+
+        <nav class="nav-group nav-right">
+            <a href="about.html" data-i18n="nav-about">ABOUT US</a>
+            <a href="guide-news.html" class="hide-mobile" data-i18n="nav-news">GUIDE/NEWS</a>
+            <a href="contact.html" data-i18n="nav-contact">CONTACT</a>
+            
+            <div class="lang-dropdown">
+                <button class="lang-btn" id="current-lang-btn">ES ▾</button>
+                <div class="lang-content">
+                    <a href="javascript:void(0)" onclick="setLanguage('es'); setTimeout(()=>location.reload(), 50);">Español</a>
+                    <a href="javascript:void(0)" onclick="setLanguage('en'); setTimeout(()=>location.reload(), 50);">English</a>
+                    <a href="javascript:void(0)" onclick="setLanguage('sv'); setTimeout(()=>location.reload(), 50);">Svenska</a>
+                </div>
+            </div>
+        </nav>
+
+        <button class="mobile-menu-btn" onclick="toggleMenu()" aria-label="Menu">
+            <span class="hamburger-line"></span>
+            <span class="hamburger-line"></span>
+            <span class="hamburger-line"></span>
+        </button>
+    </div>
+
+    <div class="mobile-overlay" id="mobile-menu">
+        <div class="mobile-header">
+            <img src="assets/img/logo mh state negro.png" alt="MH ESTATE" class="mobile-logo">
+        </div>
+
+        <div class="mobile-links">
+            <a href="index.html" data-i18n="nav-home" onclick="toggleMenu()">HOME</a>
+            <a href="buy.html" data-i18n="nav-buy" onclick="toggleMenu()">BUY</a>
+            <a href="rent.html" data-i18n="nav-rent" onclick="toggleMenu()">RENT</a>
+            <a href="sell.html" data-i18n="nav-sell" onclick="toggleMenu()">SELL</a>
+            <a href="about.html" data-i18n="nav-about" onclick="toggleMenu()">ABOUT US</a>
+            <a href="guide-news.html" data-i18n="nav-news" onclick="toggleMenu()">GUIDE/NEWS</a>
+            <a href="contact.html" data-i18n="nav-contact" onclick="toggleMenu()">CONTACT</a>
+
+            <div class="mobile-lang-flags">
+                <button onclick="setLanguage('es'); setTimeout(()=>location.reload(), 50);" class="flag-btn">
+                    <img src="https://flagcdn.com/w40/es.png" alt="ES">
+                    <span class="flag-label">ES</span>
+                </button>
+                <button onclick="setLanguage('en'); setTimeout(()=>location.reload(), 50);" class="flag-btn">
+                    <img src="https://flagcdn.com/w40/gb.png" alt="EN">
+                    <span class="flag-label">EN</span>
+                </button>
+                <button onclick="setLanguage('sv'); setTimeout(()=>location.reload(), 50);" class="flag-btn">
+                    <img src="https://flagcdn.com/w40/se.png" alt="SV">
+                    <span class="flag-label">SV</span>
+                </button>
+            </div>
+
+            <button class="mobile-close-bottom" onclick="toggleMenu()">×</button>
+        </div>
+    </div>
+</header>

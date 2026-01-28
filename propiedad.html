@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle de Propiedad | MH Estate</title>
+    <link rel="icon" type="image/png" href="assets/img/favicon.png">
+    
+    <link rel="stylesheet" href="assets/css/variables.css">
+    <link rel="stylesheet" href="assets/css/global.css">
+    <link rel="stylesheet" href="assets/css/layout.css">
+    <link rel="stylesheet" href="assets/css/detail.css"> 
+    <link rel="stylesheet" href="assets/css/contact.css">
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <link rel="icon" type="image/png" href="assets/img/favicon.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Gilda+Display&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div id="header-placeholder"></div>
+
+    <main>
+        
+        <section class="property-hero-bg">
+            <div class="hero-wrapper">
+                <div class="back-btn-container">
+                    <a href="buy.html" class="btn-back-pill">← <span data-i18n="btn-back">Volver</span></a>
+                </div>
+                <div class="hero-header">
+                    <span class="prop-tag" id="prop-tag">...</span>
+                    <h1 class="prop-title" id="prop-title">...</h1>
+                    <div class="hero-meta">
+                        <p class="prop-location" id="prop-location"></p>
+                        <span id="prop-ref" class="prop-ref"></span>
+                    </div>
+                    <div class="hero-price"><span id="prop-price"></span></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="gallery-section">
+            <div class="container-narrow">
+                <div class="gallery-enclosure">
+                    <div class="gallery-grid" id="gallery-container"></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="sticky-nav-section">
+            <div class="container-narrow">
+                <div class="tabs-nav">
+                    <button class="tab-btn active" data-tab="tab-desc" data-i18n="tab-desc">Descripción</button>
+                    <button class="tab-btn" data-tab="tab-facts" data-i18n="tab-facts">Datos</button>
+                    <button class="tab-btn" data-tab="tab-map" data-i18n="tab-map">Mapa</button>
+                    <button class="tab-btn" data-tab="tab-plan" data-i18n="tab-plan">Plano</button>
+                    <button class="tab-btn" data-tab="tab-tour" data-i18n="tab-tour">Tour 3D</button>
+                    <button class="tab-btn" data-tab="tab-360" data-i18n="tab-360">Fotos 360</button>
+                </div>
+            </div>
+        </section>
+
+        <section class="content-split-section">
+            <div class="container-narrow">
+                <div class="tab-content-wrapper">
+                    
+                    <div id="tab-desc" class="tab-pane active">
+                        <div class="desc-layout-grid">
+                            <div class="desc-content-col">
+                                <h3 class="tab-inner-title" data-i18n="title-desc">Sobre esta propiedad</h3>
+                                <div id="prop-description" class="formatted-text"></div>
+                            </div>
+                            <aside class="agent-sidebar-col">
+                                <div class="agent-card">
+                                    <div class="agent-photo-wrapper"><img src="" id="agent-img" alt="Agente"></div>
+                                    <div class="agent-info">
+                                        <span class="agent-label">Agente Responsable</span>
+                                        <h3 id="agent-name">MH Team</h3>
+                                        <p id="agent-bio" class="agent-bio"></p>
+                                        <div class="agent-actions">
+                                            <a href="#" id="agent-email-btn" class="btn-agent primary">Email</a>
+                                            <a href="#" id="agent-call-btn" class="btn-agent secondary btn-whatsapp">WhatsApp</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </aside>
+                        </div>
+                    </div>
+
+                    <div id="tab-facts" class="tab-pane">
+                        <div id="tab-facts-content" class="technical-grid">
+                            <p style="text-align:center; color:#999; padding:20px;">Loading details...</p>
+                        </div>
+                    </div>
+
+                    <div id="tab-map" class="tab-pane">
+                        <div id="map-container" style="width: 100%; height: 450px; background: #eee; border-radius: 8px;"></div>
+                    </div>
+                    
+                    <div id="tab-plan" class="tab-pane">
+                        <div id="plan-container" class="media-placeholder"><p data-i18n="no-data">Plano no disponible</p></div>
+                    </div>
+                    <div id="tab-tour" class="tab-pane">
+                        <div id="tour-container" class="media-placeholder"><p data-i18n="no-data">Tour no disponible</p></div>
+                    </div>
+                    <div id="tab-360" class="tab-pane">
+                        <div id="360-container" class="media-placeholder"><p data-i18n="no-data">360 no disponible</p></div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <section class="similar-section">
+            <div class="container-narrow">
+                <h2 class="section-title" data-i18n="similar-title">Propiedades Similares</h2>
+                <div class="carousel-wrapper">
+                    <button class="carousel-nav-btn prev-btn" id="sim-prev">&#10094;</button>
+                    <div id="similar-container"></div>
+                    <button class="carousel-nav-btn next-btn" id="sim-next">&#10095;</button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <div id="lightbox-modal" class="lightbox">
+        <span class="close-lightbox" onclick="closeLightbox()">&times;</span>
+        <div class="lightbox-content">
+            <button class="lb-nav prev" onclick="changeLightboxSlide(-1)">&#10094;</button>
+            <div id="lightbox-media-container"></div>
+            <button class="lb-nav next" onclick="changeLightboxSlide(1)">&#10095;</button>
+        </div>
+        <div class="lightbox-counter" id="lightbox-counter"></div>
+    </div>
+
+    <div id="footer-placeholder"></div>
+
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="assets/js/config.js"></script>
+    <script src="assets/js/i18n.js"></script>
+    <script src="assets/js/components.js"></script>
+    <script src="assets/js/detail.js"></script> 
+
+</body>
+</html>

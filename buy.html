@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title data-i18n="buy-meta-title">Buy Property | MH Estate</title>
+    <link rel="icon" type="image/png" href="assets/img/favicon.png">
+    <meta name="description" content="Browse exclusive properties in Costa del Sol" data-i18n="buy-meta-desc">
+    
+    <link rel="stylesheet" href="assets/css/variables.css">
+    <link rel="stylesheet" href="assets/css/global.css">
+    <link rel="stylesheet" href="assets/css/layout.css">
+    <link rel="stylesheet" href="assets/css/buy.css"> 
+    <link rel="stylesheet" href="assets/css/contact.css">    
+    <link rel="icon" type="image/png" href="assets/img/favicon.png">
+</head>
+
+<body data-title-key="buy-meta-title">
+
+    <div id="header-placeholder"></div>
+
+    <main>
+        
+        <section class="guide-hero">
+            <h1 class="animate-up" data-i18n="hero-buy-title">For Sale</h1>
+        </section>
+        
+        <section class="area-filter-section">
+            <div class="area-filter-container">
+                <button id="btn-all" class="btn-filter active" onclick="applyLocationFilter('')" data-i18n="btn-all-areas">DISCOVER ALL</button>
+                <button id="btn-nerja" class="btn-filter" onclick="applyLocationFilter('nerja,torrox,frigiliana,maro')" data-i18n="btn-nerja">NERJA TORROX</button>
+                <button id="btn-marbella" class="btn-filter" onclick="applyLocationFilter('marbella,fuengirola,mijas,benalmadena,torremolinos,velez')" data-i18n="btn-marbella">FUENGIROLA MARBELLA</button>
+            </div>
+        </section>
+
+        <section class="search-main-section">
+            <div class="search-container-centered">
+                
+                <h2 class="search-title" data-i18n="search-title">Property Search</h2>
+                
+                <form id="search-form" class="search-flex-container">
+                    <div class="search-col">
+                        <div class="field-group">
+                            <label data-i18n="label-type">Property Type</label>
+                            <div class="checkbox-list">
+                                <label><input type="checkbox" name="type" value="Apartamento"> <span data-i18n="type-apt">Apartment</span></label>
+                                <label><input type="checkbox" name="type" value="Villa"> <span data-i18n="type-villa">Detached House/Villa</span></label>
+                                <label><input type="checkbox" name="type" value="Adosado"> <span data-i18n="type-town">Town House</span></label>
+                                <label><input type="checkbox" name="type" value="Cortijo"> <span data-i18n="type-country">Country house</span></label>
+                                <label><input type="checkbox" name="type" value="Parcela"> <span data-i18n="type-plot">Plot</span></label>
+                                <label><input type="checkbox" name="type" value="Garaje"> <span data-i18n="type-garage">Garage</span></label>
+                            </div>
+                        </div>
+                        <div class="field-group">
+                            <label data-i18n="label-area">Select Area</label>
+                            <select id="s-area" class="custom-input-select">
+                                <option value="" data-i18n="opt-all">All areas</option>
+                                <option value="Nerja">Nerja</option>
+                                <option value="Torrox">Torrox</option>
+                                <option value="Frigiliana">Frigiliana</option>
+                                <option value="Almuñécar">Almuñécar</option>
+                                <option value="Marbella">Marbella</option>
+                                <option value="Fuengirola">Fuengirola</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="search-col">
+                        <div class="field-group">
+                            <label data-i18n="label-price">Price</label>
+                            <div class="price-split">
+                                <div class="input-with-symbol"><input type="number" id="s-min" placeholder="min"><span>€</span></div>
+                                <div class="input-with-symbol"><input type="number" id="s-max" placeholder="max"><span>€</span></div>
+                            </div>
+                        </div>
+                        <div class="field-group">
+                            <label data-i18n="label-beds">Bedrooms</label>
+                            <div class="selector-buttons" id="beds-selector">
+                                <button type="button" data-val="1">+1</button>
+                                <button type="button" data-val="2">+2</button>
+                                <button type="button" data-val="3">+3</button>
+                                <button type="button" data-val="4">+4</button>
+                            </div>
+                        </div>
+                        <div class="field-group">
+                            <label data-i18n="label-baths">Bathrooms</label>
+                            <div class="selector-buttons" id="baths-selector">
+                                <button type="button" data-val="1">+1</button>
+                                <button type="button" data-val="2">+2</button>
+                                <button type="button" data-val="3">+3</button>
+                                <button type="button" data-val="4">+4</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="search-col search-col-actions">
+                        <div class="field-group no-margin-bottom">
+                            <label data-i18n="label-keyword">Keyword</label>
+                            <div class="keyword-wrapper">
+                                <input type="text" id="s-keyword" class="custom-input">
+                            </div>
+                        </div>
+                        
+                        <div class="checkbox-list status-list">
+                            <label><input type="checkbox" name="status" value="new"> <span data-i18n="link-new">New Promotion</span></label>
+                            <label><input type="checkbox" name="status" value="second"> <span data-i18n="link-second">Second Hand</span></label>
+                        </div>
+
+                        <div class="search-actions-row">
+                            <button type="button" class="btn-clear-rounded" onclick="resetSearch()" data-i18n="btn-clear">CLEAR ALL</button>
+                            <button type="button" class="btn-search-rounded" onclick="executeSearch()" data-i18n="btn-search">SEARCH</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <section class="listings-section">
+            <div class="container-narrow">
+                <div class="listings-header">
+                    <h2 class="listings-title" data-i18n="listings-title">Listings</h2>
+                    <span class="results-count" id="results-count">Loading...</span>
+                </div>
+
+                <div id="properties-grid"></div>
+
+                <div id="buy-pagination" class="pagination-container" style="text-align: center; margin-top: 40px; padding-bottom: 40px;"></div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <div id="footer-placeholder"></div>
+
+    <script src="assets/js/config.js"></script>
+    <script src="assets/js/i18n.js"></script>
+    <script src="assets/js/components.js"></script>
+    <script src="assets/js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+# Instrucciones para todos los buscadores
+User-agent: *
+
+# Permitir que todo el sitio sea indexado
+Allow: /
+
+# Evitar que Google indexe carpetas de sistema o configuración
+Disallow: /assets/css/
+Disallow: /assets/js/
+Disallow: /config/
+
+# Indicar la ubicación del Sitemap (Paso siguiente)
+Sitemap: https://www.mhestate.es/sitemap.xml
