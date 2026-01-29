@@ -1,5 +1,5 @@
 /* =========================================
-   DETAIL.JS - V9.7 (ETIQUETA EXCLUSIVA)
+   DETAIL.JS - V9.9 (LÓGICA ESTRICTA + TRADUCCIONES)
    ========================================= */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -21,8 +21,8 @@ const TRANSLATIONS = {
         'type_chalet': 'Chalet', 'type_estudio': 'Estudio', 'type_terreno': 'Terreno',
         'type_parcela': 'Parcela', 'type_local': 'Local Comercial', 'type_oficina': 'Oficina',
         
-        'cond_good': 'Buen estado', 'cond_excellent': 'Excelente', 'cond_new': 'Obra nueva',
-        'cond_renovated': 'Reformado', 'cond_partly': 'Reformar parc.', 'cond_reform': 'A reformar',
+        'cond_new': 'Obra Nueva', 
+        'cond_resale': 'Segunda Mano', // <--- NUEVO
 
         'feat_ref': 'Referencia', 'feat_price': 'Precio', 'feat_type': 'Tipo',
         'feat_town': 'Ciudad', 'feat_zone': 'Zona', 'feat_beds': 'Dormitorios',
@@ -42,7 +42,6 @@ const TRANSLATIONS = {
         'agent_label': 'Agente Responsable', 'btn_email': 'Enviar Email', 'btn_call': 'Llamar',
         'plan_click': 'Haz clic para ampliar', 'no_data': 'No disponible', 'loc_approx': 'Ubicación Aproximada',
 
-        // NUEVA CLAVE
         'feat_exclusive': 'EXCLUSIVA'
     },
     'en': {
@@ -51,8 +50,8 @@ const TRANSLATIONS = {
         'type_chalet': 'Chalet', 'type_estudio': 'Studio', 'type_terreno': 'Land',
         'type_parcela': 'Plot', 'type_local': 'Commercial Premises', 'type_oficina': 'Office',
 
-        'cond_good': 'Good condition', 'cond_excellent': 'Excellent', 'cond_new': 'New construction',
-        'cond_renovated': 'Renovated', 'cond_partly': 'Partly needs repair', 'cond_reform': 'To restore',
+        'cond_new': 'New Construction',
+        'cond_resale': 'Resale', // <--- NUEVO
 
         'feat_ref': 'Reference', 'feat_price': 'Price', 'feat_type': 'Type',
         'feat_town': 'Town', 'feat_zone': 'Area', 'feat_beds': 'Bedrooms',
@@ -72,7 +71,6 @@ const TRANSLATIONS = {
         'agent_label': 'Listing Agent', 'btn_email': 'Send Email', 'btn_call': 'Call Now',
         'plan_click': 'Click to enlarge', 'no_data': 'Not available', 'loc_approx': 'Approximate Location',
 
-        // NUEVA CLAVE
         'feat_exclusive': 'EXCLUSIVE'
     },
     'sv': {
@@ -81,8 +79,8 @@ const TRANSLATIONS = {
         'type_chalet': 'Chalet', 'type_estudio': 'Studio', 'type_terreno': 'Mark',
         'type_parcela': 'Tomt', 'type_local': 'Lokal', 'type_oficina': 'Kontor',
 
-        'cond_good': 'Gott skick', 'cond_excellent': 'Utmärkt', 'cond_new': 'Nyproduktion',
-        'cond_renovated': 'Renoverad', 'cond_partly': 'Delvis renovering', 'cond_reform': 'Renoveringsobjekt',
+        'cond_new': 'Nyproduktion',
+        'cond_resale': 'Begagnad', // <--- NUEVO
 
         'feat_ref': 'Referens', 'feat_price': 'Pris', 'feat_type': 'Typ',
         'feat_town': 'Stad', 'feat_zone': 'Område', 'feat_bed': 'Sovrum',
@@ -102,7 +100,6 @@ const TRANSLATIONS = {
         'agent_label': 'Ansvarig Mäklare', 'btn_email': 'Skicka E-post', 'btn_call': 'Ring Nu',
         'plan_click': 'Klicka för att förstora', 'no_data': 'Ej tillgänglig', 'loc_approx': 'Ungefärlig plats',
 
-        // NUEVA CLAVE
         'feat_exclusive': 'EXKLUSIV'
     }
 };
@@ -132,15 +129,13 @@ function formatPropType(rawType) {
 }
 
 function formatCondition(rawCond) {
-    if (!rawCond) return '';
-    const safe = rawCond.toLowerCase().trim();
-    if (safe.includes('buen') || safe.includes('good') || safe.includes('bueno')) return t('cond_good');
-    if (safe.includes('excelente') || safe.includes('excellent')) return t('cond_excellent');
-    if (safe.includes('nuevo') || safe.includes('new') || safe.includes('estrenar') || safe.includes('obra')) return t('cond_new');
-    if (safe.includes('reformado') || safe.includes('renovated')) return t('cond_renovated');
-    if (safe.includes('parcial') || safe.includes('partly')) return t('cond_partly');
-    if (safe.includes('reformar') || safe.includes('restore') || safe.includes('fix')) return t('cond_reform');
-    return rawCond.charAt(0).toUpperCase() + rawCond.slice(1);
+    if (!rawCond) return t('cond_resale'); // Si viene vacío, asumimos segunda mano
+    
+    // REGLA ESTRICTA: Solo si es exactamente "Obra Nueva"
+    if (rawCond === 'Obra Nueva') return t('cond_new');
+    
+    // CUALQUIER OTRO VALOR -> SEGUNDA MANO
+    return t('cond_resale');
 }
 
 // --- IA LIGERA (EXTRACCIÓN) ---
@@ -255,20 +250,22 @@ function renderPropertyDetails(node) {
     if(refEl) refEl.style.display = 'none'; 
     
     // --- LÓGICA DE ETIQUETA EN HERO DETALLE ---
-    // Si <exclu> es 1, mostramos la etiqueta "EXCLUSIVA" y la hacemos visible.
-    // Si no, la ocultamos.
     const excluVal = get(['exclu', 'exclusiva']);
+    // Nota: El Hero Tag se usa normalmente solo para lo más destacado (Exclusiva)
+    // Pero si quisieras mostrar también Obra Nueva aquí, descomenta abajo.
     const tagEl = document.getElementById('prop-tag');
+
     if(tagEl) {
+        tagEl.style.display = 'none'; 
+        
         if(excluVal === '1') {
             tagEl.textContent = t('feat_exclusive');
             tagEl.style.display = 'inline-block';
-            tagEl.style.backgroundColor = '#000'; // Estilo inline para asegurar consistencia
+            tagEl.style.backgroundColor = '#000';
             tagEl.style.color = '#fff';
-        } else {
-            // Si no es exclusiva, ocultamos la etiqueta del hero
-            tagEl.style.display = 'none';
-        }
+        } 
+        // Si no es exclusiva, no forzamos etiqueta en el Hero Banner para no sobrecargar, 
+        // ya que "Segunda Mano" no es un selling point para un banner gigante.
     }
 
     setTextSafe('prop-price', formatPrice(get(['precioinmo', 'precio'])));
@@ -702,12 +699,14 @@ function renderSimilarProperties(currentProp, allProps) {
         let pTitle = `${typeTrans} - ${pZone || pCity}`;
 
         // --- LÓGICA DE ETIQUETA EN SIMILARES ---
-        // Misma lógica: Si <exclu> es 1, mostramos la etiqueta EXCLUSIVA.
-        // Si no, no mostramos nada.
         const excluVal = getVal(p, 'exclu') || getVal(p, 'exclusiva');
+        const conservationVal = getVal(p, 'conservacion') || getVal(p, 'estado');
+        
         let tagHtml = '';
         if (excluVal === '1') {
             tagHtml = `<span class="mini-tag" style="background-color:#000; color:#fff;">${t('feat_exclusive')}</span>`;
+        } else if (conservationVal === 'Obra Nueva') {
+            tagHtml = `<span class="mini-tag" style="background-color:#000; color:#fff;">${t('cond_new')}</span>`;
         }
 
         const card = document.createElement('div');

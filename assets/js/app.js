@@ -1,6 +1,6 @@
 /**
  * ============================================================
- * APP.JS - MOTOR V19.0 (CARD LAYOUT: PRICE / SPECS / EXTRAS)
+ * APP.JS - MOTOR V22.0 (PERSISTENCIA Y PRIORIDAD ESTRICTA)
  * ============================================================
  */
 
@@ -16,7 +16,7 @@ let homeCurrentPage = 0;
 
 let propertiesPerPage = 2; 
 
-// Traducciones
+// Traducciones de Tipos
 const I18N_TYPES = {
     'es': { },
     'en': {
@@ -41,12 +41,13 @@ const I18N_TYPES = {
 
 const I18N_UI = {
     'es': { 
-        beds: 'Dorm.', baths: 'Baños', // Abreviado para línea 2
+        beds: 'Dorm.', baths: 'Baños', 
         pool: 'Piscina', garage: 'Garaje', view: 'Vistas al Mar', 
         garden: 'Jardín', ac: 'Aire Acond.', elevator: 'Ascensor', terrace: 'Terraza',
         no_results: 'No se encontraron propiedades', btn_all: 'Ver Todas', 
         featured: 'Propiedades Destacadas', found: 'Propiedades encontradas',
         exclusive: 'EXCLUSIVA',
+        cond_new: 'Obra Nueva', cond_resale: 'Segunda Mano',
         prev: 'ANTERIOR', next: 'SIGUIENTE'
     },
     'en': { 
@@ -56,6 +57,7 @@ const I18N_UI = {
         no_results: 'No properties found', btn_all: 'View All', 
         featured: 'Featured Properties', found: 'Properties found',
         exclusive: 'EXCLUSIVE',
+        cond_new: 'New Construction', cond_resale: 'Resale',
         prev: 'PREVIOUS', next: 'NEXT'
     },
     'sv': { 
@@ -65,6 +67,7 @@ const I18N_UI = {
         no_results: 'Inga bostäder hittades', btn_all: 'Se alla', 
         featured: 'Utvalda Bostäder', found: 'Bostäder hittades',
         exclusive: 'EXKLUSIV',
+        cond_new: 'Nyproduktion', cond_resale: 'Begagnad',
         prev: 'FÖREGÅENDE', next: 'NÄSTA'
     }
 };
@@ -79,6 +82,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         await loadAndStoreProperties();
         populateCitySelect();
 
+        // Si estamos en la página de resultados (buy.html), aplicamos filtros y restauramos visualmente
         if (window.location.pathname.includes('buy.html')) {
             applyFiltersFromURL(); 
         }
@@ -93,9 +97,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
-/**
- * Carga el XML una sola vez
- */
 async function loadAndStoreProperties() {
     const LOCAL_XML_URL = 'assets/data/propiedades.xml';
     const buyGrid = document.getElementById('properties-grid');
@@ -142,8 +143,6 @@ function populateCitySelect() {
 /**
  * Renderiza según la página
  */
-/* --- EN app.js --- */
-
 function renderCurrentPage() {
     if (allPropertiesData.length === 0) return;
 
@@ -159,13 +158,10 @@ function renderCurrentPage() {
     // B. BUY (buy.html)
     const buyGrid = document.getElementById('properties-grid');
     if (buyGrid) {
-        // FORZAMOS 10 SIEMPRE EN ESTA PÁGINA
         propertiesPerPage = 10; 
 
         const urlParams = new URLSearchParams(window.location.search);
         
-        // Si la URL está vacía (carga inicial), simulamos que queremos ver "todas"
-        // para que no aplique el límite de 2 que usábamos antes.
         allFilteredProperties = filterProperties(allPropertiesData, urlParams);
         
         const countEl = document.getElementById('results-count');
@@ -180,7 +176,6 @@ function renderCurrentPage() {
     }
 }
 
-// --- RENDER HOME ---
 function renderHomeGrid(container) {
     container.innerHTML = "";
     const homePerPage = 2; 
@@ -199,7 +194,6 @@ function renderHomeGrid(container) {
     });
 }
 
-// --- RENDER BUY ---
 function renderBuyGrid(container) {
     container.innerHTML = "";
     container.className = 'properties-grid-layout'; 
@@ -212,7 +206,8 @@ function renderBuyGrid(container) {
                 <h3>${ui.no_results}</h3>
                 <button onclick="resetSearch()" class="pagination-btn prev-next" style="margin:20px auto; display:block;">${ui.btn_all}</button>
             </div>`;
-        document.getElementById('buy-pagination').innerHTML = ''; 
+        const pagContainer = document.getElementById('buy-pagination');
+        if(pagContainer) pagContainer.innerHTML = ''; 
         return;
     }
 
@@ -228,12 +223,10 @@ function renderBuyGrid(container) {
     generatePaginationButtons('buy-pagination', currentPage, totalPages, (newPage) => {
         currentPage = newPage;
         renderBuyGrid(container);
-        document.getElementById('properties-grid')?.scrollIntoView({behavior:'smooth'});
+        document.querySelector('.listings-header')?.scrollIntoView({behavior:'smooth'});
     });
 }
 
-
-// --- GENERADOR DE BOTONES NUMÉRICOS ---
 function generatePaginationButtons(containerId, current, total, onPageClick) {
     const container = document.getElementById(containerId);
     if (!container) return;
@@ -281,12 +274,15 @@ function generatePaginationButtons(containerId, current, total, onPageClick) {
     container.appendChild(nextBtn);
 }
 
-
-// --- LÓGICA DE FILTRADO ---
+// --- LÓGICA DE FILTRADO (PRIORIDAD ESTRICTA) ---
 function filterProperties(nodes, params) {
     const locParam = (params.get('loc') || '').toLowerCase();
     const locations = locParam.split(',').map(l => l.trim()).filter(l => l !== '');
     const types = params.get('type') ? params.get('type').toLowerCase().split(',') : [];
+    
+    // Obtener Estado: 'new' o 'resale'
+    const statusParam = params.get('status') || '';
+
     const keyword = (params.get('q') || '').toLowerCase();
     const minPrice = parseFloat(params.get('min')) || 0;
     const maxPrice = parseFloat(params.get('max')) || Infinity;
@@ -295,12 +291,24 @@ function filterProperties(nodes, params) {
 
     return nodes.filter(node => {
         const get = (tags) => getNodeValue(node, tags).toLowerCase();
-        const rawPrice = getNodeValue(node, ['precioinmo', 'precio']);
-        const cleanPrice = parseInt(rawPrice.replace(/\D/g, '')) || 0;
+        
+        // --- PRIORIDAD 1: ESTADO (OBRA NUEVA / SEGUNDA MANO) ---
+        // Si no cumple esto, se descarta inmediatamente.
+        const conservation = getNodeValue(node, ['conservacion', 'estado']);
+        if (statusParam === 'new') {
+            if (conservation !== 'Obra Nueva') return false; 
+        } else if (statusParam === 'resale') {
+            if (conservation === 'Obra Nueva') return false; 
+        }
 
-        if (minPrice > 0 && cleanPrice < minPrice) return false;
-        if (maxPrice > 0 && maxPrice !== Infinity && cleanPrice > maxPrice) return false;
+        // --- PRIORIDAD 2: TIPO DE PROPIEDAD ---
+        const pType = get(['tipo', 'type', 'tipo_ofer']);
+        if (types.length > 0) {
+            const match = types.some(t => pType.includes(t));
+            if (!match) return false;
+        }
 
+        // --- PRIORIDAD 3: BAÑOS Y DORMITORIOS (SPECS) ---
         const descText = get(['descrip1', 'descripcion']);
         let bedsVal = parseInt(get(['habitaciones', 'dormitorios', 'beds'])) || 0;
         const simples = parseInt(get(['hab_simples', 'simple'])) || 0;
@@ -313,21 +321,25 @@ function filterProperties(nodes, params) {
         const bathsDesc = extractNumFromDesc(descText, 'baths');
         if (bathsDesc && parseInt(bathsDesc) > bathsVal) bathsVal = parseInt(bathsDesc);
 
-        const pType = get(['tipo', 'type', 'tipo_ofer']);
+        if (bedsVal < bedsMin) return false;
+        if (bathsVal < bathsMin) return false;
+
+        // --- PRIORIDAD 4: PRECIO ---
+        const rawPrice = getNodeValue(node, ['precioinmo', 'precio']);
+        const cleanPrice = parseInt(rawPrice.replace(/\D/g, '')) || 0;
+        if (minPrice > 0 && cleanPrice < minPrice) return false;
+        if (maxPrice > 0 && maxPrice !== Infinity && cleanPrice > maxPrice) return false;
+
+        // --- PRIORIDAD 5: UBICACIÓN ---
         const pCity = get(['ciudad', 'poblacion']);
         const pZone = get(['zona', 'area']);
-        const pTitle = get(['titulo1', 'titulo2']);
-
         if (locations.length > 0 && locParam !== 'all') {
             const matchLoc = locations.some(loc => pCity.includes(loc) || pZone.includes(loc));
             if (!matchLoc) return false;
         }
-        if (types.length > 0) {
-            const match = types.some(t => pType.includes(t));
-            if (!match) return false;
-        }
-        if (bedsVal < bedsMin) return false;
-        if (bathsVal < bathsMin) return false;
+
+        // --- PRIORIDAD 6: KEYWORDS ---
+        const pTitle = get(['titulo1', 'titulo2']);
         if (keyword) {
             const fullText = `${pType} ${pCity} ${pZone} ${pTitle} ${descText}`;
             if (['piscina', 'pool', 'garaje', 'garage', 'jardin', 'garden'].includes(keyword)) {
@@ -363,6 +375,7 @@ function initSearchLogic() {
     });
 }
 
+// --- CAPTURA DEL FORMULARIO ---
 function handleSearchRedirect() {
     const area = document.getElementById('s-area')?.value;
     const keyword = document.getElementById('s-keyword')?.value.trim();
@@ -370,7 +383,14 @@ function handleSearchRedirect() {
     const maxPrice = document.getElementById('s-max')?.value;
     const beds = document.getElementById('beds-selector')?.getAttribute('data-selected');
     const baths = document.getElementById('baths-selector')?.getAttribute('data-selected');
+    
+    // Checkboxes de Tipo
     const checkedTypes = Array.from(document.querySelectorAll('input[name="type"]:checked')).map(cb => cb.value);
+
+    // Radio/Checkbox de Condición (Obra Nueva / Segunda Mano)
+    // Busca input con name="condition" que esté marcado
+    const conditionEl = document.querySelector('input[name="condition"]:checked');
+    const conditionVal = conditionEl ? conditionEl.value : null;
 
     const params = new URLSearchParams();
     if (area && area !== '') params.set('loc', area);
@@ -380,6 +400,9 @@ function handleSearchRedirect() {
     if (beds) params.set('bed', beds);
     if (baths) params.set('bath', baths);
     if (checkedTypes.length > 0) params.set('type', checkedTypes.join(','));
+    
+    // Si hay condición seleccionada (new / resale), agrégala a la URL
+    if (conditionVal && conditionVal !== 'all') params.set('status', conditionVal);
 
     if (window.location.pathname.includes('buy.html')) {
         window.location.search = params.toString();
@@ -388,10 +411,13 @@ function handleSearchRedirect() {
     }
 }
 
+// --- RESTAURAR ESTADO DE INPUTS (PERSISTENCIA) ---
 function applyFiltersFromURL() {
     const params = new URLSearchParams(window.location.search);
     if ([...params].length === 0) return;
+    
     if (params.has('q')) setVal('s-keyword', params.get('q'));
+    
     if (params.has('loc')) {
         const locVal = params.get('loc');
         if (!locVal.includes(',')) {
@@ -399,16 +425,27 @@ function applyFiltersFromURL() {
             if(select) { select.value = locVal; setTimeout(() => { select.value = locVal; }, 100); }
         }
     }
+    
     if (params.has('min')) setVal('s-min', params.get('min'));
     if (params.has('max')) setVal('s-max', params.get('max'));
     if (params.has('bed')) activateButton('beds-selector', params.get('bed'));
     if (params.has('bath')) activateButton('baths-selector', params.get('bath'));
+    
+    // Restaurar Checkboxes de Tipo
     if (params.has('type')) {
         const types = params.get('type').split(',');
         types.forEach(val => {
             const cb = document.querySelector(`input[name="type"][value="${val}"]`);
             if(cb) cb.checked = true;
         });
+    }
+
+    // Restaurar Radio de Condición (Obra Nueva / Segunda Mano)
+    if (params.has('status')) {
+        const statusVal = params.get('status'); 
+        // Busca el input con name="condition" y value="new" o "resale"
+        const input = document.querySelector(`input[name="condition"][value="${statusVal}"]`);
+        if(input) input.checked = true;
     }
 }
 
@@ -507,6 +544,10 @@ function resetSearch() {
     document.querySelectorAll('.active').forEach(e => e.classList.remove('active'));
     document.getElementById('beds-selector')?.removeAttribute('data-selected');
     document.getElementById('baths-selector')?.removeAttribute('data-selected');
+    
+    // Limpiar radios también
+    document.querySelectorAll('input[name="condition"]').forEach(r => r.checked = false);
+    
     window.location.href = 'buy.html?view=all';
 }
 
@@ -556,7 +597,7 @@ window.applyLocationFilter = function(locs) {
     window.location.href = `buy.html?loc=${encodeURIComponent(locs)}`;
 };
 
-// --- CREATE CARD (UPDATED LAYOUT: 1. Price, 2. Specs, 3. Extras) ---
+// --- CREATE CARD (CON ETIQUETAS Y SWIPE) ---
 function createCard(xmlNode) {
     const lang = getCurrentLang();
     const dict = I18N_TYPES[lang] || {};
@@ -578,11 +619,26 @@ function createCard(xmlNode) {
     if (typeDisplay) typeDisplay = typeDisplay.charAt(0).toUpperCase() + typeDisplay.slice(1);
     const displayTitle = `${typeDisplay} - ${zone || city}`;
 
+    // --- LÓGICA DE ETIQUETAS ---
     const excluVal = get(['exclu', 'exclusiva']);
-    let tagHtml = '';
+    const conservationVal = get(['conservacion', 'estado']);
+    
+    // Contenedor de Etiquetas
+    let tagsHtml = '';
+
+    // 1. Etiqueta Exclusiva (Si aplica)
     if (excluVal === '1') {
-        tagHtml = `<span class="card-tag" style="background-color: #000; color: #fff;">${ui.exclusive}</span>`;
+        tagsHtml += `<span class="card-tag tag-exclusive">${ui.exclusive}</span>`;
     }
+
+    // 2. Etiqueta de Estado (Siempre: O es Obra Nueva o es Segunda Mano)
+    if (conservationVal === 'Obra Nueva') {
+        tagsHtml += `<span class="card-tag tag-new">${ui.cond_new}</span>`;
+    } else {
+        tagsHtml += `<span class="card-tag tag-resale">${ui.cond_resale}</span>`;
+    }
+
+    const finalTagsHtml = `<div class="card-tags-container">${tagsHtml}</div>`;
 
     const descText = get(['descrip1', 'descripcion']);
     const m2 = parseInt(get(['m_cons', 'construido', 'surface'])) || 0;
@@ -640,7 +696,7 @@ function createCard(xmlNode) {
     article.innerHTML = `
         <div class="card-img-box">
             <img src="${photos[0]}" alt="${displayTitle}" loading="lazy" class="card-img" draggable="false">
-            ${tagHtml}
+            ${finalTagsHtml}
             ${photos.length > 1 ? `
                 <div class="card-photo-indicator">1/${photos.length}</div>
                 <button class="card-mini-arrow prev">❮</button>
@@ -664,7 +720,6 @@ function createCard(xmlNode) {
         </div>
     `;
 
-    // LÓGICA DE FOTOS Y EVENTOS (IGUAL)
     let currentPhotoIdx = 0;
     const imgEl = article.querySelector('.card-img');
     const indicator = article.querySelector('.card-photo-indicator');

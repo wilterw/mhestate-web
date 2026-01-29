@@ -488,3 +488,56 @@
     min-width: auto !important;
     padding-right: 5px;
 }
+/* --- AÑADIR AL FINAL DE buy.css --- */
+
+/* Etiqueta Específica para Obra Nueva */
+.card-tag.new-construction {
+    background-color: #000; /* Fondo Negro */
+    color: #fff;            /* Texto Blanco */
+    /* Opcional: Si quisieras otro color, cámbialo aquí. Ej: #C5A059 */
+}
+/* --- ETIQUETAS EN TARJETAS (Actualizado) --- */
+.card-img-box {
+    /* Aseguramos que el contenedor permita posicionamiento */
+    position: relative;
+}
+
+/* Contenedor para apilar etiquetas (Exclusiva + Estado) */
+.card-tags-container {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    display: flex;
+    flex-direction: column; /* Una debajo de otra */
+    gap: 5px; /* Separación entre etiquetas */
+    z-index: 2;
+    align-items: flex-start;
+}
+
+/* Estilo Base de Etiqueta */
+.card-tag {
+    position: static; /* Ya no es absolute porque está dentro del flex container */
+    background: #fff;
+    padding: 6px 14px;
+    font-size: 10px; 
+    font-weight: 700; 
+    text-transform: uppercase; 
+    letter-spacing: 1px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* Variantes de Color */
+.tag-exclusive {
+    background-color: #000;
+    color: #fff;
+}
+
+.tag-new {
+    background-color: #C5A059; /* Dorado para Obra Nueva */
+    color: #fff;
+}
+
+.tag-resale {
+    background-color: #fff; /* Blanco para Segunda Mano */
+    color: #000;
+}
