@@ -1,0 +1,321 @@
+/* =========================================
+   RENT-HOME.CSS - ESTILOS ESPECÍFICOS
+   ========================================= */
+
+/* --- HERO SECTION --- */
+.rent-home-hero {
+    position: relative;
+    width: 100%;
+    height: 80vh; 
+    min-height: 500px;
+    background-image: url('../img/rent-house.jpg'); 
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    margin-top: 0;
+    padding-top: 80px;
+}
+
+.rent-home-hero .hero-overlay {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.4); 
+    z-index: 1;
+}
+
+.rent-home-hero .hero-content {
+    position: relative;
+    z-index: 2;
+    padding: 0 20px;
+    max-width: 900px;
+}
+
+.rent-home-hero h1 {
+    font-family: 'Inter', sans-serif; 
+    font-size: 42px;  
+    font-weight: 300; 
+    color: #fff;
+    line-height: 1.3;
+    margin-bottom: 30px;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+}
+
+.btn-rent-hero {
+    display: inline-block;
+    background-color: #C5BDA8;
+    color: #000;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 16px 40px;
+    border-radius: 50px; 
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-rent-hero:hover {
+    background-color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+/* --- CREAM INTRO SECTION --- */
+.rent-cream-section {
+    background-color: #C5BDA8; 
+    padding: 50px 20px 80px 20px; 
+    text-align: center;
+}
+
+.cream-lead {
+    font-family: 'Inter', sans-serif;
+    font-size: 28px;  
+    font-weight: 400; 
+    color: #000;
+    line-height: 1.4;
+    margin: 0;
+    max-width: 1000px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* --- SECCIÓN MARKETING --- */
+.rent-marketing-section {
+    display: grid;
+    grid-template-columns: 1.2fr 3.7fr 1.2fr; 
+    background-color: #F0EAE3; 
+    width: 100%;
+    padding: 120px 0; 
+    align-items: center; 
+    overflow: hidden;
+}
+
+.marketing-col-side {
+    position: relative;
+    width: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.marketing-col-side:first-child { justify-content: flex-start; }
+.marketing-col-side:last-child { justify-content: flex-end; }
+
+.marketing-col-side img {
+    width: 100%;
+    height: 630px; 
+    object-fit: contain; 
+    display: block;
+}
+
+.marketing-col-center {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 0 40px; 
+}
+
+.marketing-title {
+    font-family: 'Gilda Display', serif;
+    font-size: 44px; 
+    color: #56503D; 
+    margin-bottom: 15px;
+    font-weight: 400;
+    line-height: 1.1;
+}
+
+.marketing-text {
+    font-family: 'Inter', sans-serif;
+    font-size: 26px;
+    font-weight: 500;
+    color: #000;
+    line-height: 1.5;
+    margin-bottom: 45px;
+}
+
+/* --- SECCIONES CONTENIDO (MANAGEMENT & SUPPORT) --- */
+
+.rent-content-section.bg-light {
+    background-color: #F0EAE3 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none;
+    overflow: hidden;
+    height: auto; 
+}
+
+.rent-content-section.bg-light .container {
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+.rent-content-section.bg-light .rent-split-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    align-items: stretch;
+}
+
+/* COLUMNA IMAGEN */
+.rent-content-section.bg-light .rent-img-col {
+    display: flex;
+    justify-content: flex-start;
+    margin: 0;
+    padding: 0;
+    line-height: 0; 
+}
+
+.rent-content-section.bg-light .rent-img-col img {
+    width: 100%;
+    height: auto; 
+    display: block;
+    object-fit: contain; 
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    border: none;
+}
+
+/* COLUMNA TEXTO */
+.rent-content-section.bg-light .rent-text-col {
+    padding: 25px 6% 25px 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center; 
+}
+
+/* ALINEACIÓN SUPERIOR (Defecto Management) */
+.rent-text-col {
+    justify-content: flex-start;
+}
+
+/* ALINEACIÓN INFERIOR (Support) */
+.rent-text-col.align-bottom {
+    justify-content: flex-end !important; 
+    padding-bottom: 0 !important; 
+}
+
+/* Títulos H1 Compactados */
+.management-title-custom {
+    font-family: 'Inter', sans-serif; 
+    font-weight: 700; 
+    line-height: 1.1; 
+    font-size: 36px; 
+    color: #000;
+    margin-bottom: 15px;
+}
+
+/* Subtítulo Compactado */
+.section-subtitle-compact {
+    font-family: 'Inter', sans-serif;
+    font-size: 17px; 
+    font-weight: 400;   
+    margin-bottom: 5px; 
+    color: #000;
+    line-height: 1.3;
+}
+
+/* LISTA */
+.rent-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 0 25px; 
+}
+
+.rent-list li {
+    position: relative;
+    padding-left: 18px; 
+    margin-bottom: 2px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px; 
+    color: #000;
+    line-height: 1.2;
+    font-weight: 500;
+}
+
+.rent-list li::before {
+    content: '●';             
+    position: absolute;
+    left: 0;
+    top: 0px;                
+    color: #000; 
+    font-size: 10px;
+}
+
+/* Texto descriptivo Support */
+.support-body-text {
+    font-family: 'Inter', sans-serif;
+    font-size: 16px; 
+    font-weight: 400; 
+    color: #000;
+    line-height: 1.4;
+    margin: 0;
+    padding-bottom: 0; 
+}
+
+.rent-text-col.align-bottom .support-body-text {
+    padding-bottom: 0 !important; 
+    margin-bottom: 0 !important;
+}
+
+/* SECCIÓN FINAL VACÍA */
+.rent-content-section.text-center {
+    padding: 80px 0; 
+    background-color: #F0EAE3; 
+    text-align: center;
+    border: none;
+}
+
+.section-title {
+    font-family: 'Gilda Display', serif;
+    font-size: 42px;
+    color: #000;
+    margin-bottom: 20px;
+}
+.section-body {
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: #444;
+}
+.btn-rent-cta {
+    display: inline-block;
+    margin-top: 30px;
+    padding: 15px 40px;
+    background-color: #000;
+    color: #fff;
+    border-radius: 50px;
+    text-decoration: none;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.3s;
+}
+.btn-rent-cta:hover {
+    background-color: #C5A059;
+    color: #fff;
+}
+
+/* RESPONSIVE */
+@media (max-width: 1024px) {
+    .rent-marketing-section { grid-template-columns: 1fr; padding: 60px 0; }
+    .marketing-col-side img { height: auto; max-height: 450px; }
+    
+    .rent-content-section.bg-light .rent-split-grid { grid-template-columns: 1fr; }
+    
+    .rent-text-col.align-bottom { 
+        justify-content: flex-start; 
+        padding-bottom: 40px !important; 
+    }
+    .support-body-text { padding-bottom: 0; }
+}

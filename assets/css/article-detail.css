@@ -1,0 +1,147 @@
+/* =========================================
+   ARTICLE-DETAIL.CSS - Master Style
+   ========================================= */
+
+/* --- HUVUDSTRUKTUR --- */
+.article-page-container {
+    background-color: #fff;
+    width: 100%;
+}
+
+/* --- CABECERA DEL ARTÍCULO (Alineada a la Izquierda) --- */
+.article-header-section {
+    background-color: #F0EAE3; /* Beige bakgrund */
+    padding: 120px 40px 60px; /* Padding lateral aumentado un poco para que no pegue al borde */
+    /* CAMBIO: Alineación a la izquierda */
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; 
+    max-width: 100%; /* Ocupa el ancho disponible */
+    margin: 0 auto;   
+}
+
+/* Breadcrumb (NEWS) */
+.article-category-tag {
+    font-family: 'Inter', sans-serif; /* Asegurando fuente Inter */
+    /* CAMBIO: Tamaño y Color */
+    font-size: 1.1rem; 
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #56503D; /* Color solicitado */
+    margin-bottom: 20px;
+    display: block;
+}
+
+/* Título Grande */
+.article-title {
+    font-family: 'Gilda Display', serif; /* Asegurando fuente Gilda */
+    font-size: 3.8rem; /* Tamaño grande */
+    line-height: 1.1;
+    color: #56503D; /* Mismo color que el tag */
+    margin: 0 0 15px 0; 
+    width: 100%;
+    text-align: left;
+}
+
+/* Meta Data (Fecha) */
+.article-meta {
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    color: #444;
+    font-weight: 400;
+    margin-top: 5px;
+    text-align: left;
+}
+
+/* --- CUERPO DEL CONTENIDO --- */
+.article-body-container {
+    max-width: 900px; 
+    margin: 0; /* Alineado a la izquierda respecto al flujo, pero mejor centrado visualmente o con margen izquierdo */
+    margin-left: 40px; /* Alineación con el header */
+    margin-right: 40px;
+    padding: 60px 0 100px;
+}
+
+/* Imagen Principal */
+.article-featured-image {
+    width: 100%;
+    height: auto;
+    max-height: 600px;
+    object-fit: cover;
+    margin-bottom: 50px;
+    display: block;
+}
+
+/* Textinnehåll */
+.article-content {
+    font-family: 'Inter', sans-serif;
+    font-size: 18px; 
+    line-height: 1.6;
+    color: #000;
+    font-weight: 300; 
+    text-align: left;
+    max-width: 800px; /* Ancho de lectura óptimo */
+}
+
+/* Párrafos */
+.article-content p {
+    margin-bottom: 25px;
+    text-align: left; 
+}
+
+/* Listas (Emojis) */
+.article-content ul {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 30px;
+}
+
+.article-content ul li {
+    margin-bottom: 10px;
+    font-size: 18px;
+    line-height: 1.6;
+}
+
+/* Signatur */
+.article-author-signature {
+    margin-top: 80px;
+    padding-top: 40px;
+    border-top: 1px solid #ddd;
+    font-family: 'Inter', sans-serif;
+}
+
+.author-name {
+    font-weight: 700;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.author-role {
+    font-size: 0.9rem;
+    color: #666;
+    font-weight: 400;
+}
+
+/* --- RELATERAT --- */
+.related-articles-section {
+    background-color: #F9F9F9;
+    padding: 80px 0;
+}
+
+.related-title {
+    text-align: center;
+    font-family: 'Gilda Display', serif;
+    font-size: 2.5rem;
+    margin-bottom: 50px;
+}
+
+/* Responsiv */
+@media (max-width: 768px) {
+    .article-header-section { padding: 80px 20px 40px; }
+    .article-body-container { margin-left: 20px; margin-right: 20px; }
+    .article-title { font-size: 2.5rem; }
+}

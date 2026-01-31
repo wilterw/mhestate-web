@@ -1,5 +1,5 @@
 /* =========================================
-   DETAIL.JS - V9.9 (LÓGICA ESTRICTA + TRADUCCIONES)
+   DETAIL.JS - V10.0 (ROLES DINÁMICOS DE AGENTE)
    ========================================= */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -22,7 +22,7 @@ const TRANSLATIONS = {
         'type_parcela': 'Parcela', 'type_local': 'Local Comercial', 'type_oficina': 'Oficina',
         
         'cond_new': 'Obra Nueva', 
-        'cond_resale': 'Segunda Mano', // <--- NUEVO
+        'cond_resale': 'Segunda Mano',
 
         'feat_ref': 'Referencia', 'feat_price': 'Precio', 'feat_type': 'Tipo',
         'feat_town': 'Ciudad', 'feat_zone': 'Zona', 'feat_beds': 'Dormitorios',
@@ -39,7 +39,14 @@ const TRANSLATIONS = {
 
         'val_yes': 'Sí', 'val_no': 'No', 'val_private': 'Privada',
         'val_communal': 'Comunitaria', 'val_consult': 'Consultar',
-        'agent_label': 'Agente Responsable', 'btn_email': 'Enviar Email', 'btn_call': 'Llamar',
+        
+        // --- ROLES DE AGENTE (ES) ---
+        'agent_label': 'Agente Responsable', 
+        'role_founder': 'Fundadora y Agente Inmobiliaria',
+        'role_agent': 'Agente Inmobiliaria',
+        'role_rental': 'Gestora de Alquileres',
+
+        'btn_email': 'Enviar Email', 'btn_call': 'Llamar',
         'plan_click': 'Haz clic para ampliar', 'no_data': 'No disponible', 'loc_approx': 'Ubicación Aproximada',
 
         'feat_exclusive': 'EXCLUSIVA'
@@ -51,7 +58,7 @@ const TRANSLATIONS = {
         'type_parcela': 'Plot', 'type_local': 'Commercial Premises', 'type_oficina': 'Office',
 
         'cond_new': 'New Construction',
-        'cond_resale': 'Resale', // <--- NUEVO
+        'cond_resale': 'Resale',
 
         'feat_ref': 'Reference', 'feat_price': 'Price', 'feat_type': 'Type',
         'feat_town': 'Town', 'feat_zone': 'Area', 'feat_beds': 'Bedrooms',
@@ -68,7 +75,14 @@ const TRANSLATIONS = {
 
         'val_yes': 'Yes', 'val_no': 'No', 'val_private': 'Private',
         'val_communal': 'Communal', 'val_consult': 'On request',
-        'agent_label': 'Listing Agent', 'btn_email': 'Send Email', 'btn_call': 'Call Now',
+        
+        // --- ROLES DE AGENTE (EN) ---
+        'agent_label': 'Listing Agent', 
+        'role_founder': 'Founder & Real Estate Agent',
+        'role_agent': 'Real Estate Agent',
+        'role_rental': 'Rental Manager',
+
+        'btn_email': 'Send Email', 'btn_call': 'Call Now',
         'plan_click': 'Click to enlarge', 'no_data': 'Not available', 'loc_approx': 'Approximate Location',
 
         'feat_exclusive': 'EXCLUSIVE'
@@ -80,7 +94,7 @@ const TRANSLATIONS = {
         'type_parcela': 'Tomt', 'type_local': 'Lokal', 'type_oficina': 'Kontor',
 
         'cond_new': 'Nyproduktion',
-        'cond_resale': 'Begagnad', // <--- NUEVO
+        'cond_resale': 'Begagnad',
 
         'feat_ref': 'Referens', 'feat_price': 'Pris', 'feat_type': 'Typ',
         'feat_town': 'Stad', 'feat_zone': 'Område', 'feat_bed': 'Sovrum',
@@ -97,7 +111,14 @@ const TRANSLATIONS = {
 
         'val_yes': 'Ja', 'val_no': 'Nej', 'val_private': 'Privat',
         'val_communal': 'Gemensam', 'val_consult': 'På begäran',
-        'agent_label': 'Ansvarig Mäklare', 'btn_email': 'Skicka E-post', 'btn_call': 'Ring Nu',
+        
+        // --- ROLES DE AGENTE (SV) ---
+        'agent_label': 'Ansvarig Mäklare', 
+        'role_founder': 'Grundare & Fastighetsmäklare',
+        'role_agent': 'Fastighetsmäklare',
+        'role_rental': 'Uthyrningschef',
+
+        'btn_email': 'Skicka E-post', 'btn_call': 'Ring Nu',
         'plan_click': 'Klicka för att förstora', 'no_data': 'Ej tillgänglig', 'loc_approx': 'Ungefärlig plats',
 
         'feat_exclusive': 'EXKLUSIV'
@@ -129,12 +150,8 @@ function formatPropType(rawType) {
 }
 
 function formatCondition(rawCond) {
-    if (!rawCond) return t('cond_resale'); // Si viene vacío, asumimos segunda mano
-    
-    // REGLA ESTRICTA: Solo si es exactamente "Obra Nueva"
+    if (!rawCond) return t('cond_resale'); 
     if (rawCond === 'Obra Nueva') return t('cond_new');
-    
-    // CUALQUIER OTRO VALOR -> SEGUNDA MANO
     return t('cond_resale');
 }
 
@@ -251,21 +268,16 @@ function renderPropertyDetails(node) {
     
     // --- LÓGICA DE ETIQUETA EN HERO DETALLE ---
     const excluVal = get(['exclu', 'exclusiva']);
-    // Nota: El Hero Tag se usa normalmente solo para lo más destacado (Exclusiva)
-    // Pero si quisieras mostrar también Obra Nueva aquí, descomenta abajo.
     const tagEl = document.getElementById('prop-tag');
 
     if(tagEl) {
         tagEl.style.display = 'none'; 
-        
         if(excluVal === '1') {
             tagEl.textContent = t('feat_exclusive');
             tagEl.style.display = 'inline-block';
             tagEl.style.backgroundColor = '#000';
             tagEl.style.color = '#fff';
         } 
-        // Si no es exclusiva, no forzamos etiqueta en el Hero Banner para no sobrecargar, 
-        // ya que "Segunda Mano" no es un selling point para un banner gigante.
     }
 
     setTextSafe('prop-price', formatPrice(get(['precioinmo', 'precio'])));
@@ -277,22 +289,38 @@ function renderPropertyDetails(node) {
     const descContainer = document.getElementById('prop-description');
     if(descContainer) descContainer.innerHTML = formatRichText(rawDesc);
 
+    // --- LÓGICA DEL AGENTE ---
     const agentName = get('agente') || 'MH Estate Team';
     const agentEmail = get('email_agente') || ''; 
     const agentPhone = get(['tlf_agente', 'telefono_agente']);
     const agentPrefix = get('prefijo_tlf_agente') || '34';
     const propRef = get(['ref', 'referencia', 'id']);
 
+    // 1. Determinar el Label del Agente según quién sea
+    let roleKey = 'agent_label'; // Default
+
+    if (agentName.includes('Cecilia Andersson')) {
+        roleKey = 'role_founder';
+    } else if (agentName.includes('Rebecca Velin')) {
+        roleKey = 'role_agent';
+    } else if (agentName.includes('Isidora Polanco')) {
+        roleKey = 'role_rental';
+    }
+
     const labelEl = document.querySelector('.agent-label');
-    if(labelEl) labelEl.textContent = t('agent_label');
+    if(labelEl) labelEl.textContent = t(roleKey);
+    
+    // 2. Nombre del Agente
     setTextSafe('agent-name', agentName);
     
+    // 3. Foto del Agente
     const imgEl = document.getElementById('agent-img');
     if(imgEl) {
         let photoUrl = AGENT_PHOTOS[agentName] || AGENT_PHOTOS['default'];
         imgEl.src = photoUrl;
     }
 
+    // 4. Contacto (Teléfono y Bio)
     let finalPhone = agentPhone;
     if(!finalPhone || finalPhone.trim() === "") {
         if(agentName.includes("Rebecca")) finalPhone = "653 61 04 24"; 
@@ -309,6 +337,7 @@ function renderPropertyDetails(node) {
         bioEl.innerHTML = contactHtml || 'Contacta para más información.';
     }
 
+    // 5. Botones de Acción
     const emailBtn = document.getElementById('agent-email-btn');
     if(emailBtn) {
         emailBtn.textContent = t('btn_email');

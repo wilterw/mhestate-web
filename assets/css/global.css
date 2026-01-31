@@ -70,3 +70,50 @@ button { cursor: pointer; border: none; outline: none; transition: 0.3s; }
         right: 25px;
     }
 }
+/* --- PAGINACIÓN Y PREVIEWS DINÁMICOS --- */
+
+/* Recorte de texto automático (...) */
+.preview-text {
+    display: -webkit-box;
+    -webkit-line-clamp: 3; /* Max 3 líneas */
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Controles de Paginación */
+.pagination-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    margin-top: 50px;
+    padding-bottom: 20px;
+}
+
+.btn-page {
+    background-color: #000;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    transition: background 0.3s;
+}
+
+.btn-page:hover {
+    background-color: #C5A059;
+}
+
+.btn-page:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+.page-info {
+    font-family: 'Gilda Display', serif;
+    font-size: 1.2rem;
+    color: #000;
+}

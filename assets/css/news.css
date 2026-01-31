@@ -149,3 +149,13 @@
     .news-text-content h3 { font-size: 1.8rem; }
     .news-container { padding: 0 20px; }
 }
+/* --- TRUNCAR TEXTO DE PREVIEW AUTOMÁTICO --- */
+.preview-text {
+    display: -webkit-box;
+    -webkit-line-clamp: 3; /* Número máximo de líneas */
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-height: 4.8em; /* Ajuste de altura */
+}

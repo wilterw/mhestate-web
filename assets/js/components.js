@@ -1,31 +1,26 @@
 /* =========================================
-   ASSETS/JS/COMPONENTS.JS - CARGA MODULAR Y UI
+   ASSETS/JS/COMPONENTS.JS - CARGA MODULAR Y LÓGICA RENTALS
    ========================================= */
 
 document.addEventListener("DOMContentLoaded", async () => {
     // 1. Cargar Header y Footer
-    // CAMBIO: Añadida la barra '/' al inicio para asegurar la ruta absoluta
     await Promise.all([
-        loadComponent("header-placeholder", "/components/header.html"),
-        loadComponent("footer-placeholder", "/components/footer.html")
+        loadComponent("header-placeholder", "components/header.html"),
+        loadComponent("footer-placeholder", "components/footer.html", initFooterLogic) // Callback agregado aquí
     ]);
 
     // 2. Inicializar UI
     highlightCurrentPage();
-    updateActiveLangButton(); // Actualizar botón al cargar
+    updateActiveLangButton(); 
 
-    // 3. Re-traducir elementos recién cargados
+    // 3. Re-traducir
     const currentLang = localStorage.getItem('preferredLang') || 'es';
     if (typeof setLanguage === 'function') {
-        // No llamamos a setLanguage aquí para evitar bucle infinito si ya se cargó,
-        // pero sí forzamos la traducción de la página si es necesario.
-        // Mejor opción: Disparar evento de traducción manual o llamar al traductor.
-        // Dado que i18n ya corre, simplemente invocamos setLanguage que refresca todo.
         setLanguage(currentLang);
     }
 });
 
-// ESCUCHADOR DE EVENTO: Esto arregla el problema del botón "atascado"
+// ESCUCHADOR DE EVENTO
 window.addEventListener('languageChanged', (e) => {
     updateActiveLangButton();
 });
@@ -33,12 +28,12 @@ window.addEventListener('languageChanged', (e) => {
 /**
  * Carga de HTML externo
  */
-async function loadComponent(placeholderId, url) {
+async function loadComponent(placeholderId, url, callback) {
     const placeholder = document.getElementById(placeholderId);
     if (!placeholder) return;
 
     try {
-        // Agregamos un timestamp para evitar caché en los componentes también (?v=...)
+        // Timestamp para evitar caché
         const noCacheUrl = `${url}?v=${Date.now()}`; 
         const response = await fetch(noCacheUrl);
         
@@ -46,10 +41,39 @@ async function loadComponent(placeholderId, url) {
         
         const html = await response.text();
         placeholder.innerHTML = html;
+
+        // Ejecutar lógica específica si existe (como la del footer)
+        if (callback) callback();
+
     } catch (err) {
         console.error(`Error cargando componente ${url}:`, err);
-        // Opcional: Mostrar error visual si falla
-        // placeholder.innerHTML = "";
+    }
+}
+
+/**
+ * LÓGICA ESPECÍFICA DEL FOOTER (CAMBIO DE CORREO EN RENT)
+ */
+function initFooterLogic() {
+    // Detectamos si la URL contiene "rent.html"
+    if (window.location.pathname.includes('rent.html')) {
+        const emailLink = document.getElementById('footer-email-link');
+        
+        if (emailLink) {
+            // 1. Cambiamos el enlace
+            emailLink.href = "mailto:rentals@mhestate.es";
+            
+            // 2. Cambiamos el texto visible
+            emailLink.textContent = "rentals@mhestate.es";
+            
+            // 3. Quitamos el atributo de traducción para que no se revierta
+            emailLink.removeAttribute('data-i18n');
+        }
+    }
+    
+    // Actualizar año automáticamente
+    const yearSpan = document.getElementById('year'); // Si añades un span con id="year" en el footer
+    if(yearSpan) {
+        yearSpan.innerText = new Date().getFullYear();
     }
 }
 
@@ -69,7 +93,7 @@ function highlightCurrentPage() {
 }
 
 /**
- * Actualiza el texto del botón de idioma (ES ▾ / EN ▾ / SV ▾)
+ * Actualiza el texto del botón de idioma
  */
 function updateActiveLangButton() {
     const currentLang = localStorage.getItem('preferredLang') || 'es';
