@@ -1,10 +1,11 @@
 /**
- * RENT-DETAIL.JS - V5.3 (AMBOS BOTONES A WHATSAPP + VALIDACIÓN FECHAS)
+ * RENT-DETAIL.JS - V5.4 (CÓDIGO COMPLETO + VALIDACIÓN POR VENTANA EMERGENTE)
  */
 
 document.addEventListener('DOMContentLoaded', () => {
     initRentPage();
     setupTabs();
+    injectValidationModalStyles(); // Inicializa los estilos del modal
 });
 
 // VARIABLES
@@ -29,7 +30,7 @@ const I18N_RENT_UI = {
     'es': {
         unit_day: '/ noche', unit_week: '/ semana', unit_month: '/ mes',
         lbl_in: 'Llegada', lbl_out: 'Salida', 
-        btn_book: 'RESERVAR', // CAMBIO: Texto corto
+        btn_book: 'RESERVAR',
         total: 'TOTAL', nights: 'noches',
         managed_by: 'Gestionado por',
         feat_exclusive: 'EXCLUSIVA', cond_new: 'Obra Nueva',
@@ -47,59 +48,113 @@ const I18N_RENT_UI = {
         'btn_email': 'Enviar Email', 
         'txt_email': 'Email:',
         'txt_phone': 'Teléfono:',
-        'alert_dates': 'Por favor, selecciona las fechas de llegada y salida para continuar.'
+
+        // VENTANA EMERGENTE (NUEVO)
+        'modal_title': 'Seleccione las fechas',
+        'modal_text': 'Debe seleccionar un rango de fechas para poder validar e informar su solicitud. Tras colocar el rango de fechas, será contactado por nuestro ejecutivo según sea el caso.',
+        'modal_btn': 'ENTENDIDO'
     },
     'en': {
         unit_day: '/ night', unit_week: '/ week', unit_month: '/ month',
         lbl_in: 'Check-in', lbl_out: 'Check-out', 
-        btn_book: 'RESERVE', // CAMBIO
+        btn_book: 'RESERVE',
         total: 'TOTAL', nights: 'nights',
         managed_by: 'Managed by',
         feat_exclusive: 'EXCLUSIVE', cond_new: 'New Construction',
         no_data: 'Not available', plan_click: 'Click to enlarge',
         feat_beds: 'Beds', feat_baths: 'Baths', feat_pool: 'Pool', feat_garage: 'Garage', feat_wifi: 'Wifi', feat_terrace: 'Terrace',
 
-        // ROLES AGENTE
         'role_founder': 'Founder & Agent',
         'role_agent': 'Real Estate Agent',
         'role_rental': 'Rental Manager',
         'agent_label': 'Listing Agent',
         
-        // CONTACTO Y ALERTAS
         'btn_whatsapp': 'ASK ON WHATSAPP',
         'btn_email': 'Send Email',
         'txt_email': 'Email:',
         'txt_phone': 'Phone:',
-        'alert_dates': 'Please select check-in and check-out dates to continue.'
+
+        'modal_title': 'Select dates',
+        'modal_text': 'You must select a date range to validate and inform your request. Once the dates are set, you will be contacted by our executive as appropriate.',
+        'modal_btn': 'UNDERSTOOD'
     },
     'sv': {
         unit_day: '/ natt', unit_week: '/ vecka', unit_month: '/ månad',
         lbl_in: 'Incheckning', lbl_out: 'Utcheckning', 
-        btn_book: 'BOKA', // CAMBIO
+        btn_book: 'BOKA',
         total: 'TOTALT', nights: 'nätter',
         managed_by: 'Förvaltas av',
         feat_exclusive: 'EXKLUSIV', cond_new: 'Nyproduktion',
         no_data: 'Ej tillgänglig', plan_click: 'Klicka för att förstora',
         feat_beds: 'Sovrum', feat_baths: 'Badrum', feat_pool: 'Pool', feat_garage: 'Garage', feat_wifi: 'Wifi', feat_terrace: 'Terrass',
 
-        // ROLES AGENTE
         'role_founder': 'Grundare & Mäklare',
         'role_agent': 'Fastighetsmäklare',
         'role_rental': 'Uthyrningschef',
         'agent_label': 'Ansvarig Mäklare',
         
-        // CONTACTO Y ALERTAS
         'btn_whatsapp': 'FRÅGA PÅ WHATSAPP',
         'btn_email': 'Skicka E-post',
         'txt_email': 'E-post:',
         'txt_phone': 'Telefon:',
-        'alert_dates': 'Vänligen välj in- och utcheckningsdatum för att fortsätta.'
+
+        'modal_title': 'Välj datum',
+        'modal_text': 'Du måste välja ett datumintervall för att validera din förfrågan. När datumen har valts kommer du att kontaktas av vår handläggare efter behov.',
+        'modal_btn': 'JAG FÖRSTÅR'
     }
 };
 
 function t(key) {
     const lang = localStorage.getItem('preferredLang') || 'es';
     return I18N_RENT_UI[lang][key] || key;
+}
+
+// --- LÓGICA DE VENTANA EMERGENTE (MODAL) ---
+function injectValidationModalStyles() {
+    if (document.getElementById('val-modal-styles')) return;
+    const style = document.createElement('style');
+    style.id = 'val-modal-styles';
+    style.innerHTML = `
+        .val-modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center;
+            z-index: 10000; opacity: 0; pointer-events: none; transition: 0.3s;
+        }
+        .val-modal-overlay.active { opacity: 1; pointer-events: auto; }
+        .val-modal-box {
+            background: #fff; padding: 35px; max-width: 420px; width: 90%; text-align: center;
+            border-radius: 4px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); transform: translateY(20px); transition: 0.3s;
+        }
+        .val-modal-overlay.active .val-modal-box { transform: translateY(0); }
+        .val-modal-title { font-size: 18px; font-weight: 700; margin-bottom: 15px; color: #000; text-transform: uppercase; }
+        .val-modal-text { font-size: 14px; color: #555; line-height: 1.6; margin-bottom: 25px; }
+        .val-modal-btn { 
+            background: #000; color: #fff; border: none; padding: 12px 25px; cursor: pointer;
+            font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;
+        }
+    `;
+    document.head.appendChild(style);
+}
+
+function showValidationModal() {
+    let overlay = document.getElementById('custom-val-modal');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.id = 'custom-val-modal';
+        overlay.className = 'val-modal-overlay';
+        overlay.innerHTML = `
+            <div class="val-modal-box">
+                <div class="val-modal-title">${t('modal_title')}</div>
+                <div class="val-modal-text">${t('modal_text')}</div>
+                <button class="val-modal-btn" onclick="document.getElementById('custom-val-modal').classList.remove('active')">
+                    ${t('modal_btn')}
+                </button>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+        overlay.addEventListener('click', (e) => { if(e.target === overlay) overlay.classList.remove('active'); });
+    }
+    overlay.classList.add('active');
 }
 
 // FORMATEO DE TEXTO
@@ -240,24 +295,21 @@ function renderRentDetails(node) {
     
     document.getElementById('lbl-checkin').textContent = t('lbl_in');
     document.getElementById('lbl-checkout').textContent = t('lbl_out');
-    document.getElementById('btn-request-book').textContent = t('btn_book'); // Ahora dice "RESERVAR"
+    document.getElementById('btn-request-book').textContent = t('btn_book');
 
-    // 4. LÓGICA DE AGENTE (INTEGRADA EN EL WIDGET)
+    // 4. LÓGICA DE AGENTE
     const agentName = getVal('agente') || 'MH Estate Team';
     const agentPhone = getVal(['tlf_agente', 'telefono_agente']);
     const agentEmail = getVal(['email_agente']) || 'info@mhestate.es';
     const agentPrefix = getVal('prefijo_tlf_agente') || '34';
 
-    // Determinar Rol
     let roleKey = 'agent_label';
     if (agentName.includes('Cecilia Andersson')) roleKey = 'role_founder';
     else if (agentName.includes('Rebecca Velin')) roleKey = 'role_agent';
     else if (agentName.includes('Isidora')) roleKey = 'role_rental';
 
-    // Determinar Foto
     let photoUrl = AGENT_PHOTOS[agentName] || AGENT_PHOTOS[Object.keys(AGENT_PHOTOS).find(k => agentName.includes(k))] || AGENT_PHOTOS['default'];
 
-    // Preparar Teléfono
     let finalPhone = agentPhone;
     if(!finalPhone || finalPhone.trim() === "") {
         if(agentName.includes("Rebecca")) finalPhone = "653 61 04 24"; 
@@ -265,7 +317,6 @@ function renderRentDetails(node) {
     }
     const cleanNumber = (agentPrefix + finalPhone).replace(/\D/g, ''); 
 
-    // Renderizar Bloque Agente en Widget (SIN BOTÓN EMAIL, SOLO TEXTO)
     const agentContainer = document.querySelector('.booking-agent-mini');
     if(agentContainer) {
         agentContainer.innerHTML = `
@@ -276,17 +327,14 @@ function renderRentDetails(node) {
                     <h4 style="margin:0; font-size:15px; color:#000; font-weight:600;">${agentName}</h4>
                 </div>
             </div>
-
             <div style="font-size:13px; color:#555; margin-bottom:20px; border-bottom:1px solid #eee; padding-bottom:15px; line-height:1.6;">
                 <div style="margin-bottom:4px;"><strong style="color:#000;">${t('txt_email')}</strong> <br> ${agentEmail}</div>
                 <div><strong style="color:#000;">${t('txt_phone')}</strong> <br> +${agentPrefix} ${finalPhone}</div>
             </div>
-
             <a href="#" id="btn-whatsapp-dynamic" style="text-decoration:none; text-align:center; padding:15px; background:#25D366; color:#fff; font-size:13px; font-weight:700; border-radius:4px; display:flex; justify-content:center; align-items:center; gap:8px; text-transform:uppercase; transition: background 0.3s; margin-top:10px;">
                 <span style="font-size:18px;">💬</span> ${t('btn_whatsapp')}
             </a>
         `;
-        // Ajuste CSS inline
         agentContainer.style.display = 'block'; 
         agentContainer.style.marginTop = '20px';
         agentContainer.style.paddingTop = '20px';
@@ -302,7 +350,6 @@ function renderRentDetails(node) {
             const d2 = new Date(outInput.value);
             const diffTime = d2 - d1;
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
-            
             const summaryBox = document.getElementById('booking-summary');
             if (diffDays > 0) {
                 const total = diffDays * rentPrice;
@@ -318,72 +365,61 @@ function renderRentDetails(node) {
     inInput.addEventListener('change', calculate);
     outInput.addEventListener('change', calculate);
 
-    // --- ACCIÓN BOTÓN 1: RESERVAR (Misma acción que WhatsApp) ---
+    // --- LÓGICA DE BOTONES CON VALIDACIÓN DE VENTANA EMERGENTE ---
+
+    // Botón 1: RESERVAR
     document.getElementById('btn-request-book').addEventListener('click', (e) => {
         e.preventDefault();
         const inDate = inInput.value;
         const outDate = outInput.value;
         
-        // VALIDACIÓN
         if(!inDate || !outDate) {
-            alert(t('alert_dates')); 
+            showValidationModal();
             return;
         }
 
         const ref = getVal('id');
-        const title = document.getElementById('prop-title').textContent;
-        
-        // MENSAJE DINÁMICO
+        const currentTitle = document.getElementById('prop-title').textContent;
         const msg = `Hola ${agentName}, estoy interesado en reservar:\n` +
-                    `Propiedad: ${title} (Ref: ${ref})\n` +
+                    `Propiedad: ${currentTitle} (Ref: ${ref})\n` +
                     `Fechas: del ${inDate} al ${outDate}.\n` +
                     `Quedo a la espera de confirmación.`;
 
-        // ABRIR WHATSAPP
-        const waUrl = `https://wa.me/${cleanNumber}?text=${encodeURIComponent(msg)}`;
-        window.open(waUrl, '_blank');
+        window.open(`https://wa.me/${cleanNumber}?text=${encodeURIComponent(msg)}`, '_blank');
     });
 
-    // --- ACCIÓN BOTÓN 2: CONSULTAR POR WHATSAPP ---
+    // Botón 2: CONSULTAR POR WHATSAPP
     const waBtn = document.getElementById('btn-whatsapp-dynamic');
     if(waBtn) {
         waBtn.addEventListener('click', (e) => {
+            e.preventDefault();
             const inDate = inInput.value;
             const outDate = outInput.value;
 
-            // VALIDACIÓN
             if(!inDate || !outDate) {
-                e.preventDefault();
-                alert(t('alert_dates'));
+                showValidationModal();
             } else {
-                e.preventDefault();
                 const ref = getVal('id');
-                const title = document.getElementById('prop-title').textContent;
-                
-                // MENSAJE DINÁMICO
+                const currentTitle = document.getElementById('prop-title').textContent;
                 const msg = `Hola ${agentName}, me gustaría consultar disponibilidad para:\n` +
-                            `Propiedad: ${title} (Ref: ${ref})\n` +
+                            `Propiedad: ${currentTitle} (Ref: ${ref})\n` +
                             `Fechas: del ${inDate} al ${outDate}.\n` +
                             `¿Está disponible?`;
 
-                // ABRIR WHATSAPP
-                const waUrl = `https://wa.me/${cleanNumber}?text=${encodeURIComponent(msg)}`;
-                window.open(waUrl, '_blank');
+                window.open(`https://wa.me/${cleanNumber}?text=${encodeURIComponent(msg)}`, '_blank');
             }
         });
     }
 }
 
-// GALERÍA BENTO GRID (Mismo código optimizado)
+// GALERÍA
 function renderRentGallery(node) {
     const container = document.getElementById('gallery-container');
     lightboxMedia = [];
-    
     for(let i=1; i<=25; i++) {
         const url = node.querySelector(`foto${i}`)?.textContent;
         if(url && url.length > 5) lightboxMedia.push({type:'img', src:url});
     }
-    
     if(lightboxMedia.length === 0) return;
 
     let html = `<div class="rent-gallery-wrapper">`;
@@ -448,8 +484,7 @@ function renderSimilarRentals(current, allItems) {
     let rentals = allItems.filter(p => {
         const act = p.querySelector('accion')?.textContent || '';
         return act.toLowerCase().includes('alquiler') && p.querySelector('id')?.textContent !== currentId;
-    });
-    rentals = rentals.slice(0, 6);
+    }).slice(0, 6);
     container.innerHTML = '';
     rentals.forEach(p => {
         const img = p.querySelector('foto1')?.textContent || 'assets/img/logo mh state negro.png';

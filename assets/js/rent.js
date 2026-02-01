@@ -1,5 +1,5 @@
 /**
- * RENT.JS - V28.0 (TEXTO BORDE NEGRO + INFO DUPLICADA ABAJO)
+ * RENT.JS - V29.0 (TEXTO BORDE NEGRO + INFO DUPLICADA + MENSAJE LONG TERM VACÍO)
  */
 
 const ITEMS_PER_PAGE = 5;
@@ -30,7 +30,12 @@ const I18N_RENT = {
         feat_terrace: 'Terraza', 
         feat_ac: 'A/C', 
         feat_garden: 'Jardín',
-        feat_seaview: 'Vistas al Mar'
+        feat_seaview: 'Vistas al Mar',
+
+        // MENSAJE VACÍO (LONG TERM)
+        empty_long_title: 'No hay propiedades disponibles',
+        empty_long_text: 'Actualmente no tenemos viviendas disponibles para alquiler de larga temporada. Sin embargo, tenemos propietarios que pueden ofrecer sus viviendas por un número determinado de meses. También podemos tener nuevas viviendas en camino. Registre su interés y le contactaremos tan pronto como tengamos algo que coincida con sus deseos.',
+        btn_interest: 'REGISTRAR INTERÉS'
     },
     'en': {
         title: 'For Rent', tab_all: 'DISCOVER ALL', tab_hol: 'HOLIDAY', tab_long: 'LONG TERM',
@@ -50,7 +55,12 @@ const I18N_RENT = {
         feat_terrace: 'Terrace', 
         feat_ac: 'A/C', 
         feat_garden: 'Garden',
-        feat_seaview: 'Sea View'
+        feat_seaview: 'Sea View',
+
+        // EMPTY MESSAGE (LONG TERM)
+        empty_long_title: 'No properties available',
+        empty_long_text: 'Currently, we have no homes available for long-term rental. However, we have homeowners who can offer their homes for rent for a certain number of months. We may also have new homes on the way. Register your interest and we will contact you as soon as we get something that matches your wishes.',
+        btn_interest: 'REGISTER INTEREST'
     },
     'sv': {
         title: 'Uthyrning', tab_all: 'VISA ALLA', tab_hol: 'SEMESTER', tab_long: 'LÅNGTID',
@@ -70,7 +80,12 @@ const I18N_RENT = {
         feat_terrace: 'Terrass', 
         feat_ac: 'AC', 
         feat_garden: 'Trädgård',
-        feat_seaview: 'Havsutsikt'
+        feat_seaview: 'Havsutsikt',
+
+        // TOMT MEDDELANDE (LONG TERM)
+        empty_long_title: 'Inga bostäder tillgängliga',
+        empty_long_text: 'Just nu har vi inga bostäder tillgängliga för långtidsuthyrning. Däremot har vi bostadsägare som kan erbjuda sina bostäder för uthyrning under ett visst antal månader. Vi kan även ha nya bostäder på väg in. Anmäl ditt intresse så kontaktar vi dig så snart vi får in något som matchar dina önskemål.',
+        btn_interest: 'ANMÄL DITT INTRESSE'
     }
 };
 
@@ -157,6 +172,34 @@ function injectRentStyles() {
             font-size: 1rem;
             font-weight: 400;
             color: #333;
+        }
+
+        /* ESTILOS ESTADO VACÍO */
+        .rent-empty-state {
+            grid-column: 1 / -1;
+            text-align: center; 
+            padding: 60px 20px; 
+            background: #fff; 
+            border-radius: 8px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            margin-top: 20px;
+        }
+        .rent-empty-icon {
+            font-size: 50px; 
+            margin-bottom: 20px;
+        }
+        .rent-empty-title {
+            margin-bottom: 20px; 
+            color: #333; 
+            font-weight: 600; 
+            font-size: 1.5rem;
+        }
+        .rent-empty-text {
+            max-width: 700px; 
+            margin: 0 auto 35px auto; 
+            color: #666; 
+            line-height: 1.8; 
+            font-size: 1.05rem;
         }
     `;
     document.head.appendChild(style);
@@ -313,7 +356,7 @@ async function fetchRentFromXML() {
     }
 }
 
-// --- RENDERIZADO GRID ---
+// --- RENDERIZADO GRID (CON EMPTY STATE LONG TERM) ---
 function renderRentGrid() {
     const container = document.getElementById('rent-grid');
     const paginationContainer = document.getElementById('rent-pagination');
@@ -335,15 +378,38 @@ function renderRentGrid() {
     const toShow = filtered.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
     container.innerHTML = "";
+    
+    // CASO VACÍO
     if (toShow.length === 0) {
-        container.innerHTML = `<div style="text-align:center; padding:40px; width:100%;">No properties found.</div>`;
+        if (currentCategory === 'long_term') {
+            // Mensaje específico para Larga Temporada
+            container.innerHTML = `
+                <div class="rent-empty-state">
+                    <div class="rent-empty-icon">📋</div>
+                    <h3 class="rent-empty-title">${dict.empty_long_title}</h3>
+                    <p class="rent-empty-text">${dict.empty_long_text}</p>
+                    <button class="btn-valuable-gold btn-contact-trigger">${dict.btn_interest}</button>
+                </div>
+            `;
+            // Reinicializar el modal para el nuevo botón inyectado
+            initGlobalContactModal();
+        } else {
+            // Mensaje genérico
+            container.innerHTML = `<div style="text-align:center; padding:40px; width:100%;">No properties found.</div>`;
+        }
     } else {
         toShow.forEach(prop => { 
             container.appendChild(createRentCard(prop, dict)); 
         });
         setTimeout(initAutoSliders, 100);
     }
-    renderPaginationControls(paginationContainer, totalPages, dict);
+    
+    // Si hay resultados, mostrar paginación
+    if (toShow.length > 0) {
+        renderPaginationControls(paginationContainer, totalPages, dict);
+    } else {
+        paginationContainer.innerHTML = "";
+    }
 }
 
 // --- CREAR TARJETA ---
@@ -476,7 +542,11 @@ function translateRentUI() {
 function initGlobalContactModal() {
     const triggers = document.querySelectorAll('.btn-contact-trigger, .contact-trigger');
     triggers.forEach(btn => {
-        btn.addEventListener('click', async (e) => {
+        // Clonar para evitar listeners duplicados si se llama múltiples veces
+        const newBtn = btn.cloneNode(true);
+        btn.parentNode.replaceChild(newBtn, btn);
+
+        newBtn.addEventListener('click', async (e) => {
             e.preventDefault();
             let modal = document.getElementById('contact-modal');
             const closeModal = () => { if(modal) { modal.classList.remove('active'); document.body.style.overflow = ''; } };
