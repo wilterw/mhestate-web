@@ -1,11 +1,14 @@
 /**
- * RENT.JS - V19.2 (FINAL - CONEXIÓN CON APP.JS LOGIC)
+ * RENT.JS - V28.0 (TEXTO BORDE NEGRO + INFO DUPLICADA ABAJO)
  */
 
 const ITEMS_PER_PAGE = 5;
 let allRentProperties = [];
 let currentCategory = 'all';
 let currentPage = 1;
+
+// URL ficticia de iCal para desarrollo
+const FAKE_ICAL_URL = "https://calendar.google.com/calendar/ical/es.spanish%23holiday%40group.v.calendar.google.com/public/basic.ics";
 
 const I18N_RENT = {
     'es': {
@@ -17,7 +20,17 @@ const I18N_RENT = {
         btn_contact: 'CONTÁCTENOS',
         view_prop: 'Ver Propiedad',
         cat_holiday: 'VACACIONAL', cat_long: 'LARGA TEMPORADA',
-        feat_bed: 'Dorm.', feat_bath: 'Baños', feat_pool: 'Piscina', feat_garage: 'Garaje', feat_wifi: 'Wifi', feat_terrace: 'Terraza'
+        
+        // CARACTERÍSTICAS
+        feat_bed: 'Dorm.', 
+        feat_bath: 'Baños', 
+        feat_pool: 'Piscina', 
+        feat_garage: 'Garaje', 
+        feat_wifi: 'Wifi', 
+        feat_terrace: 'Terraza', 
+        feat_ac: 'A/C', 
+        feat_garden: 'Jardín',
+        feat_seaview: 'Vistas al Mar'
     },
     'en': {
         title: 'For Rent', tab_all: 'DISCOVER ALL', tab_hol: 'HOLIDAY', tab_long: 'LONG TERM',
@@ -28,7 +41,16 @@ const I18N_RENT = {
         btn_contact: 'CONTACT US',
         view_prop: 'View Property',
         cat_holiday: 'HOLIDAY', cat_long: 'LONG TERM',
-        feat_bed: 'Bed', feat_bath: 'Bath', feat_pool: 'Pool', feat_garage: 'Garage', feat_wifi: 'Wifi', feat_terrace: 'Terrace'
+        
+        feat_bed: 'Bed', 
+        feat_bath: 'Bath', 
+        feat_pool: 'Pool', 
+        feat_garage: 'Garage', 
+        feat_wifi: 'Wifi', 
+        feat_terrace: 'Terrace', 
+        feat_ac: 'A/C', 
+        feat_garden: 'Garden',
+        feat_seaview: 'Sea View'
     },
     'sv': {
         title: 'Uthyrning', tab_all: 'VISA ALLA', tab_hol: 'SEMESTER', tab_long: 'LÅNGTID',
@@ -39,13 +61,23 @@ const I18N_RENT = {
         btn_contact: 'KONTAKTA OSS',
         view_prop: 'Visa Fastighet',
         cat_holiday: 'SEMESTER', cat_long: 'LÅNGTID',
-        feat_bed: 'Sovrum', feat_bath: 'Badrum', feat_pool: 'Pool', feat_garage: 'Garage', feat_wifi: 'Wifi', feat_terrace: 'Terrass'
+        
+        feat_bed: 'Sovrum', 
+        feat_bath: 'Badrum', 
+        feat_pool: 'Pool', 
+        feat_garage: 'Garage', 
+        feat_wifi: 'Wifi', 
+        feat_terrace: 'Terrass', 
+        feat_ac: 'AC', 
+        feat_garden: 'Trädgård',
+        feat_seaview: 'Havsutsikt'
     }
 };
 
 document.addEventListener("DOMContentLoaded", () => {
+    injectRentStyles(); 
     translateRentUI();
-    fetchRentData();
+    fetchRentFromXML(); 
     initGlobalContactModal(); 
 
     document.querySelectorAll('.rent-tab').forEach(btn => {
@@ -64,93 +96,224 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
-function initGlobalContactModal() {
-    const triggers = document.querySelectorAll('.btn-contact-trigger, .contact-trigger');
-    triggers.forEach(btn => {
-        btn.addEventListener('click', async (e) => {
-            e.preventDefault();
-            let modal = document.getElementById('contact-modal');
-            const closeBtn = document.querySelector('.modal-close-btn');
+// --- ESTILOS INYECTADOS (Fade Suave + Borde Negro + Info Abajo) ---
+function injectRentStyles() {
+    if (document.getElementById('rent-dynamic-styles')) return;
+    const style = document.createElement('style');
+    style.id = 'rent-dynamic-styles';
+    style.innerHTML = `
+        /* Slider Container */
+        .auto-slider-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+        /* Imágenes con Fade */
+        .slider-img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0;
+            transition: opacity 1.2s ease-in-out; 
+            z-index: 1;
+        }
+        .slider-img.active {
+            opacity: 1;
+            z-index: 2;
+        }
+        
+        /* BORDE NEGRO PARA TEXTO BLANCO (TEXT-SHADOW) */
+        .rent-text-outline {
+            color: #fff !important;
+            text-shadow: 
+                -1px -1px 0 #000,  
+                 1px -1px 0 #000,
+                -1px  1px 0 #000,
+                 1px  1px 0 #000,
+                 0px 2px 4px rgba(0,0,0,0.8); /* Sombra extra para profundidad */
+        }
 
-            const openModal = () => { if(modal) { modal.classList.add('active'); document.body.style.overflow = 'hidden'; } };
-            const closeModal = () => { if(modal) { modal.classList.remove('active'); document.body.style.overflow = ''; } };
-
-            if (modal) {
-                openModal();
-            } else {
-                try {
-                    const resp = await fetch('contact.html');
-                    if (!resp.ok) throw new Error("Error loading contact");
-                    const html = await resp.text();
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(html, 'text/html');
-                    
-                    modal = document.createElement('div');
-                    modal.id = 'contact-modal';
-                    modal.className = 'modal-overlay';
-                    modal.innerHTML = `
-                        <div class="modal-container">
-                            <button class="modal-close-btn">&times;</button>
-                            <div class="modal-header-logo">
-                                <img src="assets/img/logo mh state negro.png" alt="MH ESTATE" style="max-width:150px;">
-                            </div>
-                            <div id="modal-content-injector"></div>
-                        </div>
-                    `;
-
-                    const contactSection = doc.querySelector('.contact-section') || doc.querySelector('main');
-                    
-                    if (contactSection) {
-                        const injector = modal.querySelector('#modal-content-injector');
-                        injector.innerHTML = contactSection.innerHTML;
-                        document.body.appendChild(modal);
-
-                        const newCloseBtn = modal.querySelector('.modal-close-btn');
-                        if(newCloseBtn) newCloseBtn.addEventListener('click', closeModal);
-                        modal.addEventListener('click', (ev) => { if (ev.target === modal) closeModal(); });
-
-                        openModal();
-                        if (window.langManager) setTimeout(() => window.langManager.translatePage(), 50);
-                    }
-                } catch (error) {
-                    console.error("Modal fetch error:", error);
-                    window.location.href = 'contact.html';
-                }
-            }
-        });
-    });
+        /* INFO DEBAJO DE LA IMAGEN */
+        .rent-bottom-details {
+            margin-top: 15px;
+            color: #000;
+            text-align: left;
+            padding: 0 5px;
+        }
+        .rent-bottom-big {
+            font-family: 'Inter', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+            line-height: 1.2;
+        }
+        .rent-bottom-small {
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            font-weight: 400;
+            color: #333;
+        }
+    `;
+    document.head.appendChild(style);
 }
 
-async function fetchRentData() {
+// --- HELPER EXTRACCIÓN ---
+function getXMLValue(node, tags) {
+    if (!Array.isArray(tags)) tags = [tags];
+    for (const tag of tags) {
+        const el = node.querySelector(tag);
+        if (el && el.textContent && el.textContent.trim() !== '') {
+            return el.textContent.trim();
+        }
+    }
+    return "";
+}
+
+function extractNumFromDesc(text, type) {
+    if (!text) return null;
+    text = text.toLowerCase();
+    const numMap = { 'un': 1, 'una': 1, 'uno': 1, 'primer': 1, 'dos': 2, 'tres': 3, 'cuatro': 4, 'cinco': 5, 'seis': 6, 'siete': 7, 'ocho': 8, 'nueve': 9, 'diez': 10 };
+    let regex;
+    if (type === 'beds') {
+        regex = /(?:(\d+)|(un|una|uno|dos|tres|cuatro|cinco|seis|siete|ocho|nueve|diez))\s+(?:(?:amplios?|dobles?|grandes?|bonitos?|luminosos?|fantásticos?|espaciosos?|hermosos?)\s+)?(?:dormitorios?|habitaci[oó]nes?|cuartos?)/i;
+    } else if (type === 'baths') {
+        regex = /(?:(\d+)|(un|una|uno|dos|tres|cuatro|cinco))\s+(?:(?:completos?|grandes?|modernos?)\s+)?(?:baños?|banyos?|aseos?|cuartos? de baño)/i;
+    }
+    const match = text.match(regex);
+    if (match) {
+        if (match[1]) return match[1];
+        if (match[2]) return numMap[match[2]];
+    }
+    return null;
+}
+
+// --- BÚSQUEDA DE CARACTERÍSTICAS EN TEXTO (IA LIGERA) ---
+function checkFeatureInText(text, type) {
+    if (!text) return false;
+    text = text.toLowerCase();
+    const patterns = {
+        'pool': /(piscina|pool|alberca|pileta)/i,
+        'garage': /(garaje|parking|aparcamiento|cochera|plaza de (garaje|parking))/i,
+        'terrace': /(terraza|balc[oó]n|solarium|azotea)/i,
+        'ac': /(aire acondicionado|aire a\/c|bomba de (fr[ií]o|calor)|climatizaci[oó]n)/i,
+        'garden': /(jard[ií]n|jardines|zonas? verdes?|huerto)/i,
+        'seaview': /(vista[s]? al mar|sea view|havsutsikt|vistas? despejadas? al mar|frente al mar)/i,
+        'wifi': /(wifi|wi-fi|internet|fibra)/i
+    };
+    return patterns[type] ? patterns[type].test(text) : false;
+}
+
+// --- CARGA XML ---
+async function fetchRentFromXML() {
     const container = document.getElementById('rent-grid');
     container.innerHTML = '<div class="loading-spinner"></div>';
+    
     try {
-        const res = await fetch(`assets/api/booking_proxy.php?v=${Date.now()}`);
-        if (!res.ok) throw new Error("PHP Error");
-        const json = await res.json();
-        if(json.status === 'success') { allRentProperties = json.data; renderRentGrid(); } 
-        else throw new Error("JSON Error");
-    } catch (e) { useFallbackData(); }
+        const response = await fetch('assets/data/propiedades.xml');
+        if (!response.ok) throw new Error("Error loading XML");
+        
+        const str = await response.text();
+        const parser = new DOMParser();
+        const xmlDoc = parser.parseFromString(str, "text/xml");
+        const items = xmlDoc.querySelectorAll("propiedad");
+
+        allRentProperties = [];
+
+        items.forEach(item => {
+            const accion = getXMLValue(item, ['accion', 'operacion']);
+            
+            if (accion.toLowerCase().includes("alquiler")) {
+                
+                // 1. Fotos
+                const fotos = [];
+                for(let i=1; i<=20; i++) {
+                    const f = item.querySelector(`foto${i}`)?.textContent;
+                    if(f && f.trim().length > 0) fotos.push(f);
+                }
+                if(fotos.length === 0) fotos.push('assets/img/hero-bg.jpg');
+
+                // 2. Extracción Texto
+                const fullDesc = (
+                    getXMLValue(item, ['descrip1', 'descripcion']) + " " +
+                    getXMLValue(item, ['descrip2']) + " " +
+                    getXMLValue(item, ['descrip9'])
+                ).toLowerCase();
+
+                // 3. Características Híbridas
+                const features = [];
+                const checkHybrid = (xmlTags, typeKey) => {
+                    let val = getXMLValue(item, xmlTags).toLowerCase();
+                    if (val === '1' || val === 'si' || val === 'true' || parseInt(val) > 0) return true;
+                    return checkFeatureInText(fullDesc, typeKey);
+                };
+
+                if (checkHybrid(['piscina_prop', 'piscina', 'piscina_com', 'pool'], 'pool')) features.push("pool");
+                if (checkHybrid(['plaza_gara', 'garaje', 'garage', 'parking'], 'garage')) features.push("garage");
+                if (checkHybrid(['terraza', 'm_terraza'], 'terrace')) features.push("terrace");
+                if (checkHybrid(['aire_con', 'aire_acondicionado', 'ac'], 'ac')) features.push("ac");
+                if (checkHybrid(['jardin_prop', 'jardin'], 'garden')) features.push("garden");
+                if (checkHybrid(['vistasalmar', 'vistas_mar', 'sea_view'], 'seaview')) features.push("seaview");
+                if (checkFeatureInText(fullDesc, 'wifi')) features.push("wifi");
+
+                // 4. Datos Numéricos
+                const m2 = getXMLValue(item, ['m_cons', 'construido', 'superficie', 'm_util']) || "0";
+                
+                let beds = getXMLValue(item, ['habitaciones', 'dormitorios', 'beds']);
+                if (!beds || beds === "0") {
+                    const simples = parseInt(getXMLValue(item, ['hab_simples', 'simple'])) || 0;
+                    const dobles = parseInt(getXMLValue(item, ['hab_dobles', 'double'])) || 0;
+                    const habdobles = parseInt(getXMLValue(item, ['habdobles'])) || 0;
+                    if ((simples + dobles + habdobles) > 0) beds = (simples + dobles + habdobles).toString();
+                }
+                
+                let baths = getXMLValue(item, ['banyos', 'banos', 'baths']) || "0";
+
+                // Respaldo descripción
+                if ((!beds || beds === "0") && fullDesc) {
+                    const found = extractNumFromDesc(fullDesc, 'beds');
+                    if(found) beds = found;
+                }
+                if ((!baths || baths === "0") && fullDesc) {
+                    const found = extractNumFromDesc(fullDesc, 'baths');
+                    if(found) baths = found;
+                }
+                
+                // 5. Ubicación
+                const rawCity = getXMLValue(item, ['poblacion', 'ciudad']);
+                const rawZone = getXMLValue(item, ['zona', 'area']);
+
+                allRentProperties.push({
+                    id: getXMLValue(item, ['id', 'ref']),
+                    name: getXMLValue(item, ['nombre']) || "Property",
+                    city: rawCity,
+                    zone: rawZone,
+                    category: accion.toLowerCase().includes("vacacional") ? "holiday" : "long_term",
+                    price: getXMLValue(item, ['precio', 'precioinmo', 'precioalq']) || "Consult",
+                    m2: m2, 
+                    beds: beds || "0",
+                    baths: baths || "0",
+                    features: features,
+                    fotos: fotos,
+                    link: `propiedad-rent.html?id=${getXMLValue(item, 'id')}`,
+                    ical_url: FAKE_ICAL_URL
+                });
+            }
+        });
+
+        renderRentGrid();
+
+    } catch (error) {
+        console.error("Error XML Rent:", error);
+        container.innerHTML = `<div style="text-align:center; padding:40px;">Error loading properties.</div>`;
+    }
 }
 
-function useFallbackData() {
-    allRentProperties = [
-        { "id": "1", "category": "holiday", "name": "Villa Paraíso", "city": "Nerja", "price": 1500, "m2": 120, "beds": 3, "baths": 2, "features": ["pool", "wifi"], "image": "assets/img/hero-bg.jpg", "link": "#" },
-        { "id": "2", "category": "long_term", "name": "Apartamento Centro", "city": "Torrox", "price": 850, "m2": 80, "beds": 2, "baths": 1, "features": ["terrace"], "image": "assets/img/hero-bg1.jpg", "link": "contact.html" },
-        { "id": "3", "category": "holiday", "name": "Sunny Beach House", "city": "Marbella", "price": 2200, "m2": 200, "beds": 4, "baths": 3, "features": ["pool", "garage", "ac"], "image": "assets/img/cta-bg.jpg", "link": "#" },
-        { "id": "4", "category": "long_term", "name": "Townhouse Modern", "city": "Nerja", "price": 1200, "m2": 150, "beds": 3, "baths": 2, "features": ["garage"], "image": "assets/img/sell-hero-bg.jpg", "link": "contact.html" },
-        { "id": "5", "category": "holiday", "name": "Cozy Studio", "city": "Torrox", "price": 400, "m2": 45, "beds": 1, "baths": 1, "features": ["wifi"], "image": "assets/img/hero-bg.jpg", "link": "#" },
-        { "id": "6", "category": "holiday", "name": "Luxury Penthouse", "city": "Marbella", "price": 3000, "m2": 180, "beds": 3, "baths": 3, "features": ["pool", "terrace"], "image": "assets/img/mhestate 2.jpg", "link": "#" },
-        { "id": "7", "category": "long_term", "name": "Family Home", "city": "Nerja", "price": 1100, "m2": 130, "beds": 3, "baths": 2, "features": ["garage"], "image": "assets/img/hero-bg1.jpg", "link": "contact.html" },
-        { "id": "8", "category": "holiday", "name": "Mountain Retreat", "city": "Frigiliana", "price": 900, "m2": 100, "beds": 2, "baths": 1, "features": ["pool"], "image": "assets/img/cta-bg.jpg", "link": "#" },
-        { "id": "9", "category": "long_term", "name": "Urban Flat", "city": "Málaga", "price": 950, "m2": 75, "beds": 2, "baths": 1, "features": ["wifi"], "image": "assets/img/hero-bg.jpg", "link": "contact.html" },
-        { "id": "10", "category": "holiday", "name": "Sea View Villa", "city": "Nerja", "price": 2500, "m2": 200, "beds": 4, "baths": 3, "features": ["pool", "garage"], "image": "assets/img/sell-hero-bg.jpg", "link": "#" },
-        { "id": "11", "category": "holiday", "name": "Beachfront Apt", "city": "Torrox", "price": 1800, "m2": 90, "beds": 2, "baths": 2, "features": ["terrace", "wifi"], "image": "assets/img/hero-bg.jpg", "link": "#" },
-        { "id": "12", "category": "long_term", "name": "Country House", "city": "Frigiliana", "price": 1300, "m2": 160, "beds": 3, "baths": 2, "features": ["pool", "garden"], "image": "assets/img/hero-bg1.jpg", "link": "contact.html" }
-    ];
-    renderRentGrid();
-}
-
+// --- RENDERIZADO GRID ---
 function renderRentGrid() {
     const container = document.getElementById('rent-grid');
     const paginationContainer = document.getElementById('rent-pagination');
@@ -158,7 +321,10 @@ function renderRentGrid() {
     const dict = I18N_RENT[lang];
 
     let filtered = allRentProperties;
-    if (currentCategory !== 'all') { filtered = allRentProperties.filter(p => p.category === currentCategory); }
+    if (currentCategory !== 'all') {
+        filtered = allRentProperties.filter(p => p.category === currentCategory);
+    }
+
     const totalItems = filtered.length;
     const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
     
@@ -166,18 +332,104 @@ function renderRentGrid() {
     if (currentPage < 1) currentPage = 1;
 
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    const endIndex = startIndex + ITEMS_PER_PAGE;
-    const toShow = filtered.slice(startIndex, endIndex);
+    const toShow = filtered.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
     container.innerHTML = "";
     if (toShow.length === 0) {
         container.innerHTML = `<div style="text-align:center; padding:40px; width:100%;">No properties found.</div>`;
     } else {
-        toShow.forEach(prop => { container.appendChild(createRentCard(prop, dict)); });
+        toShow.forEach(prop => { 
+            container.appendChild(createRentCard(prop, dict)); 
+        });
+        setTimeout(initAutoSliders, 100);
     }
     renderPaginationControls(paginationContainer, totalPages, dict);
 }
 
+// --- CREAR TARJETA ---
+function createRentCard(prop, dict) {
+    const article = document.createElement('article');
+    article.className = 'rent-layout-card';
+    
+    // TÍTULO: Ciudad - Zona
+    let locationTitle = prop.city;
+    if (prop.city && prop.city.trim() !== "" && prop.zone && prop.zone.trim() !== "") {
+        locationTitle += ` - ${prop.zone}`;
+    } else if ((!prop.city || prop.city.trim() === "") && prop.zone) {
+        locationTitle = prop.zone;
+    }
+    const finalTitle = locationTitle ? locationTitle.toUpperCase() : "PROPERTY";
+
+    // SPECS
+    const specs = [];
+    if(prop.beds && prop.beds !== "0") specs.push(`${prop.beds} ${dict.feat_bed}`);
+    if(prop.baths && prop.baths !== "0") specs.push(`${prop.baths} ${dict.feat_bath}`);
+    
+    // EXTRAS
+    const extras = [];
+    prop.features.forEach(f => {
+        const key = `feat_${f}`;
+        const val = dict[key] || f;
+        extras.push(val);
+    });
+    
+    const allFeats = [...specs, ...extras];
+    const featStr = allFeats.join(' | ');
+
+    // IMÁGENES SLIDER
+    let imagesHtml = '';
+    prop.fotos.slice(0, 5).forEach((foto, index) => {
+        imagesHtml += `<img src="${foto}" class="slider-img ${index === 0 ? 'active' : ''}" alt="${prop.name}" loading="lazy">`;
+    });
+
+    article.innerHTML = `
+        <h3 class="rent-external-title">${finalTitle}</h3>
+        <div class="rent-image-box">
+            <div class="auto-slider-container">
+                ${imagesHtml}
+            </div>
+            
+            <div class="rent-overlay-specs">
+                <div class="overlay-big-title rent-text-outline">${finalTitle}</div>
+                <div class="overlay-small-desc rent-text-outline">${featStr}</div>
+                <a href="${prop.link}" class="overlay-link-arrow rent-text-outline">${dict.view_prop} ➜</a>
+            </div>
+        </div>
+
+        <div class="rent-bottom-details">
+            <div class="rent-bottom-big">${finalTitle}</div>
+            <div class="rent-bottom-small">${featStr}</div>
+        </div>
+    `;
+    return article;
+}
+
+// --- SLIDER AUTOMÁTICO (2.5s) ---
+function initAutoSliders() {
+    if(window.rentSliderIntervals) {
+        window.rentSliderIntervals.forEach(i => clearInterval(i));
+    }
+    window.rentSliderIntervals = [];
+
+    const containers = document.querySelectorAll('.auto-slider-container');
+    
+    containers.forEach(container => {
+        const images = container.querySelectorAll('.slider-img');
+        if (images.length <= 1) return;
+
+        let currentIndex = 0;
+        
+        const interval = setInterval(() => {
+            images[currentIndex].classList.remove('active');
+            currentIndex = (currentIndex + 1) % images.length;
+            images[currentIndex].classList.add('active');
+        }, 2500); 
+
+        window.rentSliderIntervals.push(interval);
+    });
+}
+
+// --- PAGINACIÓN ---
 function renderPaginationControls(container, totalPages, dict) {
     container.innerHTML = "";
     if (totalPages <= 1) return;
@@ -205,39 +457,7 @@ function renderPaginationControls(container, totalPages, dict) {
     container.appendChild(btnNext);
 }
 
-function createRentCard(prop, dict) {
-    const article = document.createElement('article');
-    article.className = 'rent-layout-card';
-    const catLabel = prop.category === 'holiday' ? dict.cat_holiday : dict.cat_long;
-    const overlayTitleText = `${prop.city} ${catLabel}`.toUpperCase();
-
-    const feats = [];
-    if(prop.m2) feats.push(`${prop.m2} m²`);
-    if(prop.beds) feats.push(`${prop.beds} ${dict.feat_bed}`);
-    if(prop.baths) feats.push(`${prop.baths} ${dict.feat_bath}`);
-    if (prop.features) {
-        prop.features.forEach(f => {
-            const key = `feat_${f}`; 
-            const translated = dict[key] || (f.charAt(0).toUpperCase() + f.slice(1));
-            feats.push(translated);
-        });
-    }
-    const featStr = feats.join(' | ');
-
-    article.innerHTML = `
-        <h3 class="rent-external-title">${prop.name}</h3>
-        <div class="rent-image-box">
-            <img src="${prop.image}" alt="${prop.name}" loading="lazy">
-            <div class="rent-overlay-specs">
-                <div class="overlay-big-title">${overlayTitleText}</div>
-                <div class="overlay-small-desc">${featStr}</div>
-                <a href="${prop.link}" target="_blank" class="overlay-link-arrow">${dict.view_prop} ➜</a>
-            </div>
-        </div>
-    `;
-    return article;
-}
-
+// --- UI / TRADUCCIÓN ---
 function translateRentUI() {
     const lang = localStorage.getItem('preferredLang') || 'es';
     const dict = I18N_RENT[lang];
@@ -250,4 +470,57 @@ function translateRentUI() {
         const el = document.getElementById(id);
         if(el) el.innerText = text;
     }
+}
+
+// --- MODAL DE CONTACTO ---
+function initGlobalContactModal() {
+    const triggers = document.querySelectorAll('.btn-contact-trigger, .contact-trigger');
+    triggers.forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            let modal = document.getElementById('contact-modal');
+            const closeModal = () => { if(modal) { modal.classList.remove('active'); document.body.style.overflow = ''; } };
+
+            if (modal) {
+                modal.classList.add('active'); document.body.style.overflow = 'hidden';
+            } else {
+                try {
+                    const resp = await fetch('contact.html');
+                    if (!resp.ok) throw new Error("Error loading contact");
+                    const html = await resp.text();
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    
+                    modal = document.createElement('div');
+                    modal.id = 'contact-modal';
+                    modal.className = 'modal-overlay';
+                    modal.innerHTML = `
+                        <div class="modal-container">
+                            <button class="modal-close-btn">&times;</button>
+                            <div class="modal-header-logo">
+                                <img src="assets/img/logo mh state negro.png" alt="MH ESTATE" style="max-width:150px;">
+                            </div>
+                            <div id="modal-content-injector"></div>
+                        </div>
+                    `;
+
+                    const contactSection = doc.querySelector('.contact-section') || doc.querySelector('main');
+                    if (contactSection) {
+                        const injector = modal.querySelector('#modal-content-injector');
+                        injector.innerHTML = contactSection.innerHTML;
+                        document.body.appendChild(modal);
+
+                        const newCloseBtn = modal.querySelector('.modal-close-btn');
+                        if(newCloseBtn) newCloseBtn.addEventListener('click', closeModal);
+                        modal.addEventListener('click', (ev) => { if (ev.target === modal) closeModal(); });
+
+                        modal.classList.add('active'); document.body.style.overflow = 'hidden';
+                        if (window.langManager) setTimeout(() => window.langManager.translatePage(), 50);
+                    }
+                } catch (error) {
+                    window.location.href = 'contact.html';
+                }
+            }
+        });
+    });
 }
