@@ -1,6 +1,6 @@
 /**
  * ============================================================
- * APP.JS - MOTOR V22.8 (FIX: ACTIVAR CARACTERÍSTICAS + FILTRO GARAJE)
+ * APP.JS - MOTOR V22.9 (CACHE BUSTING APPLIED)
  * ============================================================
  */
 
@@ -105,6 +105,7 @@ async function loadAndStoreProperties() {
     if(homeGrid) homeGrid.innerHTML = '<div class="loading-spinner"></div>';
 
     try {
+        // --- CACHE BUSTING XML ---
         const res = await fetch(`${LOCAL_XML_URL}?v=${Date.now()}`);
         if (!res.ok) throw new Error(`HTTP Error ${res.status}`);
         const strXML = await res.text();
@@ -362,21 +363,16 @@ function filterProperties(nodes, params) {
     });
 }
 
-// --- FUNCIÓN CORREGIDA (SOLO ESTO CAMBIÓ) ---
 function checkHybrid(node, tags, regexType) {
     const get = (t) => getNodeValue(node, t).toLowerCase();
     const val = get(tags);
 
-    // 1. CHEQUEO POSITIVO: Si dice explícitamente Sí/1, es verdadero.
     if (val === '1' || val === 'si' || val === 'yes' || parseInt(val) > 0) return true;
 
-    // 2. BUSCAR EN DESCRIPCIÓN:
-    // (He eliminado la línea que bloqueaba si val era 0, para que siga leyendo abajo)
     const desc = get(['descrip1', 'descripcion']);
     return checkFeatureInDesc(desc, regexType);
 }
 
-// --- FUNCIÓN DE TEXTO (SOLO ESTO CAMBIÓ - Añadido el replace) ---
 function checkFeatureInDesc(text, type) {
     if (!text) return false;
     text = text.toLowerCase();
@@ -582,6 +578,7 @@ function initContactModal() {
                         fileToLoad = 'contact-rent.html'; 
                     }
 
+                    // --- CACHE BUSTING AÑADIDO ---
                     const response = await fetch(fileToLoad + '?v=' + Date.now());
                     if (!response.ok) throw new Error("Fetch failed");
                     const htmlText = await response.text();
@@ -697,7 +694,7 @@ function createCard(xmlNode) {
     if(hasAC) extrasArr.push(ui.ac);
     if(hasElevator) extrasArr.push(ui.elevator);
 
-    let extrasLine = extrasArr.length > 0 ? extrasArr.join(', ') : ' ';
+    let extrasLine = extrasArr.length > 0 ? extrasArr.join(', ') : ' ';
 
     const photos = [];
     for(let i=1; i<=15; i++) {

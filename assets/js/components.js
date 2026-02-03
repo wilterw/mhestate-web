@@ -1,9 +1,9 @@
 /* =========================================
-   ASSETS/JS/COMPONENTS.JS - V2.1 (FOOTER ISIDORA RENT/RENT-HOME)
+   ASSETS/JS/COMPONENTS.JS - V2.2 (CACHE BUSTING)
    ========================================= */
 
 document.addEventListener("DOMContentLoaded", async () => {
-    // 1. Cargar Header y Footer
+    // 1. Cargar Header y Footer con Cache Busting
     await Promise.all([
         loadComponent("header-placeholder", "components/header.html"),
         loadComponent("footer-placeholder", "components/footer.html", initFooterLogic) // Callback agregado aquí
@@ -35,7 +35,7 @@ async function loadComponent(placeholderId, url, callback) {
     if (!placeholder) return;
 
     try {
-        // Timestamp para evitar caché
+        // --- CACHE BUSTING AÑADIDO ---
         const noCacheUrl = `${url}?v=${Date.now()}`; 
         const response = await fetch(noCacheUrl);
         
