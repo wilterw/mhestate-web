@@ -11,13 +11,14 @@ RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
 # 1. Redirigir externamente (SEO) - EXCEPCIONES
 # - No tocar carpeta components
-# - No tocar contact.html (necesario para el modal)
+# - No redirigir archivos que usamos para modales (fetch)
 RewriteCond %{REQUEST_URI} !^/components/ [NC]
 RewriteCond %{REQUEST_URI} !^/contact\.html$ [NC]
+RewriteCond %{REQUEST_URI} !^/contact-rent\.html$ [NC]
 RewriteCond %{THE_REQUEST} \s/+(.+?)\.html[\s?] [NC]
 RewriteRule ^ /%1 [R=301,L]
 
-# 2. Redirigir internamente (Para que Apache entienda)
+# 2. Redirigir internamente (Para que Apache entienda URLs sin extensión)
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME}.html -f
 RewriteRule ^([^\.]+)$ $1.html [NC,L]
