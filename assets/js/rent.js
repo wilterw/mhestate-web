@@ -569,7 +569,7 @@ function initGlobalContactModal() {
             } else {
                 try {
                     // CARGAMOS EL HTML ESPECÍFICO DE RENT
-                    const resp = await fetch('contact-rent.html');
+                    const resp = await fetch('contact-rent.html?v=' + Date.now());
                     if (!resp.ok) throw new Error("Error loading contact");
                     const html = await resp.text();
                     const parser = new DOMParser();
