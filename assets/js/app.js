@@ -113,12 +113,24 @@ async function loadAndStoreProperties() {
         const xmlDoc = parser.parseFromString(strXML, "text/xml");
         const nodes = Array.from(xmlDoc.querySelectorAll("propiedad"));
         
+        
         if (nodes.length === 0) throw new Error("XML vacío");
 
         // --- FILTRO ESTRICTO: SOLO "VENDER" ---
         allPropertiesData = nodes.filter(node => {
             const accion = getNodeValue(node, ['accion', 'operacion']).toLowerCase();
             return accion.includes('vender') || accion.includes('venta');
+        });
+
+        // --- ORDENAR POR FECHA (DESCENDENTE: MÁS NUEVO PRIMERO) ---
+        allPropertiesData.sort((a, b) => {
+            const dateA = getNodeValue(a, 'fecha'); // Formato esperado: YYYY-MM-DD HH:MM:SS
+            const dateB = getNodeValue(b, 'fecha');
+            
+            // Comparación de strings lexicográfica funciona bien para formato ISO/SQL
+            if (dateA < dateB) return 1;  // B es más reciente que A -> B va antes
+            if (dateA > dateB) return -1; // A es más reciente que B -> A va antes
+            return 0;
         });
 
     } catch (e) {
