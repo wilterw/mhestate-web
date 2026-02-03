@@ -565,20 +565,24 @@ function initContactModal() {
         link.addEventListener('click', async (e) => {
             if(window.innerWidth > 900) { 
                 e.preventDefault();
-                if (injector.children.length > 0) { openModal(); return; }
+                
+                // Si ya tiene contenido de rent y estamos en rent, o tiene contenido normal y estamos en normal, solo abrir
+                const isRentPath = window.location.pathname.toLowerCase().includes('rent');
+                const hasRentContent = injector.innerHTML.includes('rentals@mhestate.es') || injector.innerHTML.includes('Isidora');
+
+                if (injector.children.length > 0 && ((isRentPath && hasRentContent) || (!isRentPath && !hasRentContent))) {
+                    openModal(); 
+                    return; 
+                }
+
                 try {
                     injector.innerHTML = '<div style="padding:40px; text-align:center;">Loading...</div>';
                     openModal();
                     
-                    // --- SELECCIÓN DEL ARCHIVO HTML ---
-                    const path = window.location.pathname;
-                    let fileToLoad = 'contact.html'; 
-                    
-                    if (path.includes('rent.html') || path.includes('rent-home.html')) {
-                        fileToLoad = 'contact-rent.html'; 
-                    }
+                    // DETECCIÓN DINÁMICA DE ARCHIVO
+                    // Si la URL actual contiene "rent", cargamos el de rentas, si no, el normal.
+                    let fileToLoad = isRentPath ? 'contact-rent.html' : 'contact.html';
 
-                    // --- CACHE BUSTING AÑADIDO ---
                     const response = await fetch(fileToLoad + '?v=' + Date.now());
                     if (!response.ok) throw new Error("Fetch failed");
                     const htmlText = await response.text();
