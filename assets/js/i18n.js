@@ -228,7 +228,7 @@ const translations = {
         "rh-marketing-title": "Marketing Global",
         "rh-marketing-body": "Mostramos su propiedad en las mejores plataformas de alquiler,<br>incluyendo Airbnb y Booking.com, así como en<br>redes sociales y en nuestra oficina, asegurando máxima<br>visibilidad y alcance a huéspedes de todo el mundo.",
         
-        "rh-management-title": "Gestión Integral",
+        "rh-management-title": "Gestión<br>Integral",
         "rh-management-intro": "Nuestros servicios todo incluido cubren cada aspecto de la gestión de alquileres:",
         
         "rh-list-1": "Marketing profesional y optimización de anuncios",
@@ -320,7 +320,7 @@ const translations = {
         "news-king-toast": "¡Salud! 🍷",
 
         // --- FOOTER ---
-        'footer-desc': 'Tu aliado de confianza en el mercado inmobiliario.',
+        'footer-desc': 'Tu aliado de confianza en el mercado inmobiliario',
         'footer-links': 'Enlaces Rápidos',
         'footer-contact': 'Información de Contacto',
         'footer-follow': 'Síguenos',
@@ -550,7 +550,7 @@ const translations = {
         "rh-marketing-title": "Global Marketing",
         "rh-marketing-body": "We showcase your property on top rental platforms,<br>including Airbnb and Booking.com, as well as on<br>social media and in our office, ensuring maximum<br>visibility and reach to potential guests worldwide.",
         
-        "rh-management-title": "Comprehensive Management",
+        "rh-management-title": "Comprehensive<br>Management",
         "rh-management-intro": "Our all-inclusive services cover every aspect of rental management:",
         
         "rh-list-1": "Professional marketing and listing optimization",
@@ -642,7 +642,7 @@ const translations = {
         "news-king-toast": "Cheers! 🍷",
 
         // --- FOOTER ---
-        'footer-desc': 'Your trusted partner in Real Estate.',
+        'footer-desc': 'Your trusted partner in Real Estate',
         'footer-links': 'Quick Links',
         'footer-contact': 'Contact Info',
         'footer-follow': 'Follow Us',
@@ -873,7 +873,7 @@ const translations = {
         "rh-marketing-title": "Global Marknadsföring",
         "rh-marketing-body": "Vi visar upp din fastighet på de bästa uthyrningsplattformarna,<br>inklusive Airbnb och Booking.com, samt på<br>sociala medier och på vårt kontor, vilket garanterar maximal<br>synlighet och räckvidd till potentiella gäster över hela världen.",
         
-        "rh-management-title": "Omfattande Förvaltning",
+        "rh-management-title": "Omfattande<br>Förvaltning",
         "rh-management-intro": "Våra all-inclusive-tjänster täcker varje aspekt av uthyrningsförvaltning:",
         
         "rh-list-1": "Professionell marknadsföring och optimering av annonser",

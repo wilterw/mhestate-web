@@ -1,6 +1,6 @@
 /**
  * ============================================================
- * APP.JS - MOTOR V22.0 (PERSISTENCIA Y PRIORIDAD ESTRICTA)
+ * APP.JS - MOTOR V22.8 (FIX: ACTIVAR CARACTERÍSTICAS + FILTRO GARAJE)
  * ============================================================
  */
 
@@ -111,8 +111,15 @@ async function loadAndStoreProperties() {
         const parser = new DOMParser();
         const xmlDoc = parser.parseFromString(strXML, "text/xml");
         const nodes = Array.from(xmlDoc.querySelectorAll("propiedad"));
+        
         if (nodes.length === 0) throw new Error("XML vacío");
-        allPropertiesData = nodes;
+
+        // --- FILTRO ESTRICTO: SOLO "VENDER" ---
+        allPropertiesData = nodes.filter(node => {
+            const accion = getNodeValue(node, ['accion', 'operacion']).toLowerCase();
+            return accion.includes('vender') || accion.includes('venta');
+        });
+
     } catch (e) {
         console.error("Error loading XML:", e);
     }
@@ -239,7 +246,7 @@ function generatePaginationButtons(containerId, current, total, onPageClick) {
 
     const prevBtn = document.createElement('button');
     prevBtn.className = 'pagination-btn prev-next';
-    prevBtn.innerHTML = `&larr; ${ui.prev}`;
+    prevBtn.innerHTML = `← ${ui.prev}`;
     prevBtn.disabled = current === 0;
     prevBtn.onclick = () => onPageClick(current - 1);
     container.appendChild(prevBtn);
@@ -268,13 +275,13 @@ function generatePaginationButtons(containerId, current, total, onPageClick) {
 
     const nextBtn = document.createElement('button');
     nextBtn.className = 'pagination-btn prev-next';
-    nextBtn.innerHTML = `${ui.next} &rarr;`;
+    nextBtn.innerHTML = `${ui.next} →`;
     nextBtn.disabled = current >= total - 1;
     nextBtn.onclick = () => onPageClick(current + 1);
     container.appendChild(nextBtn);
 }
 
-// --- LÓGICA DE FILTRADO (PRIORIDAD ESTRICTA) ---
+// --- LÓGICA DE FILTRADO ---
 function filterProperties(nodes, params) {
     const locParam = (params.get('loc') || '').toLowerCase();
     const locations = locParam.split(',').map(l => l.trim()).filter(l => l !== '');
@@ -292,8 +299,7 @@ function filterProperties(nodes, params) {
     return nodes.filter(node => {
         const get = (tags) => getNodeValue(node, tags).toLowerCase();
         
-        // --- PRIORIDAD 1: ESTADO (OBRA NUEVA / SEGUNDA MANO) ---
-        // Si no cumple esto, se descarta inmediatamente.
+        // PRIORIDAD 1: ESTADO
         const conservation = getNodeValue(node, ['conservacion', 'estado']);
         if (statusParam === 'new') {
             if (conservation !== 'Obra Nueva') return false; 
@@ -301,14 +307,14 @@ function filterProperties(nodes, params) {
             if (conservation === 'Obra Nueva') return false; 
         }
 
-        // --- PRIORIDAD 2: TIPO DE PROPIEDAD ---
+        // PRIORIDAD 2: TIPO
         const pType = get(['tipo', 'type', 'tipo_ofer']);
         if (types.length > 0) {
             const match = types.some(t => pType.includes(t));
             if (!match) return false;
         }
 
-        // --- PRIORIDAD 3: BAÑOS Y DORMITORIOS (SPECS) ---
+        // PRIORIDAD 3: SPECS
         const descText = get(['descrip1', 'descripcion']);
         let bedsVal = parseInt(get(['habitaciones', 'dormitorios', 'beds'])) || 0;
         const simples = parseInt(get(['hab_simples', 'simple'])) || 0;
@@ -324,13 +330,13 @@ function filterProperties(nodes, params) {
         if (bedsVal < bedsMin) return false;
         if (bathsVal < bathsMin) return false;
 
-        // --- PRIORIDAD 4: PRECIO ---
+        // PRIORIDAD 4: PRECIO
         const rawPrice = getNodeValue(node, ['precioinmo', 'precio']);
         const cleanPrice = parseInt(rawPrice.replace(/\D/g, '')) || 0;
         if (minPrice > 0 && cleanPrice < minPrice) return false;
         if (maxPrice > 0 && maxPrice !== Infinity && cleanPrice > maxPrice) return false;
 
-        // --- PRIORIDAD 5: UBICACIÓN ---
+        // PRIORIDAD 5: UBICACIÓN
         const pCity = get(['ciudad', 'poblacion']);
         const pZone = get(['zona', 'area']);
         if (locations.length > 0 && locParam !== 'all') {
@@ -338,7 +344,7 @@ function filterProperties(nodes, params) {
             if (!matchLoc) return false;
         }
 
-        // --- PRIORIDAD 6: KEYWORDS ---
+        // PRIORIDAD 6: KEYWORDS
         const pTitle = get(['titulo1', 'titulo2']);
         if (keyword) {
             const fullText = `${pType} ${pCity} ${pZone} ${pTitle} ${descText}`;
@@ -356,12 +362,41 @@ function filterProperties(nodes, params) {
     });
 }
 
+// --- FUNCIÓN CORREGIDA (SOLO ESTO CAMBIÓ) ---
 function checkHybrid(node, tags, regexType) {
     const get = (t) => getNodeValue(node, t).toLowerCase();
     const val = get(tags);
+
+    // 1. CHEQUEO POSITIVO: Si dice explícitamente Sí/1, es verdadero.
     if (val === '1' || val === 'si' || val === 'yes' || parseInt(val) > 0) return true;
+
+    // 2. BUSCAR EN DESCRIPCIÓN:
+    // (He eliminado la línea que bloqueaba si val era 0, para que siga leyendo abajo)
     const desc = get(['descrip1', 'descripcion']);
     return checkFeatureInDesc(desc, regexType);
+}
+
+// --- FUNCIÓN DE TEXTO (SOLO ESTO CAMBIÓ - Añadido el replace) ---
+function checkFeatureInDesc(text, type) {
+    if (!text) return false;
+    text = text.toLowerCase();
+
+    // Filtro para "aparcamiento público"
+    if (type === 'garage') {
+        text = text.replace(/aparcamiento p[uú]blico/g, "").replace(/parking p[uú]blico/g, "");
+    }
+
+    const patterns = {
+        'ac': /(aire acondicionado|aire a\/c|bomba de (fr[ií]o|calor)|climatizaci[oó]n)/i,
+        'seaview': /(vista[s]? al mar|vistas? despejadas? al mar|frente al mar|primera l[ií]nea)/i,
+        'pool': /(piscina|alberca|pileta)/i,
+        'garden': /(jard[ií]n|jardines|zonas? verdes?|huerto)/i,
+        'garage': /(garaje|parking|aparcamiento|cochera|plaza de (garaje|parking))/i,
+        'elevator': /(ascensor|elevador)/i,
+        'terrace': /(terraza|balc[oó]n|solarium|azotea)/i
+    };
+    if (patterns[type] && patterns[type].test(text)) return true;
+    return false;
 }
 
 function initSearchLogic() {
@@ -375,7 +410,6 @@ function initSearchLogic() {
     });
 }
 
-// --- CAPTURA DEL FORMULARIO ---
 function handleSearchRedirect() {
     const area = document.getElementById('s-area')?.value;
     const keyword = document.getElementById('s-keyword')?.value.trim();
@@ -383,12 +417,7 @@ function handleSearchRedirect() {
     const maxPrice = document.getElementById('s-max')?.value;
     const beds = document.getElementById('beds-selector')?.getAttribute('data-selected');
     const baths = document.getElementById('baths-selector')?.getAttribute('data-selected');
-    
-    // Checkboxes de Tipo
     const checkedTypes = Array.from(document.querySelectorAll('input[name="type"]:checked')).map(cb => cb.value);
-
-    // Radio/Checkbox de Condición (Obra Nueva / Segunda Mano)
-    // Busca input con name="condition" que esté marcado
     const conditionEl = document.querySelector('input[name="condition"]:checked');
     const conditionVal = conditionEl ? conditionEl.value : null;
 
@@ -400,8 +429,6 @@ function handleSearchRedirect() {
     if (beds) params.set('bed', beds);
     if (baths) params.set('bath', baths);
     if (checkedTypes.length > 0) params.set('type', checkedTypes.join(','));
-    
-    // Si hay condición seleccionada (new / resale), agrégala a la URL
     if (conditionVal && conditionVal !== 'all') params.set('status', conditionVal);
 
     if (window.location.pathname.includes('buy.html')) {
@@ -411,7 +438,6 @@ function handleSearchRedirect() {
     }
 }
 
-// --- RESTAURAR ESTADO DE INPUTS (PERSISTENCIA) ---
 function applyFiltersFromURL() {
     const params = new URLSearchParams(window.location.search);
     if ([...params].length === 0) return;
@@ -431,7 +457,6 @@ function applyFiltersFromURL() {
     if (params.has('bed')) activateButton('beds-selector', params.get('bed'));
     if (params.has('bath')) activateButton('baths-selector', params.get('bath'));
     
-    // Restaurar Checkboxes de Tipo
     if (params.has('type')) {
         const types = params.get('type').split(',');
         types.forEach(val => {
@@ -440,10 +465,8 @@ function applyFiltersFromURL() {
         });
     }
 
-    // Restaurar Radio de Condición (Obra Nueva / Segunda Mano)
     if (params.has('status')) {
         const statusVal = params.get('status'); 
-        // Busca el input con name="condition" y value="new" o "resale"
         const input = document.querySelector(`input[name="condition"][value="${statusVal}"]`);
         if(input) input.checked = true;
     }
@@ -486,22 +509,6 @@ function extractNumFromDesc(text, type) {
         if (match[2]) return numMap[match[2]];
     }
     return null;
-}
-
-function checkFeatureInDesc(text, type) {
-    if (!text) return false;
-    text = text.toLowerCase();
-    const patterns = {
-        'ac': /(aire acondicionado|aire a\/c|bomba de (fr[ií]o|calor)|climatizaci[oó]n)/i,
-        'seaview': /(vista[s]? al mar|vistas? despejadas? al mar|frente al mar|primera l[ií]nea)/i,
-        'pool': /(piscina|alberca|pileta)/i,
-        'garden': /(jard[ií]n|jardines|zonas? verdes?|huerto)/i,
-        'garage': /(garaje|parking|aparcamiento|cochera|plaza de (garaje|parking))/i,
-        'elevator': /(ascensor|elevador)/i,
-        'terrace': /(terraza|balc[oó]n|solarium|azotea)/i
-    };
-    if (patterns[type] && patterns[type].test(text)) return true;
-    return false;
 }
 
 function getNodeValue(node, tags) {
@@ -551,6 +558,7 @@ function resetSearch() {
     window.location.href = 'buy.html?view=all';
 }
 
+// --- MODAL DE CONTACTO CON SELECCIÓN INTELIGENTE ---
 function initContactModal() {
     const modal = document.getElementById('contact-modal');
     const injector = document.getElementById('modal-content-injector');
@@ -565,18 +573,35 @@ function initContactModal() {
                 try {
                     injector.innerHTML = '<div style="padding:40px; text-align:center;">Loading...</div>';
                     openModal();
-                    const response = await fetch('/contact.html?v=' + Date.now());
+                    
+                    // --- SELECCIÓN DEL ARCHIVO HTML ---
+                    const path = window.location.pathname;
+                    let fileToLoad = 'contact.html'; 
+                    
+                    if (path.includes('rent.html') || path.includes('rent-home.html')) {
+                        fileToLoad = 'contact-rent.html'; 
+                    }
+
+                    const response = await fetch(fileToLoad + '?v=' + Date.now());
                     if (!response.ok) throw new Error("Fetch failed");
                     const htmlText = await response.text();
+                    
                     const parser = new DOMParser();
                     const doc = parser.parseFromString(htmlText, 'text/html');
                     const contactSection = doc.querySelector('.contact-section') || doc.querySelector('main');
+                    
                     if (contactSection) {
                         injector.innerHTML = '';
                         injector.appendChild(contactSection);
-                        if (window.langManager) {
-                            setTimeout(() => { window.langManager.translatePage(); }, 50); 
-                        }
+
+                        const scripts = doc.querySelectorAll('script');
+                        scripts.forEach(oldScript => {
+                            const newScript = document.createElement('script');
+                            newScript.textContent = oldScript.textContent;
+                            document.body.appendChild(newScript);
+                        });
+                        
+                        if (window.langManager) setTimeout(() => { window.langManager.translatePage(); }, 50); 
                     }
                 } catch (error) {
                     console.error("Error loading modal:", error);
@@ -597,7 +622,7 @@ window.applyLocationFilter = function(locs) {
     window.location.href = `buy.html?loc=${encodeURIComponent(locs)}`;
 };
 
-// --- CREATE CARD (CON ETIQUETAS Y SWIPE) ---
+// --- CREATE CARD (CON ETIQUETAS Y SWIPE) - VERSIÓN TODO GRIS ---
 function createCard(xmlNode) {
     const lang = getCurrentLang();
     const dict = I18N_TYPES[lang] || {};
@@ -619,23 +644,16 @@ function createCard(xmlNode) {
     if (typeDisplay) typeDisplay = typeDisplay.charAt(0).toUpperCase() + typeDisplay.slice(1);
     const displayTitle = `${typeDisplay} - ${zone || city}`;
 
-    // --- LÓGICA DE ETIQUETAS ---
+    // --- ETIQUETAS (NO SEGUNDA MANO) ---
     const excluVal = get(['exclu', 'exclusiva']);
     const conservationVal = get(['conservacion', 'estado']);
-    
-    // Contenedor de Etiquetas
     let tagsHtml = '';
 
-    // 1. Etiqueta Exclusiva (Si aplica)
     if (excluVal === '1') {
         tagsHtml += `<span class="card-tag tag-exclusive">${ui.exclusive}</span>`;
     }
-
-    // 2. Etiqueta de Estado (Siempre: O es Obra Nueva o es Segunda Mano)
     if (conservationVal === 'Obra Nueva') {
         tagsHtml += `<span class="card-tag tag-new">${ui.cond_new}</span>`;
-    } else {
-        tagsHtml += `<span class="card-tag tag-resale">${ui.cond_resale}</span>`;
     }
 
     const finalTagsHtml = `<div class="card-tags-container">${tagsHtml}</div>`;
@@ -654,7 +672,7 @@ function createCard(xmlNode) {
     const bathsFromDesc = extractNumFromDesc(descText, 'baths');
     if (bathsFromDesc && parseInt(bathsFromDesc) > bathsVal) bathsVal = parseInt(bathsFromDesc);
 
-    // --- CARACTERÍSTICAS (BOOLEANOS) ---
+    // --- CARACTERÍSTICAS (USANDO checkHybrid CORREGIDO) ---
     const hasPool = checkHybrid(xmlNode, ['piscina_prop', 'piscina', 'pool'], 'pool');
     const hasGarage = checkHybrid(xmlNode, ['garaje', 'plaza_gara', 'garage'], 'garage');
     const hasView = checkHybrid(xmlNode, ['vistasalmar', 'vistas_mar', 'sea_view'], 'seaview');
@@ -663,15 +681,13 @@ function createCard(xmlNode) {
     const hasElevator = checkHybrid(xmlNode, ['ascensor', 'elevador', 'elevator'], 'elevator');
     const hasTerrace = checkHybrid(xmlNode, ['terraza', 'm_terraza', 'terrace'], 'terrace');
 
-    // --- LÍNEA 2: SPECS (M2 | Cama | Baño) ---
     const specsArr = [];
     if(m2 > 0) specsArr.push(`${m2} m²`);
     if(bedsVal > 0) specsArr.push(`${bedsVal} ${ui.beds}`);
     if(bathsVal > 0) specsArr.push(`${bathsVal} ${ui.baths}`);
     
-    let specsLine = specsArr.length > 0 ? specsArr.join(' &bull; ') : '';
+    let specsLine = specsArr.length > 0 ? specsArr.join(' • ') : '';
 
-    // --- LÍNEA 3: EXTRAS ---
     const extrasArr = [];
     if(hasPool) extrasArr.push(ui.pool);
     if(hasGarage) extrasArr.push(ui.garage);
@@ -681,7 +697,7 @@ function createCard(xmlNode) {
     if(hasAC) extrasArr.push(ui.ac);
     if(hasElevator) extrasArr.push(ui.elevator);
 
-    let extrasLine = extrasArr.length > 0 ? extrasArr.join(', ') : '&nbsp;';
+    let extrasLine = extrasArr.length > 0 ? extrasArr.join(', ') : ' ';
 
     const photos = [];
     for(let i=1; i<=15; i++) {
@@ -706,11 +722,11 @@ function createCard(xmlNode) {
         <div class="card-info-box">
             <h3 style="font-size:14px; color:#999; text-transform:uppercase; margin-bottom:5px;">${displayTitle}</h3>
             
-            <div class="line-1-price" style="font-family:'Inter'; font-weight:700; font-size:22px; color:#C5A059; margin-bottom:5px;">
+            <div class="line-1-price" style="font-family:'Inter'; font-weight:700; font-size:22px; color:#666; margin-bottom:5px;">
                 ${formattedPrice}
             </div>
             
-            <div class="line-2-specs" style="font-family:'Inter'; font-weight:600; font-size:14px; color:#000; margin-bottom:5px;">
+            <div class="line-2-specs" style="font-family:'Inter'; font-weight:600; font-size:14px; color:#666; margin-bottom:5px;">
                 ${specsLine}
             </div>
             

@@ -1,5 +1,5 @@
 /**
- * RENT.JS - V29.0 (TEXTO BORDE NEGRO + INFO DUPLICADA + MENSAJE LONG TERM VACÍO)
+ * RENT.JS - V29.5 (TARJETA CLICABLE COMPLETA)
  */
 
 const ITEMS_PER_PAGE = 5;
@@ -200,6 +200,11 @@ function injectRentStyles() {
             color: #666; 
             line-height: 1.8; 
             font-size: 1.05rem;
+        }
+        
+        /* Cursor pointer para indicar clicable */
+        .rent-layout-card {
+            cursor: pointer;
         }
     `;
     document.head.appendChild(style);
@@ -412,10 +417,18 @@ function renderRentGrid() {
     }
 }
 
-// --- CREAR TARJETA ---
+// --- CREAR TARJETA (AHORA COMPLETAMENTE CLICABLE) ---
 function createRentCard(prop, dict) {
     const article = document.createElement('article');
     article.className = 'rent-layout-card';
+    
+    // --- NUEVO: EVENTO CLICK EN TODA LA TARJETA ---
+    article.onclick = function(e) {
+        // Evitar conflicto si el usuario hace clic en los botones de slider futuros
+        if (e.target.tagName !== 'BUTTON') {
+            window.location.href = prop.link;
+        }
+    };
     
     // TÍTULO: Ciudad - Zona
     let locationTitle = prop.city;
@@ -458,7 +471,7 @@ function createRentCard(prop, dict) {
             <div class="rent-overlay-specs">
                 <div class="overlay-big-title rent-text-outline">${finalTitle}</div>
                 <div class="overlay-small-desc rent-text-outline">${featStr}</div>
-                <a href="${prop.link}" class="overlay-link-arrow rent-text-outline">${dict.view_prop} ➜</a>
+                <span class="overlay-link-arrow rent-text-outline">${dict.view_prop} ➜</span>
             </div>
         </div>
 
@@ -538,11 +551,11 @@ function translateRentUI() {
     }
 }
 
-// --- MODAL DE CONTACTO ---
+// --- MODAL DE CONTACTO - CARGA CONTACT-RENT.HTML ---
 function initGlobalContactModal() {
     const triggers = document.querySelectorAll('.btn-contact-trigger, .contact-trigger');
     triggers.forEach(btn => {
-        // Clonar para evitar listeners duplicados si se llama múltiples veces
+        // Clonar para evitar listeners duplicados
         const newBtn = btn.cloneNode(true);
         btn.parentNode.replaceChild(newBtn, btn);
 
@@ -555,7 +568,8 @@ function initGlobalContactModal() {
                 modal.classList.add('active'); document.body.style.overflow = 'hidden';
             } else {
                 try {
-                    const resp = await fetch('contact.html');
+                    // CARGAMOS EL HTML ESPECÍFICO DE RENT
+                    const resp = await fetch('contact-rent.html');
                     if (!resp.ok) throw new Error("Error loading contact");
                     const html = await resp.text();
                     const parser = new DOMParser();
@@ -578,6 +592,15 @@ function initGlobalContactModal() {
                     if (contactSection) {
                         const injector = modal.querySelector('#modal-content-injector');
                         injector.innerHTML = contactSection.innerHTML;
+
+                        // Ejecutar los scripts que vienen dentro del HTML cargado (para la traducción de Isidora)
+                        const scripts = doc.querySelectorAll('script');
+                        scripts.forEach(oldScript => {
+                            const newScript = document.createElement('script');
+                            newScript.textContent = oldScript.textContent;
+                            document.body.appendChild(newScript);
+                        });
+
                         document.body.appendChild(modal);
 
                         const newCloseBtn = modal.querySelector('.modal-close-btn');
@@ -585,9 +608,12 @@ function initGlobalContactModal() {
                         modal.addEventListener('click', (ev) => { if (ev.target === modal) closeModal(); });
 
                         modal.classList.add('active'); document.body.style.overflow = 'hidden';
-                        if (window.langManager) setTimeout(() => window.langManager.translatePage(), 50);
+                        
+                        // Traducción general (placeholder, botones, etc)
+                        if (window.langManager) window.langManager.translatePage();
                     }
                 } catch (error) {
+                    console.error('Error cargando modal rent:', error);
                     window.location.href = 'contact.html';
                 }
             }

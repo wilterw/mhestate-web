@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contacto Alquileres | MH Estate</title>
+    
+    <link rel="stylesheet" href="assets/css/variables.css">
+    <link rel="stylesheet" href="assets/css/global.css">
+    <link rel="stylesheet" href="assets/css/layout.css">
+    <link rel="stylesheet" href="assets/css/contact.css">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Gilda+Display&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <section class="contact-section">
+        <div class="contact-container">
+            
+            <div class="contact-upper-row">
+                
+                <div class="contact-col-left">
+                    <div class="contact-header">
+                        <h1 data-i18n="contact-title">Contáctanos</h1>
+                        <p id="rent-subtitle">Departamento de Alquileres</p>
+                    </div>
+                    
+                    <div class="info-list">
+                        <div class="info-item">
+                            <span class="icon">👤</span>
+                            <div class="info-text">
+                                <strong id="rent-role-label">Gestora de Alquileres</strong>
+                                <p style="font-size: 1.1rem; font-weight: 500;">Isidora Polanco Cañon</p>
+                            </div>
+                        </div>
+
+                        <div class="info-item">
+                            <span class="icon">📞</span>
+                            <div class="info-text">
+                                <strong data-i18n="lbl-phone">Teléfono</strong>
+                                <p><a href="tel:+34695919686" style="color:inherit; text-decoration:none;">+34 695 91 96 86</a></p>
+                            </div>
+                        </div>
+
+                        <div class="info-item">
+                            <span class="icon">✉️</span>
+                            <div class="info-text">
+                                <strong>Email</strong>
+                                <p><a href="mailto:rentals@mhestate.es" style="color:inherit; text-decoration:none;">rentals@mhestate.es</a></p>
+                            </div>
+                        </div>
+
+                        <div class="info-item">
+                            <span class="icon">📍</span>
+                            <div class="info-text">
+                                <strong data-i18n="lbl-address">Dirección</strong>
+                                <p>Calle Castilla Perez 17</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="contact-col-right">
+                    <div class="form-wrapper">
+                        <form class="contact-form">
+                            <div class="form-row-inputs">
+                                <div class="form-group">
+                                    <input type="text" data-i18n="ph-name" placeholder="Nombre" required>
+                                </div>
+                                <div class="form-group">
+                                    <input type="text" data-i18n="ph-lastname" placeholder="Apellido" required>
+                                </div>
+                            </div>
+                            <div class="form-row-inputs">
+                                <div class="form-group">
+                                    <input type="email" data-i18n="ph-email" placeholder="Email" required>
+                                </div>
+                                <div class="form-group">
+                                    <input type="tel" data-i18n="ph-phone" placeholder="Teléfono" required>
+                                </div>
+                            </div>
+                            <div class="form-group full">
+                                <textarea rows="4" data-i18n="ph-message" placeholder="Mensaje"></textarea>
+                            </div>
+                            <button type="submit" class="btn-send" data-i18n="btn-send">ENVIAR MENSAJE</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="contact-map-row">
+                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3202.433256038334!2d-3.8824151241712423!3d36.74819777226242!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xd72250917246471%3A0x6336e4f165a6c38b!2sC.%20Castilla%20P%C3%A9rez%2C%2017%2C%2029780%20Nerja%2C%20M%C3%A1laga%2C%20Espa%C3%B1a!5e0!3m2!1ses!2sve!4v1700000000000!5m2!1ses!2sve" 
+                        width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+            </div>
+
+        </div>
+    </section>
+
+    <script>
+        (function() {
+            const RENT_TXT = {
+                'es': { role: 'Gestora de Alquileres', dept: 'Departamento de Alquileres' },
+                'en': { role: 'Rental Manager', dept: 'Rental Department' },
+                'sv': { role: 'Uthyrningsansvarig', dept: 'Uthyrningsavdelning' }
+            };
+
+            function updateRentLabels() {
+                const lang = localStorage.getItem('preferredLang') || 'es';
+                const texts = RENT_TXT[lang] || RENT_TXT['es'];
+                
+                const roleEl = document.getElementById('rent-role-label');
+                const deptEl = document.getElementById('rent-subtitle');
+                
+                if(roleEl) roleEl.textContent = texts.role;
+                if(deptEl) deptEl.textContent = texts.dept;
+            }
+
+            // Ejecutar inmediatamente
+            updateRentLabels();
+            
+            // Escuchar el evento global de cambio de idioma
+            window.addEventListener('languageChanged', updateRentLabels);
+        })();
+    </script>
+</body>
+</html>

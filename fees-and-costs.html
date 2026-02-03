@@ -27,6 +27,27 @@
             box-sizing: border-box;
         }
 
+        /* ESTILOS DEL BOTÓN ATRÁS */
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            text-decoration: none;
+            color: #56503D;
+            font-family: 'Inter Local', sans-serif;
+            font-weight: 500;
+            font-size: 1rem;
+            margin-bottom: 30px;
+            transition: opacity 0.3s ease;
+        }
+        .back-btn:hover {
+            opacity: 0.7;
+        }
+        .back-arrow {
+            margin-right: 8px;
+            font-size: 1.2rem;
+            line-height: 1;
+        }
+
         .guide-tag {
             font-family: 'Inter Local', sans-serif;
             font-size: 1rem;
@@ -72,7 +93,6 @@
             margin-bottom: 25px;
         }
         
-        /* Estilos específicos para la lista de gastos */
         .expenses-list {
             list-style: none;
             padding: 0;
@@ -85,7 +105,7 @@
             color: #16120F;
             margin-bottom: 20px;
             padding-left: 20px;
-            border-left: 3px solid #56503D; /* Pequeño detalle visual */
+            border-left: 3px solid #56503D;
         }
         .expenses-list strong {
             font-weight: 700;
@@ -126,6 +146,10 @@
     <main style="padding-top: 120px;">
         
         <div class="single-column-layout">
+
+            <a href="guides.html" class="back-btn" id="dynamic-back-btn">
+                <span class="back-arrow">←</span> <span data-i18n="btn-back">Back</span>
+            </a>
 
             <span class="guide-tag" data-i18n="tag-guides">GUIDES</span>
             
@@ -199,5 +223,19 @@
     <script src="assets/js/i18n.js"></script>
     <script src="assets/js/components.js"></script>
     <script src="assets/js/app.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const backBtn = document.getElementById('dynamic-back-btn');
+            const ref = document.referrer;
+            
+            if (ref.includes('news.html')) {
+                backBtn.href = 'news.html';
+            } else if (ref.includes('guide-news.html')) {
+                backBtn.href = 'guide-news.html';
+            }
+            // Por defecto ya apunta a guides.html
+        });
+    </script>
 </body>
 </html>

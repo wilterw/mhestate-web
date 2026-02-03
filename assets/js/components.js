@@ -1,5 +1,5 @@
 /* =========================================
-   ASSETS/JS/COMPONENTS.JS - CARGA MODULAR Y LÓGICA RENTALS
+   ASSETS/JS/COMPONENTS.JS - V2.1 (FOOTER ISIDORA RENT/RENT-HOME)
    ========================================= */
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -23,6 +23,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 // ESCUCHADOR DE EVENTO
 window.addEventListener('languageChanged', (e) => {
     updateActiveLangButton();
+    // Re-aplicar lógica de footer por si la traducción reinicia los textos
+    setTimeout(initFooterLogic, 50);
 });
 
 /**
@@ -51,27 +53,36 @@ async function loadComponent(placeholderId, url, callback) {
 }
 
 /**
- * LÓGICA ESPECÍFICA DEL FOOTER (CAMBIO DE CORREO EN RENT)
+ * LÓGICA ESPECÍFICA DEL FOOTER (CAMBIO DE CORREO/TELÉFONO EN RENT Y RENT-HOME)
  */
 function initFooterLogic() {
-    // Detectamos si la URL contiene "rent.html"
-    if (window.location.pathname.includes('rent.html')) {
-        const emailLink = document.getElementById('footer-email-link');
+    const path = window.location.pathname;
+    // Detectamos si la URL contiene "rent.html" O "rent-home.html"
+    if (path.includes('rent.html') || path.includes('rent-home.html')) {
         
-        if (emailLink) {
-            // 1. Cambiamos el enlace
-            emailLink.href = "mailto:rentals@mhestate.es";
-            
-            // 2. Cambiamos el texto visible
-            emailLink.textContent = "rentals@mhestate.es";
-            
-            // 3. Quitamos el atributo de traducción para que no se revierta
-            emailLink.removeAttribute('data-i18n');
+        const footerPlaceholder = document.getElementById('footer-placeholder');
+        
+        if (footerPlaceholder) {
+            // 1. Cambiamos EMAIL (rentals@mhestate.es)
+            const emailLinks = footerPlaceholder.querySelectorAll('a[href^="mailto:"]');
+            emailLinks.forEach(link => {
+                link.href = "mailto:rentals@mhestate.es";
+                link.textContent = "rentals@mhestate.es";
+                link.removeAttribute('data-i18n'); // Bloquear traducción
+            });
+
+            // 2. Cambiamos TELÉFONO (+34 695 91 96 86)
+            const phoneLinks = footerPlaceholder.querySelectorAll('a[href^="tel:"]');
+            phoneLinks.forEach(link => {
+                link.href = "tel:+34695919686";
+                link.textContent = "+34 695 91 96 86";
+                link.removeAttribute('data-i18n'); // Bloquear traducción
+            });
         }
     }
     
     // Actualizar año automáticamente
-    const yearSpan = document.getElementById('year'); // Si añades un span con id="year" en el footer
+    const yearSpan = document.getElementById('year'); 
     if(yearSpan) {
         yearSpan.innerText = new Date().getFullYear();
     }
