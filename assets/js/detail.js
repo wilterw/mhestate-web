@@ -1,5 +1,5 @@
 /* =========================================
-   DETAIL.JS - V10.0 (ROLES DINÁMICOS DE AGENTE)
+   DETAIL.JS - V10.4 (SMART TITLE + SMART DESC + FIXES)
    ========================================= */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -28,8 +28,8 @@ const TRANSLATIONS = {
         'feat_town': 'Ciudad', 'feat_zone': 'Zona', 'feat_beds': 'Dormitorios',
         'feat_baths': 'Baños', 'feat_toilets': 'Aseos', 'feat_built': 'Construido',
         'feat_useful': 'Útil', 'feat_terrace': 'Terraza', 'feat_plot': 'Parcela',
-        'feat_pool': 'Piscina', 'feat_garage': 'Garaje', 'feat_garden': 'Jardín',
-        'feat_year': 'Año Const.', 'feat_status': 'Estado', 'feat_floors': 'Plantas',
+        'feat_pool': 'Piscina', 'feat_garage': 'Garaje', 
+        'feat_year': 'Año Const.', 'feat_floors': 'Plantas',
         'feat_ibi': 'IBI', 'feat_community': 'Comunidad',
         
         'feat_ac': 'Aire Acond.',
@@ -64,8 +64,8 @@ const TRANSLATIONS = {
         'feat_town': 'Town', 'feat_zone': 'Area', 'feat_beds': 'Bedrooms',
         'feat_baths': 'Bathrooms', 'feat_toilets': 'Toilets', 'feat_built': 'Built',
         'feat_useful': 'Useful', 'feat_terrace': 'Terrace', 'feat_plot': 'Plot',
-        'feat_pool': 'Pool', 'feat_garage': 'Garage', 'feat_garden': 'Garden',
-        'feat_year': 'Year Built', 'feat_status': 'Condition', 'feat_floors': 'Floors',
+        'feat_pool': 'Pool', 'feat_garage': 'Garage', 
+        'feat_year': 'Year Built', 'feat_floors': 'Floors',
         'feat_ibi': 'Tax (IBI)', 'feat_community': 'Community',
         
         'feat_ac': 'Air Cond.',
@@ -100,8 +100,8 @@ const TRANSLATIONS = {
         'feat_town': 'Stad', 'feat_zone': 'Område', 'feat_bed': 'Sovrum',
         'feat_baths': 'Badrum', 'feat_toilets': 'Toaletter', 'feat_built': 'Byggyta',
         'feat_useful': 'Användbar', 'feat_terrace': 'Terrass', 'feat_plot': 'Tomt',
-        'feat_pool': 'Pool', 'feat_garage': 'Garage', 'feat_garden': 'Trädgård',
-        'feat_year': 'Byggår', 'feat_status': 'Skick', 'feat_floors': 'Våningar',
+        'feat_pool': 'Pool', 'feat_garage': 'Garage', 
+        'feat_year': 'Byggår', 'feat_floors': 'Våningar',
         'feat_ibi': 'Skatt (IBI)', 'feat_community': 'Samfällighet',
         
         'feat_ac': 'Luftkond.',
@@ -155,6 +155,90 @@ function formatCondition(rawCond) {
     return t('cond_resale');
 }
 
+// --- TÍTULO INTELIGENTE (COMO EN RENT-DETAIL) ---
+function generateSmartTitle(node) {
+    const lang = localStorage.getItem('preferredLang') || 'es';
+    let titleTag = 'titulo1'; 
+    let descTag = 'descrip1';
+    
+    if (lang === 'en') { titleTag = 'titulo2'; descTag = 'descrip2'; }
+    if (lang === 'sv') { titleTag = 'titulo9'; descTag = 'descrip9'; }
+
+    // 1. Prioridad: Etiqueta de título traducida (titulo1, titulo2...)
+    let title = node.querySelector(titleTag)?.textContent;
+    if (title && title.trim().length > 5 && !title.includes('CDATA')) return title.replace(/<!\[CDATA\[|\]\]>/g, '').trim();
+    
+    // 2. Prioridad: TituloWeb o Titulo genérico
+    title = node.querySelector('tituloweb')?.textContent || node.querySelector('titulo')?.textContent;
+    if (title && title.trim().length > 5 && !title.includes('CDATA')) return title.replace(/<!\[CDATA\[|\]\]>/g, '').trim();
+
+    // 3. Prioridad: Extracción inteligente de la primera frase de la descripción
+    let desc = node.querySelector(descTag)?.textContent || node.querySelector('descrip1')?.textContent; 
+    if (desc) {
+        let cleanDesc = desc.replace(/<!\[CDATA\[|\]\]>/g, '').trim();
+        // Tomar hasta el primer punto, salto de línea o cierre de interrogación/exclamación
+        let firstPart = cleanDesc.split(/[\r\n.]+/)[0].trim();
+        // Limpiar caracteres iniciales o finales raros
+        firstPart = firstPart.replace(/^[¡¿"-]+/, '').replace(/[!?:."]+$/, '');
+        
+        // Si la frase extraída tiene una longitud razonable (título), usarla
+        if (firstPart.length > 10 && firstPart.length < 80) {
+            return firstPart.charAt(0).toUpperCase() + firstPart.slice(1);
+        }
+    }
+
+    // 4. Fallback: Formato técnico (Tipo en Zona)
+    const city = node.querySelector('poblacion')?.textContent || '';
+    const type = formatPropType(node.querySelector('tipo_ofer')?.textContent || 'Propiedad');
+    const zone = node.querySelector('zona')?.textContent || '';
+    return `${type} en ${zone || city}`;
+}
+
+// --- FORMATO INTELIGENTE DE DESCRIPCIÓN (COMO EN RENT-PROPIEDAD) ---
+function smartFormatText(text) {
+    if (!text) return "";
+    
+    // 1. Limpieza inicial
+    let html = text.replace(/<!\[CDATA\[|\]\]>/g, '')
+                   .replace(/~/g, '<br><br>')
+                   .replace(/—/g, '&mdash;')
+                   .replace(/\r\n/g, '\n');
+
+    // 2. Detectar listas (•, *, -) y convertir a HTML
+    const listPattern = /(?:^|\n)\s*[•\-\*]\s+(.*?)(?=\n|$|<br>)/g;
+    if (listPattern.test(html)) {
+        html = html.replace(listPattern, '<li>$1</li>');
+        html = html.replace(/(<li>.*?<\/li>)+/g, '<ul>$&</ul>');
+    }
+
+    // 3. Negritas inteligentes en palabras clave
+    const keywords = [
+        "Cocina", "Salón", "Dormitorio", "Baño", "Terraza", "Exterior", "Interior", 
+        "Planta baja", "Planta alta", "Ubicación", "Jardín", "Piscina", "Vistas", "Distribución", "Garaje",
+        "Kitchen", "Living room", "Bedroom", "Bathroom", "Terrace", "Garden", "Pool", "Views", "Location", "Distribution", "Garage"
+    ];
+    
+    keywords.forEach(word => {
+        const regex = new RegExp(`(\\.\\s*|^|\\n|<br>|<ul>\\s*)(${word})`, 'gi');
+        html = html.replace(regex, '$1<strong>$2</strong>');
+    });
+
+    // 4. Envolver en párrafos limpios
+    const parts = html.split('<br><br>');
+    let finalHtml = "";
+    
+    parts.forEach(part => {
+        let cleanPart = part.trim();
+        if (cleanPart.includes('<ul>')) {
+            finalHtml += cleanPart; 
+        } else if (cleanPart.length > 0) {
+            finalHtml += `<p class="desc-paragraph">${cleanPart}</p>`;
+        }
+    });
+
+    return finalHtml;
+}
+
 // --- IA LIGERA (EXTRACCIÓN) ---
 function extractNumFromDesc(text, type) {
     if (!text) return null;
@@ -162,9 +246,9 @@ function extractNumFromDesc(text, type) {
     const numMap = { 'un': 1, 'una': 1, 'uno': 1, 'primer': 1, 'dos': 2, 'tres': 3, 'cuatro': 4, 'cinco': 5, 'seis': 6, 'siete': 7, 'ocho': 8, 'nueve': 9, 'diez': 10 };
     let regex;
     if (type === 'beds') {
-        regex = /(?:(\d+)|(un|una|uno|dos|tres|cuatro|cinco|seis|siete|ocho|nueve|diez))\s+(?:(?:amplios?|dobles?|grandes?|bonitos?|luminosos?|fantásticos?|espaciosos?|hermosos?)\s+)?(?:dormitorios?|habitaci[oó]nes?|cuartos?)/i;
+        regex = /(?:^|\s|\.|,)(?:(\d+)|(un|una|uno|dos|tres|cuatro|cinco|seis|siete|ocho|nueve|diez))\s+(?:(?:amplios?|dobles?|grandes?|bonitos?|luminosos?|fantásticos?|espaciosos?|hermosos?)\s+)?(?:dormitorios?|dorm|habs?|habitaci[oó]nes?|cuartos?|bedrooms?|beds?)(?:\s|\.|,|$)/i;
     } else if (type === 'baths') {
-        regex = /(?:(\d+)|(un|una|uno|dos|tres|cuatro|cinco))\s+(?:(?:completos?|grandes?|modernos?)\s+)?(?:baños?|banyos?|aseos?|cuartos? de baño)/i;
+        regex = /(?:^|\s|\.|,)(?:(\d+)|(un|una|uno|dos|tres|cuatro|cinco))\s+(?:(?:completos?|grandes?|modernos?)\s+)?(?:baños?|banyos?|aseos?|cuartos? de baño|bathrooms?|baths?)(?:\s|\.|,|$)/i;
     }
     const match = text.match(regex);
     if (match) {
@@ -181,7 +265,6 @@ function checkFeatureInDesc(text, type) {
         'ac': /(aire acondicionado|aire a\/c|bomba de (fr[ií]o|calor)|climatizaci[oó]n)/i,
         'seaview': /(vista[s]? al mar|vistas? despejadas? al mar|frente al mar|primera l[ií]nea)/i,
         'pool': /(piscina|alberca|pileta)/i,
-        'garden': /(jard[ií]n|jardines|zonas? verdes?|huerto)/i,
         'garage': /(garaje|parking|aparcamiento|cochera|plaza de (garaje|parking))/i,
         'elevator': /(ascensor|elevador)/i,
         'terrace': /(terraza|balc[oó]n|solarium|azotea)/i
@@ -254,15 +337,22 @@ function renderPropertyDetails(node) {
 
     const lang = localStorage.getItem('preferredLang') || 'es';
 
-    const typeTranslated = formatPropType(get(['tipo_ofer', 'tipo']));
+    // --- APLICAR TÍTULO INTELIGENTE ---
+    const smartTitle = generateSmartTitle(node);
     
-    // TÍTULO ESTANDARIZADO
+    // Subtítulo (Ubicación técnica)
     const zone = get(['zona', 'area']);
     const city = get(['ciudad', 'poblacion']);
-    const title = `${typeTranslated} - ${zone || city}`; 
+    const locationSubtitle = `${city} • ${zone}`; 
 
-    setTextSafe('prop-title', title);
-    setTextSafe('prop-location', `${city} • ${zone}`);
+    // Asignar al H1 y al subtítulo
+    setTextSafe('prop-title', smartTitle);
+    setTextSafe('prop-location', locationSubtitle);
+    
+    // Asignar al título dentro de la pestaña "Descripción"
+    const innerTitle = document.querySelector('.tab-inner-title');
+    if(innerTitle) innerTitle.textContent = smartTitle;
+
     const refEl = document.getElementById('prop-ref');
     if(refEl) refEl.style.display = 'none'; 
     
@@ -286,8 +376,10 @@ function renderPropertyDetails(node) {
 
     let rawDesc = (lang === 'en') ? get('descrip2') : (lang === 'sv' ? get('descrip9') : get('descrip1'));
     if (!rawDesc || rawDesc.length < 5) rawDesc = get(['descrip1', 'descripcion']);
+    
+    // --- APLICAR FORMATO INTELIGENTE A LA DESCRIPCIÓN ---
     const descContainer = document.getElementById('prop-description');
-    if(descContainer) descContainer.innerHTML = formatRichText(rawDesc);
+    if(descContainer) descContainer.innerHTML = smartFormatText(rawDesc);
 
     // --- LÓGICA DEL AGENTE ---
     const agentName = get('agente') || 'MH Estate Team';
@@ -296,9 +388,7 @@ function renderPropertyDetails(node) {
     const agentPrefix = get('prefijo_tlf_agente') || '34';
     const propRef = get(['ref', 'referencia', 'id']);
 
-    // 1. Determinar el Label del Agente según quién sea
-    let roleKey = 'agent_label'; // Default
-
+    let roleKey = 'agent_label'; 
     if (agentName.includes('Cecilia Andersson')) {
         roleKey = 'role_founder';
     } else if (agentName.includes('Rebecca Velin')) {
@@ -310,17 +400,14 @@ function renderPropertyDetails(node) {
     const labelEl = document.querySelector('.agent-label');
     if(labelEl) labelEl.textContent = t(roleKey);
     
-    // 2. Nombre del Agente
     setTextSafe('agent-name', agentName);
     
-    // 3. Foto del Agente
     const imgEl = document.getElementById('agent-img');
     if(imgEl) {
         let photoUrl = AGENT_PHOTOS[agentName] || AGENT_PHOTOS['default'];
         imgEl.src = photoUrl;
     }
 
-    // 4. Contacto (Teléfono y Bio)
     let finalPhone = agentPhone;
     if(!finalPhone || finalPhone.trim() === "") {
         if(agentName.includes("Rebecca")) finalPhone = "653 61 04 24"; 
@@ -337,7 +424,6 @@ function renderPropertyDetails(node) {
         bioEl.innerHTML = contactHtml || 'Contacta para más información.';
     }
 
-    // 5. Botones de Acción
     const emailBtn = document.getElementById('agent-email-btn');
     if(emailBtn) {
         emailBtn.textContent = t('btn_email');
@@ -353,13 +439,10 @@ function renderPropertyDetails(node) {
     if(wsBtn) {
         wsBtn.className = 'btn-agent btn-whatsapp';
         wsBtn.textContent = 'WhatsApp'; 
-
         const cleanNumber = (agentPrefix + finalPhone).replace(/\D/g, ''); 
-        
         let msg = `Hola, estoy interesado en la propiedad Ref: ${propRef}.`;
         if(lang === 'en') msg = `Hello, I'm interested in property Ref: ${propRef}.`;
         if(lang === 'sv') msg = `Hej, jag är intresserad av fastigheten Ref: ${propRef}.`;
-
         wsBtn.href = `https://wa.me/${cleanNumber}?text=${encodeURIComponent(msg)}`;
         wsBtn.target = "_blank";
         wsBtn.style.display = 'flex';
@@ -464,7 +547,8 @@ function renderFeatures(node) {
     
     container.innerHTML = ''; 
 
-    const descText = node.querySelector('descrip1')?.textContent || '';
+    // Combinar todas las descripciones para buscar mejor
+    const descText = (node.querySelector('descrip1')?.textContent || '') + ' ' + (node.querySelector('descrip2')?.textContent || '');
 
     const getVal = (tags) => {
         if(!Array.isArray(tags)) tags = [tags];
@@ -482,8 +566,8 @@ function renderFeatures(node) {
         { key: 'feat_town', tags: ['ciudad', 'poblacion', 'town'] },
         { key: 'feat_zone', tags: ['zona', 'area'] },
         
-        { key: 'feat_beds', tags: ['habitaciones', 'dormitorios', 'beds'] },
-        { key: 'feat_baths', tags: ['banyos', 'banos', 'baths'] },
+        { key: 'feat_beds', tags: ['habitaciones', 'dormitorios', 'beds', 'bedrooms', 'hab', 'rooms'] },
+        { key: 'feat_baths', tags: ['banyos', 'banos', 'baths', 'bathrooms'] },
         { key: 'feat_toilets', tags: ['aseos', 'toilets'] },
         
         { key: 'feat_built', tags: ['m_cons', 'construido', 'built'], suffix: ' m²' },
@@ -494,12 +578,11 @@ function renderFeatures(node) {
         
         { key: 'feat_pool', tags: ['piscina_prop', 'piscina', 'pool'], isBool: true, iaKey: 'pool' },
         { key: 'feat_garage', tags: ['plaza_gara', 'garaje', 'garage'], isBool: true, iaKey: 'garage' },
-        { key: 'feat_garden', tags: ['jardin_prop', 'jardin', 'garden'], isBool: true, iaKey: 'garden' },
+        
         { key: 'feat_ac', tags: ['aire_con', 'aire_acondicionado'], isBool: true, iaKey: 'ac' },
         { key: 'feat_seaview', tags: ['vistasalmar', 'vistas_mar'], isBool: true, iaKey: 'seaview' },
         { key: 'feat_elevator', tags: ['ascensor', 'elevador'], isBool: true, iaKey: 'elevator' },
         
-        { key: 'feat_status', tags: ['conservacion', 'estado'], isStatus: true },
         { key: 'feat_year', tags: ['antiguedad', 'ano_construccion', 'year'] },
         { key: 'feat_floors', tags: ['num_plantas', 'floors'] },
         { key: 'feat_ibi', tags: ['ibi'], suffix: ' €' },
@@ -510,21 +593,19 @@ function renderFeatures(node) {
     allSpecs.forEach(item => {
         let val = getVal(item.tags);
 
+        // --- FIX DORMITORIOS (Suma) ---
         if(item.key === 'feat_beds') {
             const simples = parseInt(getVal(['Simple', 'simple', 'hab_simples', 'simples'])) || 0;
             const dobles = parseInt(getVal(['Double', 'double', 'hab_dobles', 'dobles'])) || 0;
             const total = simples + dobles;
-            if(total > 0) val = total.toString();
+            if(total > (parseInt(val) || 0)) val = total.toString();
         }
 
-        if (item.key === 'feat_beds' || item.key === 'feat_baths') {
+        // --- FIX DORMITORIOS (IA Texto) ---
+        if ((item.key === 'feat_beds' || item.key === 'feat_baths') && (!val || val === '0')) {
             const extracted = extractNumFromDesc(descText, item.key === 'feat_beds' ? 'beds' : 'baths');
             if (extracted) {
-                const numericExtracted = parseInt(extracted);
-                const numericCurrent = parseInt(val) || 0;
-                if (numericExtracted > numericCurrent) {
-                    val = extracted.toString();
-                }
+                val = extracted.toString();
             }
         }
 
@@ -599,7 +680,7 @@ function initMap(lat, lng) {
 
 function setTextSafe(id, txt) { const el = document.getElementById(id); if(el) el.textContent = txt; }
 function formatPrice(v) { return v ? parseFloat(v).toLocaleString('de-DE') + ' €' : t('val_consult'); }
-function formatRichText(text) { if (!text) return ""; return `<p>${text.replace(/~~/g, '</p><p>').replace(/\n/g, '<br>')}</p>`; }
+// La funcion formatRichText anterior ya no se usa, reemplazada por smartFormatText
 
 function renderMultimediaGallery(node) { 
     const container = document.getElementById('gallery-container');
@@ -727,7 +808,6 @@ function renderSimilarProperties(currentProp, allProps) {
         const pCity = getVal(p, 'ciudad');
         let pTitle = `${typeTrans} - ${pZone || pCity}`;
 
-        // --- LÓGICA DE ETIQUETA EN SIMILARES ---
         const excluVal = getVal(p, 'exclu') || getVal(p, 'exclusiva');
         const conservationVal = getVal(p, 'conservacion') || getVal(p, 'estado');
         

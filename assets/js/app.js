@@ -1,6 +1,6 @@
 /**
  * ============================================================
- * APP.JS - MOTOR V22.9 (CACHE BUSTING APPLIED)
+ * APP.JS - MOTOR V23.1 (VALIDACIÓN EMAIL/TLF + ORDENACIÓN FECHA)
  * ============================================================
  */
 
@@ -78,6 +78,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
         setupFilterInteractions(); 
         initSearchLogic();        
+        
+        // Inicializar validación del formulario (Email o Teléfono)
+        initFormValidation();
 
         await loadAndStoreProperties();
         populateCitySelect();
@@ -112,7 +115,6 @@ async function loadAndStoreProperties() {
         const parser = new DOMParser();
         const xmlDoc = parser.parseFromString(strXML, "text/xml");
         const nodes = Array.from(xmlDoc.querySelectorAll("propiedad"));
-        
         
         if (nodes.length === 0) throw new Error("XML vacío");
 
@@ -578,11 +580,12 @@ function initContactModal() {
             if(window.innerWidth > 900) { 
                 e.preventDefault();
                 
-                // Si ya tiene contenido de rent y estamos en rent, o tiene contenido normal y estamos en normal, solo abrir
-                const isRentPath = window.location.pathname.toLowerCase().includes('rent');
+                // Detecta si la URL limpia contiene "rent" o "rent-home"
+                const isRentMode = window.location.pathname.includes('rent') || window.location.href.includes('rent');
                 const hasRentContent = injector.innerHTML.includes('rentals@mhestate.es') || injector.innerHTML.includes('Isidora');
 
-                if (injector.children.length > 0 && ((isRentPath && hasRentContent) || (!isRentPath && !hasRentContent))) {
+                // Si ya tiene el contenido correcto, solo abrir
+                if (injector.children.length > 0 && ((isRentMode && hasRentContent) || (!isRentMode && !hasRentContent))) {
                     openModal(); 
                     return; 
                 }
@@ -592,8 +595,7 @@ function initContactModal() {
                     openModal();
                     
                     // DETECCIÓN DINÁMICA DE ARCHIVO
-                    // Si la URL actual contiene "rent", cargamos el de rentas, si no, el normal.
-                    let fileToLoad = isRentPath ? 'contact-rent.html' : 'contact.html';
+                    let fileToLoad = isRentMode ? 'contact-rent.html' : 'contact.html';
 
                     const response = await fetch(fileToLoad + '?v=' + Date.now());
                     if (!response.ok) throw new Error("Fetch failed");
@@ -634,6 +636,42 @@ window.applyLocationFilter = function(locs) {
     if(!locs) { window.location.href = 'buy.html?view=all'; return; }
     window.location.href = `buy.html?loc=${encodeURIComponent(locs)}`;
 };
+
+// --- VALIDACIÓN DE FORMULARIO (EMAIL O TELÉFONO) ---
+function initFormValidation() {
+    // Usamos delegación de eventos en el documento para capturar el envío
+    // incluso si el formulario se cargó dinámicamente en el modal.
+    document.addEventListener('submit', function(e) {
+        // Verificamos si el elemento que dispara el submit es nuestro formulario
+        if (e.target && e.target.classList.contains('contact-form')) {
+            
+            const form = e.target;
+            const emailInput = form.querySelector('input[type="email"]');
+            const phoneInput = form.querySelector('input[type="tel"]');
+            
+            // Limpiamos espacios en blanco para evitar falsos positivos
+            const emailVal = emailInput ? emailInput.value.trim() : '';
+            const phoneVal = phoneInput ? phoneInput.value.trim() : '';
+
+            // Lógica: Si AMBOS están vacíos, bloqueamos el envío
+            if (emailVal === '' && phoneVal === '') {
+                e.preventDefault(); // Detener el envío
+                
+                // Mensaje de error (puedes personalizarlo)
+                alert("Por favor, proporcione al menos un método de contacto (Email o Teléfono).");
+                
+                // Opcional: Resaltar los campos visualmente
+                if(emailInput) emailInput.style.borderColor = "red";
+                if(phoneInput) phoneInput.style.borderColor = "red";
+                
+                // Limpiar el borde rojo cuando el usuario escriba
+                const clearError = (ev) => ev.target.style.borderColor = "";
+                if(emailInput) emailInput.oninput = clearError;
+                if(phoneInput) phoneInput.oninput = clearError;
+            }
+        }
+    });
+}
 
 // --- CREATE CARD (CON ETIQUETAS Y SWIPE) - VERSIÓN TODO GRIS ---
 function createCard(xmlNode) {

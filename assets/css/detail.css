@@ -1,11 +1,11 @@
 /* =========================================
-   DETAIL.CSS - ESTILOS COMPLETOS (V4.0)
+   DETAIL.CSS - V5.0 (UNIFICADO VENTA/ALQUILER + FIX FOTOS)
    ========================================= */
 
 /* --- 1. HERO SECTION --- */
 .property-hero-bg {
-    background-color: #F9F7F2; /* Color crema suave */
-    padding: 120px 0 40px; /* Ajustado para header fijo */
+    background-color: #F9F7F2; 
+    padding: 120px 0 40px; 
     border-bottom: 1px solid #EAEAEA;
     width: 100%;
 }
@@ -84,7 +84,7 @@
     font-weight: 400;
 }
 
-/* --- 2. GALERÍA MULTIMEDIA (GRID AVANZADO) --- */
+/* --- 2. GALERÍA MULTIMEDIA (ESTRUCTURA SEGURA) --- */
 .gallery-section {
     padding: 40px 0;
 }
@@ -95,6 +95,17 @@
     padding: 0 20px;
 }
 
+/* Caja de contención para evitar desbordes */
+.gallery-enclosure {
+    width: 100%;
+    display: block; 
+    overflow: hidden; 
+    position: relative;
+    margin-bottom: 20px; 
+    background-color: #fff;
+    border-radius: 8px;
+}
+
 .gallery-grid {
     display: flex;
     flex-direction: column;
@@ -102,10 +113,10 @@
     width: 100%;
 }
 
-/* Fila 1: Medio Principal (Video o Foto) */
+/* Fila 1: Medio Principal */
 .gallery-main-media {
     width: 100%;
-    height: 500px;
+    height: 400px !important; /* Altura forzada */
     position: relative;
     cursor: pointer;
     overflow: hidden;
@@ -117,6 +128,7 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
+    display: block;
 }
 
 .play-overlay {
@@ -140,12 +152,12 @@
     transform: translate(-50%, -50%) scale(1.1);
 }
 
-/* Fila 2: Dividida (Imagen Media + Grid Pequeño) */
+/* Fila 2: Dividida */
 .gallery-split-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 10px;
-    height: 350px;
+    height: 650px !important; /* Altura forzada */
 }
 
 .gallery-secondary-media {
@@ -160,6 +172,7 @@
     height: 100%;
     object-fit: cover;
     transition: transform 0.3s;
+    display: block;
 }
 
 .gallery-secondary-media:hover img {
@@ -186,13 +199,13 @@
     height: 100%;
     object-fit: cover;
     transition: transform 0.3s;
+    display: block;
 }
 
 .gallery-small-item:hover img {
     transform: scale(1.05);
 }
 
-/* Overlay "+X Fotos" */
 .overlay-container::after {
     content: '';
     position: absolute;
@@ -216,7 +229,7 @@
     background: rgba(0,0,0,0.3);
 }
 
-/* --- 3. LIGHTBOX (VENTANA EMERGENTE) --- */
+/* --- 3. LIGHTBOX --- */
 .lightbox {
     display: none;
     position: fixed;
@@ -300,19 +313,22 @@
     padding-bottom: 80px;
 }
 
-/* --- 5. SISTEMA DE PESTAÑAS (TABS) --- */
-.tabs-nav-wrapper {
-    width: 100%;
-    overflow-x: auto; /* Scroll horizontal en móvil */
-    border-bottom: 1px solid #ddd;
-    margin-bottom: 40px;
-    margin-top: 20px;
+/* --- 5. TABS --- */
+.sticky-nav-section {
+    position: -webkit-sticky;
+    position: sticky;
+    top: 70px;
+    z-index: 999;
+    background-color: #ffffff;
+    border-bottom: 1px solid #EAEAEA;
+    padding: 10px 0;
+    margin-top: 0;
 }
 
 .tabs-nav {
     display: flex;
     gap: 30px;
-    min-width: max-content; /* Evita que los botones se rompan */
+    min-width: max-content;
     padding-bottom: 1px;
 }
 
@@ -362,7 +378,6 @@
     color: #000;
 }
 
-/* Placeholder para pestañas vacías (Map, Plan, Tour) */
 .media-placeholder {
     width: 100%;
     height: 300px;
@@ -376,15 +391,14 @@
     font-size: 1.1rem;
 }
 
-/* --- 6. LAYOUT 2 COLUMNAS (DESCRIPCIÓN + AGENTE) --- */
+/* --- 6. LAYOUT 2 COLUMNAS --- */
 .desc-layout-grid {
     display: grid;
-    grid-template-columns: 2fr 1fr; /* 66% Contenido - 33% Agente */
+    grid-template-columns: 2fr 1fr; 
     gap: 60px;
     align-items: start;
 }
 
-/* Formato de Texto */
 .formatted-text p {
     margin-bottom: 1.5rem;
     line-height: 1.8;
@@ -399,11 +413,42 @@
     list-style: disc;
     color: #444;
 }
+.desc-paragraph {
+    margin-bottom: 20px;
+    line-height: 1.8;
+    color: #444;
+    font-size: 1.05rem;
+    text-align: justify;
+}
 
-/* --- 7. FICHA DE AGENTE (SIDEBAR) --- */
+/* Subtítulos detectados (Ej: "DISTRIBUCIÓN:") */
+.text-subtitle {
+    display: block;
+    margin-top: 25px;
+    margin-bottom: 10px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    color: #000;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 0.95rem;
+}
+
+/* Listas si las hubiera */
+.formatted-text ul {
+    margin: 15px 0 25px 20px;
+    padding-left: 15px;
+    list-style-type: disc;
+}
+.formatted-text li {
+    margin-bottom: 8px;
+    line-height: 1.6;
+}
+
+/* --- 7. FICHA DE AGENTE (VENTA) --- */
 .agent-sidebar-col {
     position: sticky;
-    top: 100px; /* Sticky bajo el header */
+    top: 100px;
     height: fit-content;
 }
 
@@ -423,12 +468,20 @@
     border-radius: 50%;
     overflow: hidden;
     border: 3px solid #F0EAE3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f9f9f9;
 }
 
+/* FIX: Ajuste de Foto de Agente (Venta) */
 .agent-photo-wrapper img {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: cover; 
+    object-position: top center; 
+    transform: scale(0.9); /* Aleja la foto para no cortar la cara */
+    display: block;
 }
 
 .agent-label {
@@ -447,7 +500,6 @@
     margin: 0 0 15px;
 }
 
-/* Biografía Ejecutiva */
 .agent-bio {
     font-size: 0.95rem;
     color: #555;
@@ -457,41 +509,32 @@
     padding: 0 5px;
 }
 
-.agent-contact-text {
-    font-size: 0.9rem;
-    color: #888;
-    margin-bottom: 20px;
-    word-break: break-all;
-}
-
-.agent-contact-text a {
-    color: #56503D;
-    text-decoration: none;
-    border-bottom: 1px solid transparent;
-    transition: 0.3s;
-}
-
-.agent-contact-text a:hover {
-    border-bottom-color: #56503D;
+.agent-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 20px;
 }
 
 .btn-agent {
-    display: block;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
     width: 100%;
-    padding: 12px;
-    border-radius: 4px;
-    text-decoration: none;
-    font-weight: 500;
-    margin-bottom: 10px;
+    padding: 14px;
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none !important;
+    cursor: pointer !important;
     transition: 0.3s;
     font-size: 0.9rem;
 }
 
 .btn-agent.primary {
-    background-color: #56503D;
+    background-color: #000;
     color: #fff;
 }
-
 .btn-agent.primary:hover {
     background-color: #3E3A2C;
 }
@@ -500,123 +543,214 @@
     border: 1px solid #56503D;
     color: #56503D;
 }
-
 .btn-agent.secondary:hover {
     background-color: #F9F7F2;
 }
 
-/* =========================================
-   PESTAÑA FACTS: FICHA TÉCNICA ELEGANTE
-   ========================================= */
+.btn-whatsapp {
+    background-color: #25D366 !important;
+    color: white !important;
+}
+.btn-whatsapp:hover {
+    background-color: #128C7E !important;
+    transform: translateY(-2px);
+}
 
-.technical-sheet {
+/* --- 8. WIDGET DE RESERVA (ALQUILER) --- */
+/* Estilos migrados para unificación */
+.booking-widget-card {
+    background: #fff;
+    border: 1px solid #EAEAEA;
+    border-radius: 8px;
+    padding: 30px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    text-align: left;
+}
+
+.booking-header {
+    border-bottom: 1px solid #eee;
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+}
+
+.booking-price {
+    font-family: 'Gilda Display', serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #56503D;
+}
+
+.booking-unit {
+    font-size: 0.9rem;
+    color: #666;
+    font-weight: 400;
+}
+
+.booking-dates-grid {
     display: grid;
-    /* Grilla de columnas auto-ajustables (mínimo 200px de ancho cada dato) */
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); 
-    gap: 40px 30px; /* Separación vertical y horizontal */
-    padding: 40px 0;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.date-field label {
+    display: block;
+    font-size: 11px;
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: #000;
+    letter-spacing: 1px;
+}
+
+.date-input-styled {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    color: #333;
+    background: #f9f9f9;
+    border-radius: 4px;
+}
+
+.booking-summary-box {
+    background-color: #f4f4f4;
+    padding: 20px;
+    margin-bottom: 20px;
+    display: none;
+    border-radius: 4px;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    font-size: 14px;
+    color: #555;
+}
+
+.summary-total-row {
+    border-top: 1px solid #ddd;
+    padding-top: 15px;
+    margin-top: 10px;
+    display: flex;
+    justify-content: space-between;
+    font-family: 'Gilda Display', serif;
+    font-size: 20px;
+    color: #000;
+}
+
+.btn-book-action {
+    width: 100%;
+    background-color: #000;
+    color: #fff;
+    padding: 15px;
+    text-transform: uppercase;
+    font-weight: 600;
+    font-size: 0.9rem;
+    letter-spacing: 2px;
+    border: none;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    border-radius: 4px;
+}
+
+.btn-book-action:hover {
+    background-color: #56503D;
+}
+
+/* Fix Mini Agent inside Booking Widget (Coherencia Visual) */
+.booking-agent-mini {
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+    display: block;
+}
+
+/* Aquí aplicamos el mismo fix que en venta para la foto mini */
+.booking-agent-img {
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+    border: 1px solid #eee;
+    background: #f9f9f9;
+    object-fit: cover;
+    object-position: top center;
+    transform: scale(0.9); /* FIX CARA */
+    display: block;
+}
+
+/* =========================================
+   PESTAÑA FACTS
+   ========================================= */
+.technical-sheet, .technical-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); 
+    gap: 30px; 
+    padding: 30px 0;
     border-top: 1px solid #eee;
 }
 
-/* Cada Bloque de Dato */
-.tech-item {
+.tech-card, .tech-item {
     display: flex;
     flex-direction: column;
-    gap: 5px;
-    border-left: 2px solid #C5BDA8; /* Línea decorativa lateral */
-    padding-left: 15px; /* Espacio para separar de la línea */
-    transition: transform 0.3s ease;
+    padding-left: 15px;
+    border-left: 2px solid #C5BDA8;
+    transition: transform 0.2s ease;
 }
 
-.tech-item:hover {
-    transform: translateX(5px); /* Pequeño movimiento al pasar el mouse */
+.tech-card:hover {
+    transform: translateX(5px);
 }
 
-/* Etiqueta (Label) - Ej: "BEDROOMS" */
 .tech-label {
-    font-family: 'Inter Local', sans-serif;
+    font-family: 'Inter', sans-serif;
     font-size: 0.75rem;
     text-transform: uppercase;
-    letter-spacing: 1.5px;
-    color: #999;
+    letter-spacing: 1px;
+    color: #888;
+    margin-bottom: 5px;
     font-weight: 600;
 }
 
-/* Valor (Value) - Ej: "4 Suites" */
 .tech-value {
     font-family: 'Gilda Display', serif;
-    font-size: 1.5rem; /* Tamaño grande y legible */
+    font-size: 1.4rem;
     color: #000;
     line-height: 1.1;
 }
 
-/* ESTADO DE CARGA / ERROR */
-.tech-loading {
-    grid-column: 1 / -1;
-    text-align: center;
-    color: #999;
-    font-style: italic;
-    padding: 40px;
+/* PLANO */
+#plan-container {
+    width: 100%;
+    min-height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #eee;
 }
 
-/* RESPONSIVE */
-@media (max-width: 768px) {
-    .technical-sheet {
-        grid-template-columns: 1fr 1fr; /* 2 columnas en móvil */
-        gap: 30px 20px;
-    }
-}
-@media (max-width: 480px) {
-    .tech-value { font-size: 1.3rem; }
+#plan-container img {
+    max-width: 100%;
+    max-height: 80vh;
+    display: block;
+    margin: 0 auto;
+    object-fit: contain;
+    transition: transform 0.3s ease;
 }
 
-/* --- 9. RESPONSIVE --- */
-@media (max-width: 900px) {
-    /* Galería */
-    .gallery-split-row {
-        height: auto;
-        grid-template-columns: 1fr;
-    }
-    .gallery-secondary-media {
-        height: 250px;
-    }
-    .gallery-small-grid {
-        height: auto;
-        grid-template-rows: 150px 150px;
-    }
-    
-    /* Layout Columnas */
-    .desc-layout-grid {
-        grid-template-columns: 1fr;
-        gap: 40px;
-    }
-    
-    /* Agente arriba en móvil (opcional, o dejar abajo) */
-    .agent-sidebar-col {
-        position: static;
-        order: -1;
-        margin-bottom: 40px;
-    }
-    
-    /* Lightbox */
-    .lightbox-content {
-        flex-direction: column;
-        height: auto;
-        width: 100%;
-    }
-    .lb-nav {
-        position: static;
-        transform: none;
-        margin: 10px 20px;
-        font-size: 40px;
-    }
+#plan-container:hover img {
+    transform: scale(1.02);
 }
 
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-/* Sección Similares */
+/* SIMILARES */
 .similar-section {
     padding: 60px 0 100px;
     background-color: #fcfcfc;
@@ -638,32 +772,27 @@
     padding: 0 20px;
 }
 
-/* Contenedor Flex para Scroll */
 #similar-container {
     display: flex;
     gap: 20px;
     overflow-x: auto;
     scroll-behavior: smooth;
     padding-bottom: 20px;
-    /* Ocultar barra de scroll visualmente pero mantener funcionalidad */
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none; /* IE */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
 }
-#similar-container::-webkit-scrollbar { display: none; } /* Chrome */
+#similar-container::-webkit-scrollbar { display: none; }
 
-/* Modo Grid Centrado (cuando hay pocas props) */
 .grid-center-mode {
     justify-content: center;
     flex-wrap: wrap;
 }
 
-/* Modo Carrusel (cuando hay muchas) */
 .carousel-mode {
     justify-content: flex-start;
     flex-wrap: nowrap;
 }
 
-/* Tarjeta Miniatura */
 .prop-card-mini {
     min-width: 280px;
     max-width: 280px;
@@ -731,7 +860,6 @@
     font-weight: 600;
 }
 
-/* Botones Navegación Carrusel */
 .carousel-nav-btn {
     position: absolute;
     top: 50%;
@@ -760,249 +888,49 @@
 .prev-btn { left: -20px; }
 .next-btn { right: -20px; }
 
-/* Responsive Similares */
 @media (max-width: 900px) {
-    .carousel-nav-btn { display: none !important; } /* Ocultar flechas en móvil, usar swipe */
+    .carousel-nav-btn { display: none !important; }
     .prop-card-mini { min-width: 260px; }
     .prev-btn { left: 0; }
     .next-btn { right: 0; }
-}
-/* =========================================
-   FICHA TÉCNICA (FACTS) - ESTILO ELEGANTE
-   ========================================= */
-
-.technical-grid {
-    display: grid;
-    /* Columnas automáticas: mínimo 200px de ancho cada dato */
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); 
-    gap: 30px; 
-    padding: 30px 0;
-    border-top: 1px solid #eee;
-}
-
-.tech-card {
-    display: flex;
-    flex-direction: column;
-    padding-left: 15px;
-    border-left: 2px solid #C5BDA8; /* Línea dorada a la izquierda */
-    transition: transform 0.2s ease;
-}
-
-.tech-card:hover {
-    transform: translateX(5px);
-}
-
-.tech-label {
-    font-family: 'Inter', sans-serif;
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: #888;
-    margin-bottom: 5px;
-    font-weight: 600;
-}
-
-.tech-value {
-    font-family: 'Gilda Display', serif;
-    font-size: 1.4rem;
-    color: #000;
-    line-height: 1.1;
-}
-
-/* RESPONSIVE */
-@media (max-width: 480px) {
-    .technical-grid {
-        grid-template-columns: 1fr 1fr; /* 2 columnas en móvil */
-        gap: 20px;
+    
+    .gallery-split-row {
+        height: auto !important;
+        grid-template-columns: 1fr;
     }
-    .tech-value { font-size: 1.1rem; }
-}
-/* =========================================
-   ESTILOS PARA EL PLANO (TAB PLAN)
-   ========================================= */
-#plan-container {
-    width: 100%;
-    min-height: 300px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: #f9f9f9;
-    border-radius: 8px;
-    overflow: hidden;
-    border: 1px solid #eee;
-}
-
-#plan-container img {
-    max-width: 100%;
-    max-height: 80vh; /* Que no sea más alto que la pantalla */
-    display: block;
-    margin: 0 auto;
-    object-fit: contain;
-    transition: transform 0.3s ease;
-}
-
-#plan-container:hover img {
-    transform: scale(1.02); /* Pequeño zoom al pasar el mouse */
-}
-/* Botones del Agente */
-.agent-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-top: 20px;
+    .gallery-secondary-media {
+        height: 250px;
+    }
+    .gallery-small-grid {
+        height: auto;
+        grid-template-rows: 150px 150px;
+    }
+    
+    .desc-layout-grid {
+        grid-template-columns: 1fr;
+        gap: 40px;
+    }
+    
+    .agent-sidebar-col {
+        position: static;
+        order: -1;
+        margin-bottom: 40px;
+    }
+    
+    .lightbox-content {
+        flex-direction: column;
+        height: auto;
+        width: 100%;
+    }
+    .lb-nav {
+        position: static;
+        transform: none;
+        margin: 10px 20px;
+        font-size: 40px;
+    }
 }
 
-.btn-agent {
-    display: flex;
-    align-items: center;
-    justify-content: center; /* Centra el texto horizontalmente */
-    text-align: center;
-    padding: 12px 20px;
-    border-radius: 8px;
-    text-decoration: none;
-    font-weight: 600;
-    font-size: 0.9rem;
-    transition: 0.3s;
-}
-
-/* Botón WhatsApp */
-.btn-whatsapp {
-    background-color: #25D366;
-    color: white;
-    border: none;
-}
-
-.btn-whatsapp:hover {
-    background-color: #128C7E;
-    color: white;
-}
-
-/* Botón Email (Primary) */
-.btn-agent.primary {
-    background-color: #000;
-    color: #fff;
-}
-/* Contenedor de acciones del agente */
-.agent-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    margin-top: 20px;
-}
-
-/* Estilo base para ambos botones */
-.btn-agent {
-    display: flex !important;
-    align-items: center;
-    justify-content: center; /* ESTO CENTRA EL TEXTO */
-    text-align: center;
-    width: 100%;
-    padding: 14px;
-    border-radius: 8px;
-    font-weight: 600;
-    text-decoration: none;
-    transition: all 0.3s ease;
-}
-
-/* WhatsApp específico */
-.btn-whatsapp {
-    background-color: #25D366 !important;
-    color: white !important;
-}
-
-.btn-whatsapp:hover {
-    background-color: #128C7E !important;
-}
-
-/* Email específico */
-.btn-agent.primary {
-    background-color: #000;
-    color: #fff;
-}
-
-/* Asegurar que la foto no se rompa */
-.agent-photo-wrapper img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-}
-.agent-actions {
-    position: relative;
-    z-index: 10; /* Asegura que los botones estén al frente */
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    margin-top: 20px;
-}
-
-.btn-agent {
-    display: flex !important;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    width: 100%;
-    padding: 14px;
-    border-radius: 8px;
-    font-weight: 600;
-    text-decoration: none !important; /* Quitar subrayados */
-    cursor: pointer !important; /* Forzar cursor de mano */
-    transition: 0.3s;
-}
-
-.btn-whatsapp {
-    background-color: #25D366 !important;
-    color: white !important;
-}
-
-.btn-whatsapp:hover {
-    background-color: #128C7E !important;
-    transform: translateY(-2px);
-}
-
-/* =======================================================
-   CLASES ADICIONALES PARA COMPACTAR GALERÍA Y MENÚ (V5.0)
-   ======================================================= */
-
-/* 1. CONTENEDOR DE SEGURIDAD PARA LA GALERÍA */
-/* Esto crea una caja estanca que impide que las fotos salgan */
-.gallery-enclosure {
-    width: 100%;
-    display: block; 
-    overflow: hidden; /* Corta cualquier sobrante */
-    position: relative;
-    margin-bottom: 20px; /* Separación segura */
-    background-color: #fff;
-}
-
-/* Forzar alturas compactas y recorte de imagen */
-.gallery-enclosure .gallery-main-media {
-    height: 500px !important; /* Altura estricta */
-}
-.gallery-enclosure .gallery-split-row {
-    height: 350px !important; /* Altura estricta */
-}
-.gallery-enclosure img {
-    object-fit: cover !important; /* Recorte inteligente */
-    width: 100%;
-    height: 100%;
-    display: block;
-}
-
-/* 2. MENÚ STICKY (PEGAJOSO) INDEPENDIENTE Y ALINEADO IZQ */
-.sticky-nav-section {
-    position: -webkit-sticky;
-    position: sticky;
-    top: 70px; /* AJUSTA ESTE VALOR A LA ALTURA DE TU HEADER (Ej: 80px, 100px) */
-    z-index: 999; /* Siempre encima */
-    background-color: #ffffff; /* Fondo sólido anti-transparencia */
-    border-bottom: 1px solid #EAEAEA;
-    padding: 10px 0;
-    margin-top: 0;
-}
-
-.sticky-nav-section .tabs-nav {
-    justify-content: flex-start; /* Alineado a la izquierda */
-    padding-left: 0;
-    margin: 0;
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
 }

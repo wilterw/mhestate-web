@@ -167,7 +167,7 @@ const translations = {
         'guide-sec-news': 'Noticias',
         'btn-all-news': 'TODAS LAS NOTICIAS',
         'msg-loading-news': 'Cargando últimas noticias...',
-
+        
         // --- News
         'meta-title-news': 'Noticias | MH ESTATE',
         'news-page-title': 'Noticias',

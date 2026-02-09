@@ -28,37 +28,114 @@
 .rent-tab:hover, .rent-tab.active { color: #000; }
 .rent-tab.active::after { content: ''; position: absolute; bottom: -1px; left: 0; width: 100%; height: 2px; background: #000; }
 
-/* 3. GRID VERTICAL */
-.rent-grid-fix { display: flex; flex-direction: column; gap: 80px; margin-bottom: 120px; width: 100%; }
-
-/* 4. TARJETA (DISEÑO VILLA 1) */
-.rent-layout-card { display: flex; flex-direction: column; width: 100%; margin-bottom: 20px; }
-
-.rent-external-title {
-    font-family: 'Inter', sans-serif; font-size: 2.2rem; color: #56503D; 
-    font-weight: 400; margin: 0 0 20px 0; text-align: left;
+/* 3. GRID 2 COLUMNAS COMPACTAS */
+#rent-grid { 
+    display: grid; 
+    grid-template-columns: repeat(2, 1fr); 
+    gap: 25px; 
+    margin-bottom: 100px; 
+    width: 100%; 
 }
 
-.rent-image-box { position: relative; width: 100%; aspect-ratio: 21 / 9; overflow: hidden; }
-.rent-image-box img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s ease; filter: brightness(0.9); }
-.rent-layout-card:hover .rent-image-box img { transform: scale(1.02); }
+/* 4. TARJETA (DISEÑO OVERLAY COMPACTO) */
+.rent-layout-card { 
+    display: flex; flex-direction: column; width: 100%; 
+    position: relative; 
+    cursor: pointer;
+    border-radius: 4px; 
+    overflow: hidden; 
+}
 
-.rent-overlay-specs { position: absolute; top: 50%; right: 5%; transform: translateY(-50%); text-align: center; z-index: 2; color: #fff; }
-.overlay-big-title { font-family: 'Inter', sans-serif; font-size: 2rem; font-weight: 700; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 1px; text-shadow: 0 2px 5px rgba(0,0,0,0.4); }
-.overlay-small-desc { font-family: 'Inter', sans-serif; font-size: 1rem; font-weight: 400; opacity: 0.9; text-shadow: 0 1px 3px rgba(0,0,0,0.4); margin-bottom: 15px; }
-.overlay-link-arrow { font-size: 1.2rem; color: #fff; text-decoration: none; display: inline-block; transition: transform 0.3s; }
-.overlay-link-arrow:hover { transform: translateX(5px); }
+/* Caja de Imagen */
+.rent-image-box { 
+    position: relative; width: 100%; 
+    aspect-ratio: 16 / 9; /* Panorámica */
+    overflow: hidden; 
+    background: #000; /* Fondo por si carga lento */
+}
+
+.rent-image-box img { 
+    width: 100%; height: 100%; object-fit: cover; 
+    transition: transform 0.6s ease; 
+}
+.rent-layout-card:hover .rent-image-box img { transform: scale(1.03); }
+
+/* CONTENEDOR DE CONTENIDO (ABSOLUTO SOBRE IMAGEN) */
+.rent-overlay-container {
+    position: absolute;
+    bottom: 0; left: 0; width: 100%;
+    padding: 20px 25px;
+    display: flex;
+    justify-content: space-between; 
+    align-items: flex-end; 
+    z-index: 10;
+    box-sizing: border-box;
+    color: #fff;
+}
+
+/* IZQUIERDA: TITULO Y PRECIO */
+.rent-overlay-left {
+    text-align: left;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.9);
+}
+
+.rent-card-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem; /* Pequeño pero legible */
+    font-weight: 800;   /* Negrita fuerte */
+    text-transform: uppercase;
+    margin: 0 0 4px 0;
+    letter-spacing: 0.5px;
+}
+
+.rent-card-price {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 500;
+    opacity: 1;
+}
+
+/* DERECHA: BAÑOS, DORMITORIOS, PLAZAS */
+.rent-overlay-right {
+    text-align: right;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: flex;
+    gap: 15px; 
+    text-shadow: 0 2px 4px rgba(0,0,0,0.9);
+}
+.rent-overlay-right span {
+    white-space: nowrap;
+}
+.rent-overlay-right b {
+    font-weight: 800;
+    opacity: 1;
+    margin-right: 3px;
+}
 
 /* 5. RESPONSIVE CARDS */
 @media (max-width: 768px) {
-    .rent-image-box { aspect-ratio: 16/9; }
-    .rent-external-title { font-size: 1.8rem; }
-    .rent-overlay-specs { right: 0; left: 0; text-align: center; bottom: 20px; top: auto; transform: none; }
-    .overlay-big-title { font-size: 1.5rem; }
+    #rent-grid { grid-template-columns: 1fr; gap: 30px; }
+    .rent-image-box { aspect-ratio: 4 / 3; }
+    
+    .rent-overlay-container {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    .rent-overlay-right {
+        width: 100%;
+        justify-content: flex-start;
+        border-top: 1px solid rgba(255,255,255,0.3);
+        padding-top: 8px;
+    }
 }
 
 /* 6. PAGINACIÓN */
-.pagination-container { display: flex; justify-content: center; align-items: center; gap: 10px; margin-bottom: 120px; }
+#rent-pagination { display: flex; justify-content: center; align-items: center; gap: 10px; margin-bottom: 120px; }
 .rent-page-btn { background: transparent; border: 1px solid #ddd; color: #333; padding: 10px 15px; font-size: 0.95rem; cursor: pointer; font-family: 'Inter', sans-serif; transition: all 0.3s; min-width: 40px; }
 .rent-page-btn:hover:not(:disabled) { background: #f0f0f0; border-color: #bbb; }
 .rent-page-btn.active { background: #000; color: #fff; border-color: #000; font-weight: 700; }
@@ -72,134 +149,274 @@
     gap: 80px; 
     align-items: flex-start; 
     margin-bottom: 150px; 
-    
-    /* CAMBIO: LÍNEA HORIZONTAL SUPERIOR */
     border-top: 1px solid #56503D; 
-    padding-top: 80px; /* Más espacio para que respire la línea */
+    padding-top: 80px; 
 }
-
-.valuable-col-title {
-    /* Eliminamos el borde vertical anterior */
-    border-right: none; 
-    padding-right: 0;
-}
-
+.valuable-col-title { border-right: none; padding-right: 0; }
 .valuable-col-title h1 { 
-    font-family: 'Inter', sans-serif; 
-    font-weight: 700; 
-    font-size: 3.5rem; 
-    color: #000; 
-    text-align: left; 
-    line-height: 1.1; 
-    margin: 0; 
+    font-family: 'Inter', sans-serif; font-weight: 700; font-size: 3.5rem; 
+    color: #000; text-align: left; line-height: 1.1; margin: 0; 
 }
-
-.valuable-col-content { 
-    text-align: left; 
-    padding-top: 5px; 
-    max-width: 550px; 
-}
-.valuable-col-content p { 
-    font-family: 'Inter', sans-serif; 
-    font-size: 1.2rem; 
-    color: #444; 
-    line-height: 1.5; 
-    margin: 0; 
-}
+.valuable-col-content { text-align: left; padding-top: 5px; max-width: 550px; }
+.valuable-col-content p { font-family: 'Inter', sans-serif; font-size: 1.2rem; color: #444; line-height: 1.5; margin: 0; }
 .valuable-separator { height: 30px; width: 100%; }
-
-/* Botón "Contact Us" */
 .btn-valuable-gold { display: inline-block; background-color: #C5BDA8; color: #000; font-family: 'Inter', sans-serif; font-weight: 400; text-decoration: none; padding: 18px 45px; border-radius: 50px; margin-top: 40px; font-size: 1rem; letter-spacing: 0.5px; transition: transform 0.3s, background 0.3s; cursor: pointer; }
 .btn-valuable-gold:hover { background-color: #b0a895; transform: translateY(-2px); }
 
-@media (max-width: 900px) {
-    .valuable-section-grid { grid-template-columns: 1fr; gap: 40px; text-align: center; }
-    .valuable-col-title h1 { text-align: center; font-size: 2.5rem; }
-    .valuable-col-content { text-align: center; margin: 0 auto; }
-}
-
-/* =================================================================
-   8. AJUSTES PARA EL MODAL (Usando estilos heredados de contact.css)
-   ================================================================= */
+/* 8. MODAL */
 .modal-overlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.7);
-    z-index: 9999;
-    display: none;
-    justify-content: center; align-items: center;
+    background: rgba(0, 0, 0, 0.7); z-index: 9999;
+    display: none; justify-content: center; align-items: center;
     backdrop-filter: blur(5px);
 }
 .modal-overlay.active { display: flex; animation: fadeIn 0.3s ease; }
-
 .modal-container {
-    background: #fff;
-    width: 95%; 
-    max-width: 1100px;
-    padding: 30px;
-    position: relative;
-    box-shadow: 0 15px 50px rgba(0,0,0,0.2);
-    border-radius: 8px;
-    max-height: 95vh;
-    overflow-y: auto; 
+    background: #fff; width: 95%; max-width: 1100px; padding: 30px;
+    position: relative; box-shadow: 0 15px 50px rgba(0,0,0,0.2);
+    border-radius: 8px; max-height: 95vh; overflow-y: auto; 
 }
-
 .modal-close-btn {
     position: absolute; top: 15px; right: 20px;
     font-size: 2.5rem; color: #333; cursor: pointer;
-    background: none; border: none; line-height: 0.5;
-    z-index: 20;
+    background: none; border: none; line-height: 0.5; z-index: 20;
 }
 .modal-close-btn:hover { color: #000; }
-
 .modal-header-logo { text-align: center; margin-bottom: 20px; }
 .modal-header-logo img { max-width: 130px; }
-
-.modal-container .contact-section {
-    padding: 0 !important;
-    min-height: auto !important;
-    background: transparent !important;
-    display: block !important;
-}
-
-.modal-container .contact-container {
-    padding: 0 !important;
-    margin: 0 !important;
-    width: 100% !important;
-    max-width: 100% !important;
-}
-
-.modal-container .contact-map-row {
-    width: 100%;
-    margin-top: 30px;
-    border-radius: 8px;
-    overflow: hidden;
-}
-
+.modal-container .contact-section { padding: 0 !important; min-height: auto !important; background: transparent !important; display: block !important; }
+.modal-container .contact-container { padding: 0 !important; margin: 0 !important; width: 100% !important; max-width: 100% !important; }
+.modal-container .contact-map-row { width: 100%; margin-top: 30px; border-radius: 8px; overflow: hidden; }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-/* --- AUTO SLIDER ESTILOS --- */
-.auto-slider-container {
-    position: relative;
-    width: 100%;
-    height: 100%;
+
+/* AUTO SLIDER */
+.auto-slider-container { position: relative; width: 100%; height: 100%; }
+.slider-img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 0.8s ease-in-out; z-index: 1; }
+.slider-img.active { opacity: 1; z-index: 2; }
+
+/* ----------------------------------------------------------------------------------------
+   ESTILOS DE PÁGINA DE DETALLE (propiedad-rent.html)
+   ---------------------------------------------------------------------------------------- */
+
+/* Contenedor Principal Detalle */
+#rent-detail-container {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 0 20px;
+    font-family: 'Inter', sans-serif;
 }
 
-.slider-img {
+/* FORMATO DE DESCRIPCIÓN PROFESIONAL */
+.desc-paragraph {
+    font-size: 1.05rem;
+    line-height: 1.8; /* Interlineado generoso */
+    color: #444;
+    text-align: justify;
+    margin-bottom: 20px;
+}
+.desc-paragraph strong {
+    color: #000;
+    font-weight: 700;
+}
+
+/* FACTS (Características) - AHORA EN 6 COLUMNAS COMPACTAS */
+.technical-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr); /* 6 Columnas */
+    gap: 15px; 
+    background: #f9f9f9;
+    padding: 25px;
+    border-radius: 6px;
+    margin-bottom: 40px;
+}
+.tech-card {
+    display: flex;
+    flex-direction: column; 
+    justify-content: center;
+    align-items: center;
+    border: 1px solid #eee;
+    background: #fff;
+    padding: 10px;
+    border-radius: 4px;
+    text-align: center;
+}
+.tech-label {
+    color: #888;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+}
+.tech-value {
+    color: #000;
+    font-weight: 700;
+    font-size: 0.95rem;
+}
+
+/* RESPONSIVE MEJORADO PARA 6 COLUMNAS */
+@media (max-width: 1100px) {
+    .technical-grid { grid-template-columns: repeat(4, 1fr); }
+}
+@media (max-width: 768px) {
+    .technical-grid { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 500px) {
+    .technical-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* Header Detalle (Opcional si se usa dentro de layout) */
+.detail-header {
+    display: flex; justify-content: space-between; align-items: flex-end;
+    margin-bottom: 30px; border-bottom: 1px solid #eee; padding-bottom: 20px;
+}
+
+/* --- ESTILOS ADICIONALES PARA PROPIEDADES SIMILARES --- */
+.mini-img-wrapper {
+    position: relative; /* Para posicionar el precio encima */
+}
+.mini-price-tag {
     position: absolute;
-    top: 0;
-    left: 0;
+    bottom: 10px;
+    right: 10px;
+    background: rgba(0,0,0,0.8);
+    color: #fff;
+    padding: 4px 8px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    border-radius: 4px;
+}
+.mini-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin: 0 0 5px 0;
+    color: #000;
+    white-space: nowrap; 
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.mini-loc {
+    font-size: 0.85rem;
+    color: #666;
+    margin-bottom: 10px;
+}
+.mini-features {
+    display: flex;
+    gap: 12px;
+    font-size: 0.8rem;
+    color: #444;
+    border-top: 1px solid #eee;
+    padding-top: 8px;
+    margin-top: 5px;
+}
+.mini-features span {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* --- GALERÍA V40 (Hero + Mosaico Abajo) --- */
+.gallery-section {
+    padding: 20px 0;
+    background: #fff;
+}
+.gallery-enclosure {
     width: 100%;
-    height: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* CONTENEDOR FLEX: Fila 1 (Hero) + Fila 2 (Bottom) */
+#gallery-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+}
+
+/* 1. HERO SUPERIOR */
+.gallery-hero-item {
+    width: 100%;
+    height: 450px; /* Altura Fija */
+    position: relative;
+    cursor: pointer;
+    overflow: hidden;
+    border-radius: 4px;
+}
+.gallery-hero-item img, .gallery-hero-item iframe {
+    width: 100%; height: 100%;
     object-fit: cover;
-    opacity: 0;
-    transition: opacity 1s ease-in-out; /* Transición suave de 1 segundo */
-    z-index: 1;
+    transition: transform 0.5s ease;
+}
+.gallery-hero-item:hover img { transform: scale(1.02); }
+
+/* 2. FILA INFERIOR (2 Columnas) */
+.gallery-bottom-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Mitad y mitad */
+    gap: 8px;
+    height: 350px; /* Altura Fija */
 }
 
-.slider-img.active {
-    opacity: 1;
-    z-index: 2;
+/* Columna Izquierda Abajo (Imagen Grande) */
+.gallery-sub-main {
+    width: 100%; height: 100%;
+    position: relative;
+    cursor: pointer;
+    overflow: hidden;
+    border-radius: 4px;
+}
+.gallery-sub-main img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+.gallery-sub-main:hover img { transform: scale(1.03); }
+
+/* Columna Derecha Abajo (Grid 2x2) */
+.gallery-sub-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 8px;
+    height: 100%;
+}
+.gallery-grid-item {
+    width: 100%; height: 100%;
+    position: relative;
+    cursor: pointer;
+    overflow: hidden;
+    border-radius: 4px;
+}
+.gallery-grid-item img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    transition: opacity 0.3s ease;
+}
+.gallery-grid-item:hover img { opacity: 0.85; }
+
+/* Overlay +N */
+.more-photos-overlay {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem; font-weight: 700; pointer-events: none;
 }
 
-.rent-overlay-specs {
-    z-index: 10 !important; /* Asegurar que el texto esté sobre el slider */
+/* RESPONSIVE GALERÍA */
+@media (max-width: 768px) {
+    .gallery-hero-item { height: 250px; }
+    .gallery-bottom-row {
+        height: auto;
+        grid-template-columns: 1fr; /* Una sola columna */
+    }
+    .gallery-sub-main { height: 200px; }
+    .gallery-sub-grid { height: 200px; }
+}
+
+/* VIDEO */
+.video-container { position: relative; }
+.play-overlay {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    font-size: 60px; color: rgba(255,255,255,0.9); pointer-events: none;
+    text-shadow: 0 4px 15px rgba(0,0,0,0.5);
 }
