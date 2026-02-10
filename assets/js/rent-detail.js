@@ -1,16 +1,24 @@
 /**
- * RENT-DETAIL.JS - V42.0
- * - Soporte tecla ESC para cerrar lightbox.
- * - Título Inteligente (Prioridad: titulo1 > tituloweb > extracción descripción).
- * - Galería V40 (Hero + Mosaico).
- * - Facts Completos (6 columnas + búsqueda en texto).
+ * RENT-DETAIL.JS - V44.0 (FULL I18N: TRADUCCIÓN DE VALORES Y SUFIJOS)
+ * - Soporte tecla ESC.
+ * - Título Inteligente.
+ * - Galería V40.
+ * - Facts: Traducción profunda de etiquetas, valores (Sur->South) y limpieza de números.
  */
 
 document.addEventListener('DOMContentLoaded', () => {
     initRentPage();
     setupTabs();
     injectValidationModalStyles(); 
-    setupLightboxNavigation(); // Nueva función para teclado
+    setupLightboxNavigation(); 
+
+    // LISTENER PARA CAMBIO DE IDIOMA
+    window.addEventListener('languageChanged', () => {
+        if (currentProperty) {
+            renderRentDetails(currentProperty);
+            renderRentFeatures(currentProperty);
+        }
+    });
 });
 
 // VARIABLES GLOBALES
@@ -18,6 +26,8 @@ let lightboxMedia = [];
 let currentLightboxIndex = 0;
 let mapInitialized = false;
 let rentPrice = 0;
+let currentProperty = null; 
+let allCachedItems = [];    
 
 // FOTOS DE AGENTES
 const AGENT_PHOTOS = {
@@ -35,6 +45,8 @@ const I18N_RENT_UI = {
         lbl_in: 'Llegada', lbl_out: 'Salida', 
         btn_book: 'RESERVAR', total: 'TOTAL', nights: 'noches',
         no_data: 'No disponible', plan_click: 'Clic para ampliar',
+        
+        // Facts Labels
         feat_capacity: 'Capacidad', feat_beds: 'Dorm.', feat_baths: 'Baños', 
         feat_pool: 'Piscina', feat_garage: 'Garaje', feat_wifi: 'Wifi', 
         feat_terrace: 'Terraza', feat_seaview: 'Vistas Mar', feat_ac: 'Aire Acond.',
@@ -43,16 +55,26 @@ const I18N_RENT_UI = {
         feat_orient: 'Orientación', feat_built: 'Metros', feat_plot: 'Parcela',
         feat_checkin: 'Check-in', feat_checkout: 'Check-out', feat_distmar: 'Dist. Playa',
         feat_floor: 'Planta', feat_garden: 'Jardín', feat_disabled: 'Acceso Adapt.',
+        
+        // Roles & UI
         'role_founder': 'Fundadora y Agente', 'role_agent': 'Agente Inmobiliaria',
         'role_rental': 'Gestora de Alquileres', 'agent_label': 'Agente Responsable',
         'btn_whatsapp': 'CONSULTAR POR WHATSAPP', 'txt_email': 'Email:', 'txt_phone': 'Teléfono:',
-        'modal_title': 'Seleccione las fechas', 'modal_text': 'Debe seleccionar un rango de fechas.', 'modal_btn': 'ENTENDIDO'
+        'modal_title': 'Seleccione las fechas', 'modal_text': 'Debe seleccionar un rango de fechas.', 'modal_btn': 'ENTENDIDO',
+        'from': 'Desde',
+        
+        // Valores Dinámicos & Sufijos
+        'yes': 'Sí', 'u_pers': ' pers.', 'u_m': ' m', 'u_m2': ' m²',
+        'orient_sur': 'Sur', 'orient_norte': 'Norte', 'orient_este': 'Este', 'orient_oeste': 'Oeste',
+        'orient_sureste': 'Sureste', 'orient_suroeste': 'Suroeste', 'orient_noreste': 'Noreste', 'orient_noroeste': 'Noroeste',
+        'floor_baja': 'Baja', 'floor_sotano': 'Sótano', 'floor_atico': 'Ático'
     },
     'en': {
         unit_day: '/ night', unit_week: '/ week', unit_month: '/ month',
         lbl_in: 'Check-in', lbl_out: 'Check-out', 
         btn_book: 'RESERVE', total: 'TOTAL', nights: 'nights',
         no_data: 'Not available', plan_click: 'Click to enlarge',
+        
         feat_capacity: 'Capacity', feat_beds: 'Bedrooms', feat_baths: 'Baths', 
         feat_pool: 'Pool', feat_garage: 'Garage', feat_wifi: 'Wifi', 
         feat_terrace: 'Terrace', feat_seaview: 'Sea Views', feat_ac: 'A/C',
@@ -61,16 +83,25 @@ const I18N_RENT_UI = {
         feat_orient: 'Orientation', feat_built: 'Size', feat_plot: 'Plot',
         feat_checkin: 'Check-in', feat_checkout: 'Check-out', feat_distmar: 'Dist. Beach',
         feat_floor: 'Floor', feat_garden: 'Garden', feat_disabled: 'Disabled Access',
+        
         'role_founder': 'Founder & Agent', 'role_agent': 'Real Estate Agent',
         'role_rental': 'Rental Manager', 'agent_label': 'Listing Agent',
         'btn_whatsapp': 'ASK ON WHATSAPP', 'txt_email': 'Email:', 'txt_phone': 'Phone:',
-        'modal_title': 'Select dates', 'modal_text': 'You must select a date range.', 'modal_btn': 'UNDERSTOOD'
+        'modal_title': 'Select dates', 'modal_text': 'You must select a date range.', 'modal_btn': 'UNDERSTOOD',
+        'from': 'From',
+        
+        // Dynamic Values
+        'yes': 'Yes', 'u_pers': ' guests', 'u_m': ' m', 'u_m2': ' m²',
+        'orient_sur': 'South', 'orient_norte': 'North', 'orient_este': 'East', 'orient_oeste': 'West',
+        'orient_sureste': 'South-East', 'orient_suroeste': 'South-West', 'orient_noreste': 'North-East', 'orient_noroeste': 'North-West',
+        'floor_baja': 'Ground Floor', 'floor_sotano': 'Basement', 'floor_atico': 'Penthouse'
     },
     'sv': {
         unit_day: '/ natt', unit_week: '/ vecka', unit_month: '/ månad',
         lbl_in: 'Incheckning', lbl_out: 'Utcheckning', 
         btn_book: 'BOKA', total: 'TOTALT', nights: 'nätter',
         no_data: 'Ej tillgänglig', plan_click: 'Klicka för att förstora',
+        
         feat_capacity: 'Antal personer', feat_beds: 'Sovrum', feat_baths: 'Badrum', 
         feat_pool: 'Pool', feat_garage: 'Garage', feat_wifi: 'Wifi', 
         feat_terrace: 'Terrass', feat_seaview: 'Havsutsikt', feat_ac: 'Luftkond.',
@@ -79,16 +110,48 @@ const I18N_RENT_UI = {
         feat_orient: 'Orientering', feat_built: 'Byggyta', feat_plot: 'Tomt',
         feat_checkin: 'Incheckning', feat_checkout: 'Utcheckning', feat_distmar: 'Avstånd Strand',
         feat_floor: 'Våning', feat_garden: 'Trädgård', feat_disabled: 'Handikappanpassat',
+        
         'role_founder': 'Grundare & Mäklare', 'role_agent': 'Fastighetsmäklare',
         'role_rental': 'Uthyrningschef', 'agent_label': 'Ansvarig Mäklare',
         'btn_whatsapp': 'FRÅGA PÅ WHATSAPP', 'txt_email': 'E-post:', 'txt_phone': 'Telefon:',
-        'modal_title': 'Välj datum', 'modal_text': 'Du måste välja ett datumintervall.', 'modal_btn': 'JAG FÖRSTÅR'
+        'modal_title': 'Välj datum', 'modal_text': 'Du måste välja ett datumintervall.', 'modal_btn': 'JAG FÖRSTÅR',
+        'from': 'Från',
+        
+        // Dynamic Values
+        'yes': 'Ja', 'u_pers': ' personer', 'u_m': ' m', 'u_m2': ' m²',
+        'orient_sur': 'Söder', 'orient_norte': 'Norr', 'orient_este': 'Öster', 'orient_oeste': 'Väster',
+        'orient_sureste': 'Sydost', 'orient_suroeste': 'Sydväst', 'orient_noreste': 'Nordost', 'orient_noroeste': 'Nordväst',
+        'floor_baja': 'Bottenvåning', 'floor_sotano': 'Källare', 'floor_atico': 'Takvåning'
     }
 };
 
 function t(key) {
     const lang = localStorage.getItem('preferredLang') || 'es';
     return I18N_RENT_UI[lang][key] || key;
+}
+
+// HELPERS DE TRADUCCIÓN DE VALORES
+function translateValue(val, type) {
+    if (!val) return '';
+    const v = val.toLowerCase().trim();
+    
+    // Mapas de traducción
+    if (type === 'orient') {
+        if (v.includes('sur') && v.includes('este')) return t('orient_sureste');
+        if (v.includes('sur') && v.includes('oeste')) return t('orient_suroeste');
+        if (v.includes('nor') && v.includes('este')) return t('orient_noreste');
+        if (v.includes('nor') && v.includes('oeste')) return t('orient_noroeste');
+        if (v === 'sur') return t('orient_sur');
+        if (v === 'norte') return t('orient_norte');
+        if (v === 'este') return t('orient_este');
+        if (v === 'oeste') return t('orient_oeste');
+    }
+    if (type === 'floor') {
+        if (v.includes('baja') || v.includes('bajo')) return t('floor_baja');
+        if (v.includes('sotano') || v.includes('sótano')) return t('floor_sotano');
+        if (v.includes('atico') || v.includes('ático')) return t('floor_atico');
+    }
+    return val; // Si no hay traducción, devuelve original
 }
 
 // MODAL STYLES
@@ -194,11 +257,15 @@ async function initRentPage() {
         const parser = new DOMParser();
         const xmlDoc = parser.parseFromString(str, "text/xml");
         const items = Array.from(xmlDoc.querySelectorAll("propiedad"));
+        allCachedItems = items; 
+        
         const property = items.find(item => {
             const idNode = item.querySelector("id");
             return idNode && idNode.textContent.trim() === propId;
         });
         if (!property) throw new Error("Property not found");
+
+        currentProperty = property; // GUARDAR REFERENCIA GLOBAL PARA RE-RENDER
 
         renderRentDetails(property);
         renderRentFeatures(property);
@@ -273,7 +340,9 @@ function renderRentDetails(node) {
     if(rawUnit && rawUnit.toUpperCase().includes('SEM')) unitLabel = t('unit_week');
     if(rawUnit && rawUnit.toUpperCase().includes('MES')) unitLabel = t('unit_month');
 
-    document.getElementById('rent-price-display').textContent = rentPrice + ' €';
+    // PRECIO CON "DESDE"
+    document.getElementById('rent-price-display').textContent = t('from') + ' ' + rentPrice + ' €';
+    
     document.getElementById('rent-unit-display').textContent = unitLabel;
     document.getElementById('lbl-checkin').textContent = t('lbl_in');
     document.getElementById('lbl-checkout').textContent = t('lbl_out');
@@ -416,7 +485,7 @@ function renderMultimediaGallery(node) {
     container.innerHTML = `${topHtml}${bottomRowHtml}`;
 }
 
-// --- FACTS ---
+// --- FACTS (CON TRADUCCIÓN DINÁMICA DE VALORES) ---
 function renderRentFeatures(node) {
     const container = document.getElementById('tab-facts-content');
     if(!container) return;
@@ -440,21 +509,34 @@ function renderRentFeatures(node) {
         return total > 0 ? total.toString() : '';
     };
 
+    // Función auxiliar para extraer solo números de un string (ej: "6 personas" -> "6")
+    const cleanToNum = (str) => {
+        if(!str) return '';
+        const match = str.match(/(\d+)/);
+        return match ? match[0] : str;
+    };
+
     const desc = (node.querySelector('descrip1')?.textContent || '') + ' ' + (node.querySelector('descrip2')?.textContent || '');
     const descLower = desc.toLowerCase();
     const checkText = (keyRegex) => keyRegex.test(descLower);
 
+    // CONFIGURACIÓN DE ITEMS (Con Tipos y Sufijos Clave)
     const items = [
         { key: 'feat_checkin', val: '16:00' }, 
         { key: 'feat_checkout', val: '10:00' },
-        { key: 'feat_distmar', val: getVal('distmar'), suffix: ' m' },
-        { key: 'feat_capacity', val: getVal(['capacidad', 'personas']) || (getNum(['habdobles', 'habitaciones']) ? (parseInt(getNum(['habdobles', 'habitaciones'])) * 2).toString() : ''), suffix: ' pers.' },
+        { key: 'feat_distmar', val: cleanToNum(getVal('distmar')), suffix: 'u_m' },
+        // Capacidad: Limpia el número y añade sufijo traducible
+        { key: 'feat_capacity', val: cleanToNum(getVal(['capacidad', 'personas'])) || (getNum(['habdobles', 'habitaciones']) ? (parseInt(getNum(['habdobles', 'habitaciones'])) * 2).toString() : ''), suffix: 'u_pers' },
+        
         { key: 'feat_beds', val: getNum(['habdobles', 'habitaciones', 'dormitorios']) },
         { key: 'feat_baths', val: getNum(['banyos', 'aseos', 'banos']) },
-        { key: 'feat_built', val: getVal(['m_cons', 'construido']), suffix: ' m²' },
-        { key: 'feat_plot', val: getVal(['m_parcela', 'parcela']), suffix: ' m²' },
-        { key: 'feat_floor', val: getVal(['planta', 'numplanta']) },
-        { key: 'feat_orient', val: getVal('orientacion'), bool: false },
+        
+        { key: 'feat_built', val: getVal(['m_cons', 'construido']), suffix: 'u_m2' },
+        { key: 'feat_plot', val: getVal(['m_parcela', 'parcela']), suffix: 'u_m2' },
+        
+        // Floor y Orientación requieren traducción de valor
+        { key: 'feat_floor', val: getVal(['planta', 'numplanta']), type: 'floor' },
+        { key: 'feat_orient', val: getVal('orientacion'), bool: false, type: 'orient' },
         
         { key: 'feat_pool', val: getVal(['piscina', 'piscina_com', 'piscina_prop', 'pool']), bool: true, ia: /(piscina|pool|alberca)/ },
         { key: 'feat_garage', val: getVal(['garaje', 'parking', 'plaza_gara', 'cochera']), bool: true, ia: /(garaje|parking|aparcamiento)/ },
@@ -475,15 +557,24 @@ function renderRentFeatures(node) {
         let val = item.val;
         
         if (!val || val === '0' || val === '0.00' || val.trim() === '') {
-            if (item.ia && checkText(item.ia)) val = 'Sí'; else return; 
+            if (item.ia && checkText(item.ia)) val = 'true'; else return; 
         }
 
         if (item.bool) {
-            if (val === '1' || val === 'true' || (parseInt(val) > 0 && val !== '0') || val === 'SI' || val === 'Sí') val = 'Sí';
-            else return; 
+            // Check genérico de booleanos
+            if (val === '1' || val === 'true' || (parseInt(val) > 0 && val !== '0') || val === 'SI' || val === 'Sí') {
+                val = t('yes'); 
+            } else return; 
+        } else {
+            // Si no es booleano, intentar traducción de valor (orientación/planta)
+            if (item.type) {
+                val = translateValue(val, item.type);
+            }
         }
 
-        if (item.suffix) val += item.suffix;
+        if (item.suffix) {
+            val += t(item.suffix);
+        }
         
         const div = document.createElement('div');
         div.className = 'tech-card';

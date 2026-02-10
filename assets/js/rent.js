@@ -1,5 +1,5 @@
 /**
- * RENT.JS - V30.2 (TÍTULO AUTOMÁTICO POR ZONA/CIUDAD)
+ * RENT.JS - V30.4 (TRANSICIÓN 5S + EFECTO SUAVE + PRECIO 'DESDE')
  */
 
 const ITEMS_PER_PAGE = 6;
@@ -21,6 +21,7 @@ const I18N_RENT = {
         
         lbl_dorm: 'DORM:', lbl_bath: 'BAÑOS:', lbl_cap: 'PLAZAS:',
         unit_night: '/ noche', unit_month: '/ mes', consult: 'Consultar',
+        from: 'Desde',
 
         cat_holiday: 'VACACIONAL', cat_long: 'LARGA TEMPORADA',
         empty_title: 'No hay propiedades disponibles',
@@ -37,6 +38,7 @@ const I18N_RENT = {
         
         lbl_dorm: 'BEDS:', lbl_bath: 'BATHS:', lbl_cap: 'GUESTS:',
         unit_night: '/ night', unit_month: '/ month', consult: 'On Request',
+        from: 'From',
 
         cat_holiday: 'HOLIDAY', cat_long: 'LONG TERM',
         empty_title: 'No properties available',
@@ -53,6 +55,7 @@ const I18N_RENT = {
         
         lbl_dorm: 'SOVR:', lbl_bath: 'BAD:', lbl_cap: 'PLATSER:',
         unit_night: '/ natt', unit_month: '/ månad', consult: 'På begäran',
+        from: 'Från',
 
         cat_holiday: 'SEMESTER', cat_long: 'LÅNGTID',
         empty_title: 'Inga bostäder tillgängliga',
@@ -241,7 +244,8 @@ function createRentCard(prop, dict) {
     
     const finalTitle = prop.name.toUpperCase();
     const unit = prop.category === 'holiday' ? dict.unit_night : dict.unit_month;
-    const priceStr = (prop.price && prop.price !== '0') ? `€ ${prop.price} ${unit}` : dict.consult;
+    // MODIFICACIÓN AQUÍ: Se añade "dict.from" antes del precio
+    const priceStr = (prop.price && prop.price !== '0') ? `${dict.from} € ${prop.price} ${unit}` : dict.consult;
 
     let imagesHtml = '';
     prop.fotos.slice(0, 5).forEach((foto, index) => {
@@ -277,11 +281,12 @@ function initAutoSliders() {
         const images = container.querySelectorAll('.slider-img');
         if (images.length <= 1) return;
         let currentIndex = 0;
+        // MODIFICACIÓN AQUÍ: 5000ms = 5 Segundos
         const interval = setInterval(() => {
             images[currentIndex].classList.remove('active');
             currentIndex = (currentIndex + 1) % images.length;
             images[currentIndex].classList.add('active');
-        }, 1500);
+        }, 5000);
         window.rentSliderIntervals.push(interval);
     });
 }

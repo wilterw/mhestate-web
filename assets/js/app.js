@@ -1,6 +1,6 @@
 /**
  * ============================================================
- * APP.JS - MOTOR V23.1 (VALIDACIÓN EMAIL/TLF + ORDENACIÓN FECHA)
+ * APP.JS - MOTOR V24.0 (BÚSQUEDA POR ID + KEYWORDS INTELIGENTES)
  * ============================================================
  */
 
@@ -77,15 +77,13 @@ const I18N_UI = {
 document.addEventListener('DOMContentLoaded', async () => {
     try {
         setupFilterInteractions(); 
-        initSearchLogic();        
+        initSearchLogic();         
         
-        // Inicializar validación del formulario (Email o Teléfono)
         initFormValidation();
 
         await loadAndStoreProperties();
         populateCitySelect();
 
-        // Si estamos en la página de resultados (buy.html), aplicamos filtros y restauramos visualmente
         if (window.location.pathname.includes('buy.html')) {
             applyFiltersFromURL(); 
         }
@@ -108,7 +106,6 @@ async function loadAndStoreProperties() {
     if(homeGrid) homeGrid.innerHTML = '<div class="loading-spinner"></div>';
 
     try {
-        // --- CACHE BUSTING XML ---
         const res = await fetch(`${LOCAL_XML_URL}?v=${Date.now()}`);
         if (!res.ok) throw new Error(`HTTP Error ${res.status}`);
         const strXML = await res.text();
@@ -118,20 +115,16 @@ async function loadAndStoreProperties() {
         
         if (nodes.length === 0) throw new Error("XML vacío");
 
-        // --- FILTRO ESTRICTO: SOLO "VENDER" ---
         allPropertiesData = nodes.filter(node => {
             const accion = getNodeValue(node, ['accion', 'operacion']).toLowerCase();
             return accion.includes('vender') || accion.includes('venta');
         });
 
-        // --- ORDENAR POR FECHA (DESCENDENTE: MÁS NUEVO PRIMERO) ---
         allPropertiesData.sort((a, b) => {
-            const dateA = getNodeValue(a, 'fecha'); // Formato esperado: YYYY-MM-DD HH:MM:SS
+            const dateA = getNodeValue(a, 'fecha'); 
             const dateB = getNodeValue(b, 'fecha');
-            
-            // Comparación de strings lexicográfica funciona bien para formato ISO/SQL
-            if (dateA < dateB) return 1;  // B es más reciente que A -> B va antes
-            if (dateA > dateB) return -1; // A es más reciente que B -> A va antes
+            if (dateA < dateB) return 1;  
+            if (dateA > dateB) return -1; 
             return 0;
         });
 
@@ -172,7 +165,10 @@ function renderCurrentPage() {
     const homeGrid = document.getElementById('featured-grid');
     if (homeGrid) {
         if(homePropertiesData.length === 0) {
-            homePropertiesData = allPropertiesData.slice(0, 6);
+            homePropertiesData = allPropertiesData.filter(node => {
+                const destacado = getNodeValue(node, 'destacado');
+                return destacado === '1';
+            });
         }
         renderHomeGrid(homeGrid);
     }
@@ -296,25 +292,40 @@ function generatePaginationButtons(containerId, current, total, onPageClick) {
     container.appendChild(nextBtn);
 }
 
-// --- LÓGICA DE FILTRADO ---
+// ==========================================================
+// --- LÓGICA DE FILTRADO MEJORADA (ID + SEMÁNTICA) ---
+// ==========================================================
+
 function filterProperties(nodes, params) {
+    // 1. RECOGER PARÁMETROS
     const locParam = (params.get('loc') || '').toLowerCase();
     const locations = locParam.split(',').map(l => l.trim()).filter(l => l !== '');
     const types = params.get('type') ? params.get('type').toLowerCase().split(',') : [];
-    
-    // Obtener Estado: 'new' o 'resale'
     const statusParam = params.get('status') || '';
-
-    const keyword = (params.get('q') || '').toLowerCase();
+    const keyword = (params.get('q') || '').toLowerCase().trim();
     const minPrice = parseFloat(params.get('min')) || 0;
     const maxPrice = parseFloat(params.get('max')) || Infinity;
     const bedsMin = parseInt(params.get('bed')) || 0;
     const bathsMin = parseInt(params.get('bath')) || 0;
 
+    // --- REGLA #1: BÚSQUEDA POR ID DIRECTA ---
+    // Si el usuario pone un ID exacto, ignoramos el resto de filtros.
+    if (keyword.length > 0) {
+        // Normalizamos ID (quitamos espacios) para comparar mejor: "v 123" -> "v123"
+        const cleanKeyword = keyword.replace(/\s/g, ''); 
+        const exactMatch = nodes.find(node => {
+            const idVal = getNodeValue(node, 'id').toLowerCase().replace(/\s/g, '');
+            const refVal = getNodeValue(node, 'ref').toLowerCase().replace(/\s/g, '');
+            return idVal === cleanKeyword || refVal === cleanKeyword;
+        });
+        if (exactMatch) return [exactMatch];
+    }
+
+    // --- FILTRADO GENERAL ---
     return nodes.filter(node => {
         const get = (tags) => getNodeValue(node, tags).toLowerCase();
         
-        // PRIORIDAD 1: ESTADO
+        // A. ESTADO (Obra Nueva vs Segunda Mano)
         const conservation = getNodeValue(node, ['conservacion', 'estado']);
         if (statusParam === 'new') {
             if (conservation !== 'Obra Nueva') return false; 
@@ -322,36 +333,41 @@ function filterProperties(nodes, params) {
             if (conservation === 'Obra Nueva') return false; 
         }
 
-        // PRIORIDAD 2: TIPO
+        // B. TIPO PROPIEDAD
         const pType = get(['tipo', 'type', 'tipo_ofer']);
         if (types.length > 0) {
             const match = types.some(t => pType.includes(t));
             if (!match) return false;
         }
 
-        // PRIORIDAD 3: SPECS
+        // C. CARACTERÍSTICAS NUMÉRICAS (Dorm/Baños)
         const descText = get(['descrip1', 'descripcion']);
         let bedsVal = parseInt(get(['habitaciones', 'dormitorios', 'beds'])) || 0;
         const simples = parseInt(get(['hab_simples', 'simple'])) || 0;
         const dobles = parseInt(get(['hab_dobles', 'double'])) || 0;
         if ((simples + dobles) > bedsVal) bedsVal = simples + dobles;
-        const bedsDesc = extractNumFromDesc(descText, 'beds');
-        if (bedsDesc && parseInt(bedsDesc) > bedsVal) bedsVal = parseInt(bedsDesc);
+        // Backup: buscar en descripción si el XML dice 0
+        if (bedsVal === 0) {
+            const bedsDesc = extractNumFromDesc(descText, 'beds');
+            if (bedsDesc) bedsVal = parseInt(bedsDesc);
+        }
 
         let bathsVal = parseInt(get(['banos', 'banyos', 'baths'])) || 0;
-        const bathsDesc = extractNumFromDesc(descText, 'baths');
-        if (bathsDesc && parseInt(bathsDesc) > bathsVal) bathsVal = parseInt(bathsDesc);
+        if (bathsVal === 0) {
+            const bathsDesc = extractNumFromDesc(descText, 'baths');
+            if (bathsDesc) bathsVal = parseInt(bathsDesc);
+        }
 
         if (bedsVal < bedsMin) return false;
         if (bathsVal < bathsMin) return false;
 
-        // PRIORIDAD 4: PRECIO
+        // D. PRECIO
         const rawPrice = getNodeValue(node, ['precioinmo', 'precio']);
         const cleanPrice = parseInt(rawPrice.replace(/\D/g, '')) || 0;
         if (minPrice > 0 && cleanPrice < minPrice) return false;
         if (maxPrice > 0 && maxPrice !== Infinity && cleanPrice > maxPrice) return false;
 
-        // PRIORIDAD 5: UBICACIÓN
+        // E. UBICACIÓN
         const pCity = get(['ciudad', 'poblacion']);
         const pZone = get(['zona', 'area']);
         if (locations.length > 0 && locParam !== 'all') {
@@ -359,55 +375,105 @@ function filterProperties(nodes, params) {
             if (!matchLoc) return false;
         }
 
-        // PRIORIDAD 6: KEYWORDS
-        const pTitle = get(['titulo1', 'titulo2']);
-        if (keyword) {
-            const fullText = `${pType} ${pCity} ${pZone} ${pTitle} ${descText}`;
-            if (['piscina', 'pool', 'garaje', 'garage', 'jardin', 'garden'].includes(keyword)) {
-                let found = false;
-                if(keyword.includes('piscina') || keyword.includes('pool')) found = checkHybrid(node, ['piscina_prop'], 'pool');
-                else if(keyword.includes('garaje') || keyword.includes('garage')) found = checkHybrid(node, ['garaje'], 'garage');
-                else if(keyword.includes('jardin') || keyword.includes('garden')) found = checkHybrid(node, ['jardin_prop'], 'garden');
-                if (!found) return false;
+        // F. KEYWORDS (BÚSQUEDA INTELIGENTE SEMÁNTICA)
+        if (keyword.length > 0) {
+            // 1. Detectar intención de búsqueda (ej: "vistas mar" -> 'seaview')
+            const searchIntent = getFeatureIntent(keyword);
+            
+            if (searchIntent) {
+                // Si detectamos intención (ej: "piscina"), buscamos en TAGS específicos + Descripción
+                const match = checkSmartFeature(node, searchIntent);
+                if (!match) return false;
             } else {
+                // Si no es una característica conocida, búsqueda de texto libre amplia
+                const pTitle = get(['titulo1', 'titulo2']);
+                const fullText = `${pType} ${pCity} ${pZone} ${pTitle} ${descText}`;
                 if (!fullText.includes(keyword)) return false;
             }
         }
+
         return true;
     });
 }
 
-function checkHybrid(node, tags, regexType) {
-    const get = (t) => getNodeValue(node, t).toLowerCase();
-    const val = get(tags);
-
-    if (val === '1' || val === 'si' || val === 'yes' || parseInt(val) > 0) return true;
-
-    const desc = get(['descrip1', 'descripcion']);
-    return checkFeatureInDesc(desc, regexType);
+/**
+ * Detecta qué característica busca el usuario según lo que escribió.
+ * Retorna un código interno ('pool', 'seaview', etc.) o null.
+ */
+function getFeatureIntent(text) {
+    text = text.toLowerCase();
+    if (/(piscina|pool|alberca|pileta)/.test(text)) return 'pool';
+    if (/(garaje|garage|parking|cochera|estacionamiento|coche)/.test(text)) return 'garage';
+    if (/(vista|view|mar|sea|playa|beach|ocean|costa|front)/.test(text)) return 'seaview';
+    if (/(jard[ií]n|garden|patio)/.test(text)) return 'garden';
+    if (/(terraza|terrace|balc[oó]n|solarium|azotea)/.test(text)) return 'terrace';
+    if (/(ascensor|elevator|lift|elevador)/.test(text)) return 'elevator';
+    if (/(aire|air|ac|a\/c|clima)/.test(text)) return 'ac';
+    return null;
 }
 
-function checkFeatureInDesc(text, type) {
-    if (!text) return false;
-    text = text.toLowerCase();
+/**
+ * Verifica si una propiedad cumple con una característica (Intent),
+ * revisando tanto variables XML específicas como la descripción.
+ */
+function checkSmartFeature(node, intent) {
+    const get = (t) => getNodeValue(node, t).toLowerCase();
+    const desc = get(['descrip1', 'descripcion']);
 
-    // Filtro para "aparcamiento público"
-    if (type === 'garage') {
-        text = text.replace(/aparcamiento p[uú]blico/g, "").replace(/parking p[uú]blico/g, "");
+    // Definimos mapa de Búsqueda: { tags: [], regex: RegExp }
+    const featureMap = {
+        'pool': { 
+            tags: ['piscina', 'piscina_prop', 'pool'], 
+            regex: /(piscina|alberca|pileta|pool)/i 
+        },
+        'garage': { 
+            tags: ['garaje', 'plaza_gara', 'garage', 'parking'], 
+            regex: /(garaje|parking|aparcamiento|cochera|plaza de (garaje|parking))/i 
+        },
+        'seaview': { 
+            tags: ['vistasalmar', 'vistas_mar', 'sea_view'], 
+            regex: /(vista[s]? al mar|vistas? despejadas? al mar|frente al mar|primera l[ií]nea|sea view|ocean view|beachfront)/i 
+        },
+        'garden': { 
+            tags: ['jardin_prop', 'jardin', 'garden'], 
+            regex: /(jard[ií]n|jardines|zonas? verdes?|private garden)/i 
+        },
+        'terrace': { 
+            tags: ['terraza', 'm_terraza', 'terrace'], 
+            regex: /(terraza|balc[oó]n|solarium|azotea|terrace)/i 
+        },
+        'elevator': { 
+            tags: ['ascensor', 'elevador', 'elevator'], 
+            regex: /(ascensor|elevador|lift|elevator)/i 
+        },
+        'ac': { 
+            tags: ['aire_con', 'aire_acondicionado', 'ac'], 
+            regex: /(aire acondicionado|air cond|a\/c|climatizaci[oó]n)/i 
+        }
+    };
+
+    const config = featureMap[intent];
+    if (!config) return false;
+
+    // 1. Revisar TAGS XML (si dice "1", "si", "yes" o número > 0)
+    for (const tag of config.tags) {
+        const val = get([tag]);
+        if (val === '1' || val === 'si' || val === 'yes' || (parseInt(val) > 0)) return true;
     }
 
-    const patterns = {
-        'ac': /(aire acondicionado|aire a\/c|bomba de (fr[ií]o|calor)|climatizaci[oó]n)/i,
-        'seaview': /(vista[s]? al mar|vistas? despejadas? al mar|frente al mar|primera l[ií]nea)/i,
-        'pool': /(piscina|alberca|pileta)/i,
-        'garden': /(jard[ií]n|jardines|zonas? verdes?|huerto)/i,
-        'garage': /(garaje|parking|aparcamiento|cochera|plaza de (garaje|parking))/i,
-        'elevator': /(ascensor|elevador)/i,
-        'terrace': /(terraza|balc[oó]n|solarium|azotea)/i
-    };
-    if (patterns[type] && patterns[type].test(text)) return true;
+    // 2. Revisar Descripción con Regex
+    if (config.regex.test(desc)) {
+        // Corrección específica para "Garaje": evitar "Parking público cercano"
+        if (intent === 'garage') {
+            if (desc.includes('aparcamiento público') || desc.includes('parking público')) return false;
+        }
+        return true;
+    }
+
     return false;
 }
+
+// ==========================================================
 
 function initSearchLogic() {
     const buttons = document.querySelectorAll('button[onclick="executeSearch()"]');
@@ -580,11 +646,9 @@ function initContactModal() {
             if(window.innerWidth > 900) { 
                 e.preventDefault();
                 
-                // Detecta si la URL limpia contiene "rent" o "rent-home"
                 const isRentMode = window.location.pathname.includes('rent') || window.location.href.includes('rent');
                 const hasRentContent = injector.innerHTML.includes('rentals@mhestate.es') || injector.innerHTML.includes('Isidora');
 
-                // Si ya tiene el contenido correcto, solo abrir
                 if (injector.children.length > 0 && ((isRentMode && hasRentContent) || (!isRentMode && !hasRentContent))) {
                     openModal(); 
                     return; 
@@ -594,7 +658,6 @@ function initContactModal() {
                     injector.innerHTML = '<div style="padding:40px; text-align:center;">Loading...</div>';
                     openModal();
                     
-                    // DETECCIÓN DINÁMICA DE ARCHIVO
                     let fileToLoad = isRentMode ? 'contact-rent.html' : 'contact.html';
 
                     const response = await fetch(fileToLoad + '?v=' + Date.now());
@@ -639,32 +702,21 @@ window.applyLocationFilter = function(locs) {
 
 // --- VALIDACIÓN DE FORMULARIO (EMAIL O TELÉFONO) ---
 function initFormValidation() {
-    // Usamos delegación de eventos en el documento para capturar el envío
-    // incluso si el formulario se cargó dinámicamente en el modal.
     document.addEventListener('submit', function(e) {
-        // Verificamos si el elemento que dispara el submit es nuestro formulario
         if (e.target && e.target.classList.contains('contact-form')) {
-            
             const form = e.target;
             const emailInput = form.querySelector('input[type="email"]');
             const phoneInput = form.querySelector('input[type="tel"]');
             
-            // Limpiamos espacios en blanco para evitar falsos positivos
             const emailVal = emailInput ? emailInput.value.trim() : '';
             const phoneVal = phoneInput ? phoneInput.value.trim() : '';
 
-            // Lógica: Si AMBOS están vacíos, bloqueamos el envío
             if (emailVal === '' && phoneVal === '') {
-                e.preventDefault(); // Detener el envío
-                
-                // Mensaje de error (puedes personalizarlo)
+                e.preventDefault(); 
                 alert("Por favor, proporcione al menos un método de contacto (Email o Teléfono).");
-                
-                // Opcional: Resaltar los campos visualmente
                 if(emailInput) emailInput.style.borderColor = "red";
                 if(phoneInput) phoneInput.style.borderColor = "red";
                 
-                // Limpiar el borde rojo cuando el usuario escriba
                 const clearError = (ev) => ev.target.style.borderColor = "";
                 if(emailInput) emailInput.oninput = clearError;
                 if(phoneInput) phoneInput.oninput = clearError;
@@ -673,7 +725,7 @@ function initFormValidation() {
     });
 }
 
-// --- CREATE CARD (CON ETIQUETAS Y SWIPE) - VERSIÓN TODO GRIS ---
+// --- CREATE CARD ---
 function createCard(xmlNode) {
     const lang = getCurrentLang();
     const dict = I18N_TYPES[lang] || {};
@@ -695,7 +747,6 @@ function createCard(xmlNode) {
     if (typeDisplay) typeDisplay = typeDisplay.charAt(0).toUpperCase() + typeDisplay.slice(1);
     const displayTitle = `${typeDisplay} - ${zone || city}`;
 
-    // --- ETIQUETAS (NO SEGUNDA MANO) ---
     const excluVal = get(['exclu', 'exclusiva']);
     const conservationVal = get(['conservacion', 'estado']);
     let tagsHtml = '';
@@ -723,14 +774,14 @@ function createCard(xmlNode) {
     const bathsFromDesc = extractNumFromDesc(descText, 'baths');
     if (bathsFromDesc && parseInt(bathsFromDesc) > bathsVal) bathsVal = parseInt(bathsFromDesc);
 
-    // --- CARACTERÍSTICAS (USANDO checkHybrid CORREGIDO) ---
-    const hasPool = checkHybrid(xmlNode, ['piscina_prop', 'piscina', 'pool'], 'pool');
-    const hasGarage = checkHybrid(xmlNode, ['garaje', 'plaza_gara', 'garage'], 'garage');
-    const hasView = checkHybrid(xmlNode, ['vistasalmar', 'vistas_mar', 'sea_view'], 'seaview');
-    const hasGarden = checkHybrid(xmlNode, ['jardin_prop', 'jardin', 'garden'], 'garden');
-    const hasAC = checkHybrid(xmlNode, ['aire_con', 'aire_acondicionado', 'ac'], 'ac');
-    const hasElevator = checkHybrid(xmlNode, ['ascensor', 'elevador', 'elevator'], 'elevator');
-    const hasTerrace = checkHybrid(xmlNode, ['terraza', 'm_terraza', 'terrace'], 'terrace');
+    // USAMOS EL HELPER checkSmartFeature (reutilizando lógica inteligente para las tarjetas también)
+    const hasPool = checkSmartFeature(xmlNode, 'pool');
+    const hasGarage = checkSmartFeature(xmlNode, 'garage');
+    const hasView = checkSmartFeature(xmlNode, 'seaview');
+    const hasGarden = checkSmartFeature(xmlNode, 'garden');
+    const hasAC = checkSmartFeature(xmlNode, 'ac');
+    const hasElevator = checkSmartFeature(xmlNode, 'elevator');
+    const hasTerrace = checkSmartFeature(xmlNode, 'terrace');
 
     const specsArr = [];
     if(m2 > 0) specsArr.push(`${m2} m²`);
