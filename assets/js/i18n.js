@@ -983,7 +983,7 @@ const translations = {
         "news-king-toast": "Hälsa 🍷",
 
         // --- FOOTER ---
-        'footer-desc': 'Din pålitliga partner på fastighetsmarknad',
+        'footer-desc': 'Din pålitliga partner på fastighetsmarknaden',
         'footer-links': 'Snabblänkar',
         'footer-contact': 'Kontaktinfo',
         'footer-follow': 'Följ oss',
