@@ -1,6 +1,6 @@
 /**
  * ============================================================
- * APP.JS - MOTOR V24.0 (BÚSQUEDA POR ID + KEYWORDS INTELIGENTES)
+ * APP.JS - MOTOR V25.0 (BUSCADOR AGRESIVO MULTILINGÜE ES/EN/SV)
  * ============================================================
  */
 
@@ -78,7 +78,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
         setupFilterInteractions(); 
         initSearchLogic();         
-        
         initFormValidation();
 
         await loadAndStoreProperties();
@@ -293,39 +292,48 @@ function generatePaginationButtons(containerId, current, total, onPageClick) {
 }
 
 // ==========================================================
-// --- LÓGICA DE FILTRADO MEJORADA (ID + SEMÁNTICA) ---
+// --- LÓGICA DE FILTRADO AGRESIVO (V25.0) ---
 // ==========================================================
 
+// Helper para normalizar texto (quitar acentos, minúsculas)
+function normalizeText(str) {
+    if (!str) return "";
+    return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+
 function filterProperties(nodes, params) {
-    // 1. RECOGER PARÁMETROS
-    const locParam = (params.get('loc') || '').toLowerCase();
+    // 1. RECOGER PARÁMETROS NORMALIZADOS
+    const locParam = normalizeText(params.get('loc') || '');
     const locations = locParam.split(',').map(l => l.trim()).filter(l => l !== '');
     const types = params.get('type') ? params.get('type').toLowerCase().split(',') : [];
     const statusParam = params.get('status') || '';
-    const keyword = (params.get('q') || '').toLowerCase().trim();
+    
+    // Keyword Agresiva: quitamos espacios extra y acentos
+    const rawKeyword = (params.get('q') || '').trim();
+    const keyword = normalizeText(rawKeyword);
+    
     const minPrice = parseFloat(params.get('min')) || 0;
     const maxPrice = parseFloat(params.get('max')) || Infinity;
     const bedsMin = parseInt(params.get('bed')) || 0;
     const bathsMin = parseInt(params.get('bath')) || 0;
 
-    // --- REGLA #1: BÚSQUEDA POR ID DIRECTA ---
-    // Si el usuario pone un ID exacto, ignoramos el resto de filtros.
+    // --- REGLA #1: BÚSQUEDA POR ID DIRECTA (Prioridad Máxima) ---
     if (keyword.length > 0) {
-        // Normalizamos ID (quitamos espacios) para comparar mejor: "v 123" -> "v123"
-        const cleanKeyword = keyword.replace(/\s/g, ''); 
+        // "v 123" -> "v123"
+        const cleanIdSearch = keyword.replace(/\s/g, ''); 
         const exactMatch = nodes.find(node => {
-            const idVal = getNodeValue(node, 'id').toLowerCase().replace(/\s/g, '');
-            const refVal = getNodeValue(node, 'ref').toLowerCase().replace(/\s/g, '');
-            return idVal === cleanKeyword || refVal === cleanKeyword;
+            const idVal = normalizeText(getNodeValue(node, 'id')).replace(/\s/g, '');
+            const refVal = normalizeText(getNodeValue(node, 'ref')).replace(/\s/g, '');
+            return idVal === cleanIdSearch || refVal === cleanIdSearch;
         });
         if (exactMatch) return [exactMatch];
     }
 
     // --- FILTRADO GENERAL ---
     return nodes.filter(node => {
-        const get = (tags) => getNodeValue(node, tags).toLowerCase();
+        const getNorm = (tags) => normalizeText(getNodeValue(node, tags));
         
-        // A. ESTADO (Obra Nueva vs Segunda Mano)
+        // A. ESTADO
         const conservation = getNodeValue(node, ['conservacion', 'estado']);
         if (statusParam === 'new') {
             if (conservation !== 'Obra Nueva') return false; 
@@ -334,25 +342,25 @@ function filterProperties(nodes, params) {
         }
 
         // B. TIPO PROPIEDAD
-        const pType = get(['tipo', 'type', 'tipo_ofer']);
+        const pType = getNorm(['tipo', 'type', 'tipo_ofer']);
         if (types.length > 0) {
             const match = types.some(t => pType.includes(t));
             if (!match) return false;
         }
 
-        // C. CARACTERÍSTICAS NUMÉRICAS (Dorm/Baños)
-        const descText = get(['descrip1', 'descripcion']);
-        let bedsVal = parseInt(get(['habitaciones', 'dormitorios', 'beds'])) || 0;
-        const simples = parseInt(get(['hab_simples', 'simple'])) || 0;
-        const dobles = parseInt(get(['hab_dobles', 'double'])) || 0;
+        // C. CARACTERÍSTICAS NUMÉRICAS
+        const descText = getNodeValue(node, ['descrip1', 'descripcion']); // Sin normalizar para regex numéricos
+        let bedsVal = parseInt(getNodeValue(node, ['habitaciones', 'dormitorios', 'beds'])) || 0;
+        const simples = parseInt(getNodeValue(node, ['hab_simples', 'simple'])) || 0;
+        const dobles = parseInt(getNodeValue(node, ['hab_dobles', 'double'])) || 0;
         if ((simples + dobles) > bedsVal) bedsVal = simples + dobles;
-        // Backup: buscar en descripción si el XML dice 0
+        
         if (bedsVal === 0) {
             const bedsDesc = extractNumFromDesc(descText, 'beds');
             if (bedsDesc) bedsVal = parseInt(bedsDesc);
         }
 
-        let bathsVal = parseInt(get(['banos', 'banyos', 'baths'])) || 0;
+        let bathsVal = parseInt(getNodeValue(node, ['banos', 'banyos', 'baths'])) || 0;
         if (bathsVal === 0) {
             const bathsDesc = extractNumFromDesc(descText, 'baths');
             if (bathsDesc) bathsVal = parseInt(bathsDesc);
@@ -367,28 +375,45 @@ function filterProperties(nodes, params) {
         if (minPrice > 0 && cleanPrice < minPrice) return false;
         if (maxPrice > 0 && maxPrice !== Infinity && cleanPrice > maxPrice) return false;
 
-        // E. UBICACIÓN
-        const pCity = get(['ciudad', 'poblacion']);
-        const pZone = get(['zona', 'area']);
+        // E. UBICACIÓN (Agresiva)
+        const pCity = getNorm(['ciudad', 'poblacion']);
+        const pZone = getNorm(['zona', 'area']);
         if (locations.length > 0 && locParam !== 'all') {
+            // Buscamos coincidencia parcial "Nerja" en "Nerja centro"
             const matchLoc = locations.some(loc => pCity.includes(loc) || pZone.includes(loc));
             if (!matchLoc) return false;
         }
 
-        // F. KEYWORDS (BÚSQUEDA INTELIGENTE SEMÁNTICA)
+        // F. KEYWORDS (INTELIGENCIA MULTILINGÜE + BÚSQUEDA PROFUNDA)
         if (keyword.length > 0) {
-            // 1. Detectar intención de búsqueda (ej: "vistas mar" -> 'seaview')
+            // 1. Detectar intención específica (piscina/pool/bassäng)
             const searchIntent = getFeatureIntent(keyword);
             
             if (searchIntent) {
-                // Si detectamos intención (ej: "piscina"), buscamos en TAGS específicos + Descripción
+                // Si detectamos intención, buscamos "inteligentemente"
                 const match = checkSmartFeature(node, searchIntent);
                 if (!match) return false;
             } else {
-                // Si no es una característica conocida, búsqueda de texto libre amplia
-                const pTitle = get(['titulo1', 'titulo2']);
-                const fullText = `${pType} ${pCity} ${pZone} ${pTitle} ${descText}`;
-                if (!fullText.includes(keyword)) return false;
+                // 2. Búsqueda Profunda (Deep Search) en todo el texto disponible
+                // Concatenamos ES + EN + Otros idiomas si existen en XML
+                const fullSearchableText = normalizeText(
+                    getNodeValue(node, ['titulo1']) + " " + 
+                    getNodeValue(node, ['descrip1', 'descripcion']) + " " + 
+                    getNodeValue(node, ['titulo2']) + " " +  // Inglés
+                    getNodeValue(node, ['descrip2']) + " " +
+                    getNodeValue(node, ['titulo9']) + " " +  // Sueco u otros
+                    getNodeValue(node, ['descrip9']) + " " +
+                    getNodeValue(node, ['ciudad']) + " " +
+                    getNodeValue(node, ['zona']) + " " +
+                    getNodeValue(node, ['tipo'])
+                );
+
+                // Dividimos la búsqueda en palabras para ser más flexibles
+                // Ej: "Casa Nerja" -> busca "casa" Y "nerja" en cualquier orden
+                const searchTerms = keyword.split(/\s+/);
+                const allTermsMatch = searchTerms.every(term => fullSearchableText.includes(term));
+                
+                if (!allTermsMatch) return false;
             }
         }
 
@@ -397,75 +422,88 @@ function filterProperties(nodes, params) {
 }
 
 /**
- * Detecta qué característica busca el usuario según lo que escribió.
- * Retorna un código interno ('pool', 'seaview', etc.) o null.
+ * Detecta intención multilingüe (ES/EN/SV).
  */
 function getFeatureIntent(text) {
-    text = text.toLowerCase();
-    if (/(piscina|pool|alberca|pileta)/.test(text)) return 'pool';
-    if (/(garaje|garage|parking|cochera|estacionamiento|coche)/.test(text)) return 'garage';
-    if (/(vista|view|mar|sea|playa|beach|ocean|costa|front)/.test(text)) return 'seaview';
-    if (/(jard[ií]n|garden|patio)/.test(text)) return 'garden';
-    if (/(terraza|terrace|balc[oó]n|solarium|azotea)/.test(text)) return 'terrace';
-    if (/(ascensor|elevator|lift|elevador)/.test(text)) return 'elevator';
-    if (/(aire|air|ac|a\/c|clima)/.test(text)) return 'ac';
+    // Normalizamos input por seguridad
+    text = normalizeText(text);
+
+    // Piscina / Pool / Bassäng
+    if (/(piscina|pool|alberca|pileta|bassang|bada)/.test(text)) return 'pool';
+    
+    // Garaje / Garage / Parkering
+    if (/(garaje|garage|parking|cochera|estacionamiento|coche|parkering|bil)/.test(text)) return 'garage';
+    
+    // Vistas al mar / Sea view / Havsutsikt
+    if (/(vista|view|mar|sea|playa|beach|ocean|costa|front|hav|strand|utsikt)/.test(text)) return 'seaview';
+    
+    // Jardín / Garden / Trädgård
+    if (/(jard|garden|patio|huerto|tradgard|tomt)/.test(text)) return 'garden';
+    
+    // Terraza / Terrace / Terrass / Balkong
+    if (/(terraza|terrace|balcon|solarium|azotea|terrass|balkong|altan)/.test(text)) return 'terrace';
+    
+    // Ascensor / Elevator / Hiss
+    if (/(ascensor|elevador|lift|elevator|hiss)/.test(text)) return 'elevator';
+    
+    // Aire Acondicionado / AC / Luftkonditionering
+    if (/(aire|air|ac|clima|luft|kyla)/.test(text)) return 'ac';
+    
     return null;
 }
 
 /**
- * Verifica si una propiedad cumple con una característica (Intent),
- * revisando tanto variables XML específicas como la descripción.
+ * Verifica característica inteligente
  */
 function checkSmartFeature(node, intent) {
-    const get = (t) => getNodeValue(node, t).toLowerCase();
-    const desc = get(['descrip1', 'descripcion']);
+    const get = (t) => getNodeValue(node, t).toLowerCase(); 
+    // Usamos texto normalizado para el regex de descripción
+    const descNorm = normalizeText(getNodeValue(node, ['descrip1', 'descripcion', 'descrip2', 'descrip9']));
 
-    // Definimos mapa de Búsqueda: { tags: [], regex: RegExp }
     const featureMap = {
         'pool': { 
             tags: ['piscina', 'piscina_prop', 'pool'], 
-            regex: /(piscina|alberca|pileta|pool)/i 
+            regex: /(piscina|alberca|pileta|pool|bassang|bada)/ 
         },
         'garage': { 
             tags: ['garaje', 'plaza_gara', 'garage', 'parking'], 
-            regex: /(garaje|parking|aparcamiento|cochera|plaza de (garaje|parking))/i 
+            regex: /(garaje|parking|aparcamiento|cochera|plaza|garage|parkering|bilplats)/ 
         },
         'seaview': { 
             tags: ['vistasalmar', 'vistas_mar', 'sea_view'], 
-            regex: /(vista[s]? al mar|vistas? despejadas? al mar|frente al mar|primera l[ií]nea|sea view|ocean view|beachfront)/i 
+            regex: /(vista.*mar|sea.*view|frente.*mar|primera.*linea|havsutsikt|havs.*utsikt|strand.*lage)/ 
         },
         'garden': { 
             tags: ['jardin_prop', 'jardin', 'garden'], 
-            regex: /(jard[ií]n|jardines|zonas? verdes?|private garden)/i 
+            regex: /(jard|garden|zonas? verdes?|tradgard|tomt)/ 
         },
         'terrace': { 
             tags: ['terraza', 'm_terraza', 'terrace'], 
-            regex: /(terraza|balc[oó]n|solarium|azotea|terrace)/i 
+            regex: /(terraza|balcon|solarium|azotea|terrace|terrass|balkong|altan)/ 
         },
         'elevator': { 
             tags: ['ascensor', 'elevador', 'elevator'], 
-            regex: /(ascensor|elevador|lift|elevator)/i 
+            regex: /(ascensor|elevador|lift|elevator|hiss)/ 
         },
         'ac': { 
             tags: ['aire_con', 'aire_acondicionado', 'ac'], 
-            regex: /(aire acondicionado|air cond|a\/c|climatizaci[oó]n)/i 
+            regex: /(aire.*acondicionado|air.*cond|a\/c|climatiza|luftkonditionering)/ 
         }
     };
 
     const config = featureMap[intent];
     if (!config) return false;
 
-    // 1. Revisar TAGS XML (si dice "1", "si", "yes" o número > 0)
+    // 1. Revisar TAGS XML
     for (const tag of config.tags) {
         const val = get([tag]);
         if (val === '1' || val === 'si' || val === 'yes' || (parseInt(val) > 0)) return true;
     }
 
-    // 2. Revisar Descripción con Regex
-    if (config.regex.test(desc)) {
-        // Corrección específica para "Garaje": evitar "Parking público cercano"
+    // 2. Revisar Descripción Normalizada
+    if (config.regex.test(descNorm)) {
         if (intent === 'garage') {
-            if (desc.includes('aparcamiento público') || desc.includes('parking público')) return false;
+            if (descNorm.includes('publico') || descNorm.includes('public')) return false;
         }
         return true;
     }
@@ -571,13 +609,13 @@ function activateButton(containerId, val) {
 
 function extractNumFromDesc(text, type) {
     if (!text) return null;
-    text = text.toLowerCase();
+    text = normalizeText(text); // Normalizamos para evitar problemas con tildes en "habitación"
     const numMap = { 'un': 1, 'una': 1, 'uno': 1, 'primer': 1, 'dos': 2, 'tres': 3, 'cuatro': 4, 'cinco': 5, 'seis': 6, 'siete': 7, 'ocho': 8, 'nueve': 9, 'diez': 10 };
     let regex;
     if (type === 'beds') {
-        regex = /(?:(\d+)|(un|una|uno|dos|tres|cuatro|cinco|seis|siete|ocho|nueve|diez))\s+(?:(?:amplios?|dobles?|grandes?|bonitos?|luminosos?|fantásticos?|espaciosos?|hermosos?)\s+)?(?:dormitorios?|habitaci[oó]nes?|cuartos?)/i;
+        regex = /(?:(\d+)|(un|una|uno|dos|tres|cuatro|cinco|seis|siete|ocho|nueve|diez))\s+(?:(?:amplios?|dobles?|grandes?|bonitos?|luminosos?|fantásticos?|espaciosos?|hermosos?)\s+)?(?:dormitorios?|habitaci[oó]nes?|cuartos?|rum|sovrum|bedrooms?)/i;
     } else if (type === 'baths') {
-        regex = /(?:(\d+)|(un|una|uno|dos|tres|cuatro|cinco))\s+(?:(?:completos?|grandes?|modernos?)\s+)?(?:baños?|banyos?|aseos?|cuartos? de baño)/i;
+        regex = /(?:(\d+)|(un|una|uno|dos|tres|cuatro|cinco))\s+(?:(?:completos?|grandes?|modernos?)\s+)?(?:baños?|banyos?|aseos?|cuartos? de baño|badrum|baths?|bathrooms?)/i;
     }
     const match = text.match(regex);
     if (match) {

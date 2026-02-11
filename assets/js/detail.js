@@ -1,5 +1,5 @@
 /* =========================================
-   DETAIL.JS - V10.4 (SMART TITLE + SMART DESC + FIXES)
+   DETAIL.JS - V13.0 (CAMBIO DORMITORIOS -> PLAZAS EN ESPAÑOL)
    ========================================= */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -23,9 +23,15 @@ const TRANSLATIONS = {
         
         'cond_new': 'Obra Nueva', 
         'cond_resale': 'Segunda Mano',
+        'stat_sold': 'VENDIDO',
+        'stat_reserved': 'RESERVADO',
 
         'feat_ref': 'Referencia', 'feat_price': 'Precio', 'feat_type': 'Tipo',
-        'feat_town': 'Ciudad', 'feat_zone': 'Zona', 'feat_beds': 'Dormitorios',
+        'feat_town': 'Ciudad', 'feat_zone': 'Zona', 
+        
+        // CAMBIO V13.0: Dormitorios -> Plazas
+        'feat_beds': 'Plazas', 
+        
         'feat_baths': 'Baños', 'feat_toilets': 'Aseos', 'feat_built': 'Construido',
         'feat_useful': 'Útil', 'feat_terrace': 'Terraza', 'feat_plot': 'Parcela',
         'feat_pool': 'Piscina', 'feat_garage': 'Garaje', 
@@ -59,6 +65,8 @@ const TRANSLATIONS = {
 
         'cond_new': 'New Construction',
         'cond_resale': 'Resale',
+        'stat_sold': 'SOLD',
+        'stat_reserved': 'RESERVED',
 
         'feat_ref': 'Reference', 'feat_price': 'Price', 'feat_type': 'Type',
         'feat_town': 'Town', 'feat_zone': 'Area', 'feat_beds': 'Bedrooms',
@@ -95,6 +103,8 @@ const TRANSLATIONS = {
 
         'cond_new': 'Nyproduktion',
         'cond_resale': 'Begagnad',
+        'stat_sold': 'SÅLD',
+        'stat_reserved': 'RESERVERAD',
 
         'feat_ref': 'Referens', 'feat_price': 'Pris', 'feat_type': 'Typ',
         'feat_town': 'Stad', 'feat_zone': 'Område', 'feat_bed': 'Sovrum',
@@ -155,63 +165,53 @@ function formatCondition(rawCond) {
     return t('cond_resale');
 }
 
-// --- TÍTULO INTELIGENTE (COMO EN RENT-DETAIL) ---
-function generateSmartTitle(node) {
-    const lang = localStorage.getItem('preferredLang') || 'es';
-    let titleTag = 'titulo1'; 
-    let descTag = 'descrip1';
+// --- DETECCIÓN DE ESTADO (VENDIDO/RESERVADO) ---
+function getPropertyStatus(node) {
+    const reservedTag = node.querySelector('reservado')?.textContent;
+    const webStatus = node.querySelector('web_estado')?.textContent; 
     
-    if (lang === 'en') { titleTag = 'titulo2'; descTag = 'descrip2'; }
-    if (lang === 'sv') { titleTag = 'titulo9'; descTag = 'descrip9'; }
+    if (reservedTag === '1') return { type: 'reserved', label: t('stat_reserved'), color: '#E67E22' }; 
+    if (webStatus === '3' || webStatus === '4') return { type: 'sold', label: t('stat_sold'), color: '#C0392B' };
 
-    // 1. Prioridad: Etiqueta de título traducida (titulo1, titulo2...)
-    let title = node.querySelector(titleTag)?.textContent;
-    if (title && title.trim().length > 5 && !title.includes('CDATA')) return title.replace(/<!\[CDATA\[|\]\]>/g, '').trim();
-    
-    // 2. Prioridad: TituloWeb o Titulo genérico
-    title = node.querySelector('tituloweb')?.textContent || node.querySelector('titulo')?.textContent;
-    if (title && title.trim().length > 5 && !title.includes('CDATA')) return title.replace(/<!\[CDATA\[|\]\]>/g, '').trim();
-
-    // 3. Prioridad: Extracción inteligente de la primera frase de la descripción
-    let desc = node.querySelector(descTag)?.textContent || node.querySelector('descrip1')?.textContent; 
-    if (desc) {
-        let cleanDesc = desc.replace(/<!\[CDATA\[|\]\]>/g, '').trim();
-        // Tomar hasta el primer punto, salto de línea o cierre de interrogación/exclamación
-        let firstPart = cleanDesc.split(/[\r\n.]+/)[0].trim();
-        // Limpiar caracteres iniciales o finales raros
-        firstPart = firstPart.replace(/^[¡¿"-]+/, '').replace(/[!?:."]+$/, '');
-        
-        // Si la frase extraída tiene una longitud razonable (título), usarla
-        if (firstPart.length > 10 && firstPart.length < 80) {
-            return firstPart.charAt(0).toUpperCase() + firstPart.slice(1);
-        }
+    const title = node.querySelector('tipo_ofer')?.textContent || '';
+    if (title.toUpperCase().includes('VENDIDO') || title.toUpperCase().includes('SOLD')) {
+        return { type: 'sold', label: t('stat_sold'), color: '#C0392B' };
+    }
+    if (title.toUpperCase().includes('RESERVADO') || title.toUpperCase().includes('RESERVED')) {
+        return { type: 'reserved', label: t('stat_reserved'), color: '#E67E22' };
     }
 
-    // 4. Fallback: Formato técnico (Tipo en Zona)
-    const city = node.querySelector('poblacion')?.textContent || '';
-    const type = formatPropType(node.querySelector('tipo_ofer')?.textContent || 'Propiedad');
-    const zone = node.querySelector('zona')?.textContent || '';
-    return `${type} en ${zone || city}`;
+    return null;
 }
 
-// --- FORMATO INTELIGENTE DE DESCRIPCIÓN (COMO EN RENT-PROPIEDAD) ---
+// --- TÍTULO TÉCNICO ---
+function generateSmartTitle(node) {
+    const rawType = node.querySelector('tipo_ofer')?.textContent || 'Propiedad';
+    const city = node.querySelector('poblacion')?.textContent || '';
+    const zone = node.querySelector('zona')?.textContent || '';
+    
+    let cleanType = rawType.replace(/VENDIDO|SOLD|RESERVADO|RESERVED/gi, '').trim();
+    if(!cleanType) cleanType = 'Propiedad';
+
+    const type = formatPropType(cleanType); 
+    return `${type} - ${zone || city}`;
+}
+
+// --- FORMATO INTELIGENTE DE DESCRIPCIÓN ---
 function smartFormatText(text) {
     if (!text) return "";
     
-    // 1. Limpieza inicial
     let html = text.replace(/<!\[CDATA\[|\]\]>/g, '')
-                   .replace(/~/g, '<br><br>')
-                   .replace(/—/g, '&mdash;')
-                   .replace(/\r\n/g, '\n');
+                    .replace(/~/g, '<br><br>')
+                    .replace(/—/g, '&mdash;')
+                    .replace(/\r\n/g, '\n');
 
-    // 2. Detectar listas (•, *, -) y convertir a HTML
     const listPattern = /(?:^|\n)\s*[•\-\*]\s+(.*?)(?=\n|$|<br>)/g;
     if (listPattern.test(html)) {
         html = html.replace(listPattern, '<li>$1</li>');
         html = html.replace(/(<li>.*?<\/li>)+/g, '<ul>$&</ul>');
     }
 
-    // 3. Negritas inteligentes en palabras clave
     const keywords = [
         "Cocina", "Salón", "Dormitorio", "Baño", "Terraza", "Exterior", "Interior", 
         "Planta baja", "Planta alta", "Ubicación", "Jardín", "Piscina", "Vistas", "Distribución", "Garaje",
@@ -223,7 +223,6 @@ function smartFormatText(text) {
         html = html.replace(regex, '$1<strong>$2</strong>');
     });
 
-    // 4. Envolver en párrafos limpios
     const parts = html.split('<br><br>');
     let finalHtml = "";
     
@@ -239,7 +238,7 @@ function smartFormatText(text) {
     return finalHtml;
 }
 
-// --- IA LIGERA (EXTRACCIÓN) ---
+// --- IA LIGERA ---
 function extractNumFromDesc(text, type) {
     if (!text) return null;
     text = text.toLowerCase();
@@ -337,32 +336,36 @@ function renderPropertyDetails(node) {
 
     const lang = localStorage.getItem('preferredLang') || 'es';
 
-    // --- APLICAR TÍTULO INTELIGENTE ---
-    const smartTitle = generateSmartTitle(node);
+    // --- APLICAR TÍTULO TÉCNICO ---
+    const technicalTitle = generateSmartTitle(node);
+    document.title = `${technicalTitle} | MH Estate`; 
     
-    // Subtítulo (Ubicación técnica)
     const zone = get(['zona', 'area']);
     const city = get(['ciudad', 'poblacion']);
     const locationSubtitle = `${city} • ${zone}`; 
 
-    // Asignar al H1 y al subtítulo
-    setTextSafe('prop-title', smartTitle);
+    setTextSafe('prop-title', technicalTitle);
     setTextSafe('prop-location', locationSubtitle);
     
-    // Asignar al título dentro de la pestaña "Descripción"
     const innerTitle = document.querySelector('.tab-inner-title');
-    if(innerTitle) innerTitle.textContent = smartTitle;
+    if(innerTitle) innerTitle.textContent = technicalTitle;
 
     const refEl = document.getElementById('prop-ref');
     if(refEl) refEl.style.display = 'none'; 
     
-    // --- LÓGICA DE ETIQUETA EN HERO DETALLE ---
+    // --- LÓGICA DE ETIQUETA ---
     const excluVal = get(['exclu', 'exclusiva']);
     const tagEl = document.getElementById('prop-tag');
+    const status = getPropertyStatus(node);
 
     if(tagEl) {
         tagEl.style.display = 'none'; 
-        if(excluVal === '1') {
+        if (status) {
+            tagEl.textContent = status.label;
+            tagEl.style.display = 'inline-block';
+            tagEl.style.backgroundColor = status.color;
+            tagEl.style.color = '#fff';
+        } else if(excluVal === '1') {
             tagEl.textContent = t('feat_exclusive');
             tagEl.style.display = 'inline-block';
             tagEl.style.backgroundColor = '#000';
@@ -377,7 +380,6 @@ function renderPropertyDetails(node) {
     let rawDesc = (lang === 'en') ? get('descrip2') : (lang === 'sv' ? get('descrip9') : get('descrip1'));
     if (!rawDesc || rawDesc.length < 5) rawDesc = get(['descrip1', 'descripcion']);
     
-    // --- APLICAR FORMATO INTELIGENTE A LA DESCRIPCIÓN ---
     const descContainer = document.getElementById('prop-description');
     if(descContainer) descContainer.innerHTML = smartFormatText(rawDesc);
 
@@ -585,7 +587,9 @@ function renderFeatures(node) {
         
         { key: 'feat_year', tags: ['antiguedad', 'ano_construccion', 'year'] },
         { key: 'feat_floors', tags: ['num_plantas', 'floors'] },
-        { key: 'feat_ibi', tags: ['ibi'], suffix: ' €' },
+        
+        { key: 'feat_ibi', tags: ['ibi'], isPrice: true },
+        
         { key: 'feat_community', tags: ['comunidad', 'community_fees'], suffix: ' €' }
     ];
 
@@ -806,13 +810,20 @@ function renderSimilarProperties(currentProp, allProps) {
         const typeTrans = formatPropType(getVal(p, 'tipo_ofer'));
         const pZone = getVal(p, ['zona', 'area']);
         const pCity = getVal(p, 'ciudad');
+        
+        // Título técnico en similares también
         let pTitle = `${typeTrans} - ${pZone || pCity}`;
 
         const excluVal = getVal(p, 'exclu') || getVal(p, 'exclusiva');
         const conservationVal = getVal(p, 'conservacion') || getVal(p, 'estado');
         
+        // --- DETECCIÓN DE ESTADO EN SIMILARES ---
+        const status = getPropertyStatus(p);
+        
         let tagHtml = '';
-        if (excluVal === '1') {
+        if (status) {
+             tagHtml = `<span class="mini-tag" style="background-color:${status.color}; color:#fff;">${status.label}</span>`;
+        } else if (excluVal === '1') {
             tagHtml = `<span class="mini-tag" style="background-color:#000; color:#fff;">${t('feat_exclusive')}</span>`;
         } else if (conservationVal === 'Obra Nueva') {
             tagHtml = `<span class="mini-tag" style="background-color:#000; color:#fff;">${t('cond_new')}</span>`;

@@ -257,21 +257,28 @@
     width: 100%;
 }
 
-/* Imagen Circular */
+/* Imagen Circular - Ajustada para evitar recortes */
 .bio-img-wrapper {
-    width: 150px;
-    height: 150px;
+    width: 150px;  /* Aumenté un poco el tamaño para mejor visibilidad */
+    height: 180px;
     margin: 0 auto 20px;
+    display: flex;          /* Asegura centrado total */
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;       /* Mantiene la forma circular */
+    border-radius: 50%;     /* Fuerza el contenedor a ser circular */
 }
 
-.bio-img-circle {
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 4px solid #C5BDA8; /* Borde Crema */
-    padding: 3px; 
-    background: #fff;
+/* Ajuste adicional para el contenedor del modal en móviles */
+@media (max-width: 480px) {
+    .bio-img-wrapper {
+        width: 140px;
+        height: 140px;
+    }
+    
+    .bio-modal-container {
+        padding: 40px 15px; /* Menos padding lateral en pantallas muy pequeñas */
+    }
 }
 
 .bio-content h3 {

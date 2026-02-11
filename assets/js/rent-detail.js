@@ -1,9 +1,9 @@
 /**
- * RENT-DETAIL.JS - V44.0 (FULL I18N: TRADUCCIÓN DE VALORES Y SUFIJOS)
- * - Soporte tecla ESC.
- * - Título Inteligente.
- * - Galería V40.
- * - Facts: Traducción profunda de etiquetas, valores (Sur->South) y limpieza de números.
+ * RENT-DETAIL.JS - V49.0 (WHATSAPP MULTI-IDIOMA & MODAL DINÁMICO)
+ * - Mensaje de WhatsApp adaptado según el idioma (ES, EN, SV).
+ * - Modal de validación con nombre del agente y cierre por clic/botón.
+ * - Facts expandidos y Títulos técnicos "Tipo - Zona".
+ * - Botón "Reservar" reemplazado por consulta directa.
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -38,90 +38,100 @@ const AGENT_PHOTOS = {
     'default': 'assets/img/logo mh state negro.png'
 };
 
-// TRADUCCIONES
+// TRADUCCIONES E INTERNACIONALIZACIÓN
 const I18N_RENT_UI = {
     'es': {
         unit_day: '/ noche', unit_week: '/ semana', unit_month: '/ mes',
         lbl_in: 'Llegada', lbl_out: 'Salida', 
-        btn_book: 'RESERVAR', total: 'TOTAL', nights: 'noches',
+        total: 'TOTAL', nights: 'noches',
         no_data: 'No disponible', plan_click: 'Clic para ampliar',
-        
-        // Facts Labels
-        feat_capacity: 'Capacidad', feat_beds: 'Dorm.', feat_baths: 'Baños', 
+        feat_ref: 'Referencia', feat_capacity: 'Capacidad', feat_beds: 'Plazas', feat_baths: 'Baños', 
+        feat_built: 'Construido', feat_plot: 'Parcela', feat_terrace: 'Terraza', 
+        feat_floor: 'Planta', feat_year: 'Año Const.', feat_ibi: 'IBI', feat_community: 'Comunidad',
         feat_pool: 'Piscina', feat_garage: 'Garaje', feat_wifi: 'Wifi', 
-        feat_terrace: 'Terraza', feat_seaview: 'Vistas Mar', feat_ac: 'Aire Acond.',
-        feat_kitchen: 'Cocina', feat_elevator: 'Ascensor', feat_tv: 'TV',
+        feat_seaview: 'Vistas Mar', feat_ac: 'Aire Acond.',
+        feat_elevator: 'Ascensor', feat_tv: 'TV',
         feat_heating: 'Calefacción', feat_furnished: 'Amueblado',
-        feat_orient: 'Orientación', feat_built: 'Metros', feat_plot: 'Parcela',
-        feat_checkin: 'Check-in', feat_checkout: 'Check-out', feat_distmar: 'Dist. Playa',
-        feat_floor: 'Planta', feat_garden: 'Jardín', feat_disabled: 'Acceso Adapt.',
-        
-        // Roles & UI
+        feat_orient: 'Orientación', feat_checkin: 'Check-in', feat_checkout: 'Check-out', feat_distmar: 'Dist. Playa',
+        feat_garden: 'Jardín', feat_disabled: 'Acceso Adapt.',
         'role_founder': 'Fundadora y Agente', 'role_agent': 'Agente Inmobiliaria',
         'role_rental': 'Gestora de Alquileres', 'agent_label': 'Agente Responsable',
-        'btn_whatsapp': 'CONSULTAR POR WHATSAPP', 'txt_email': 'Email:', 'txt_phone': 'Teléfono:',
-        'modal_title': 'Seleccione las fechas', 'modal_text': 'Debe seleccionar un rango de fechas.', 'modal_btn': 'ENTENDIDO',
+        'btn_whatsapp': 'CONSULTAR POR WHATSAPP', 
+        'txt_email': 'Email:', 'txt_phone': 'Teléfono:',
         'from': 'Desde',
-        
-        // Valores Dinámicos & Sufijos
+        'modal_title': 'Fechas requeridas', 
+        'modal_text': 'Para poder consultar disponibilidad con <strong>{agent}</strong>, por favor seleccione primero las fechas de llegada y salida.', 
+        'modal_btn': 'ENTENDIDO',
+        'wa_msg': 'Hola {agent}, estoy interesado en alquilar:\nPropiedad: {title} (Ref: {ref})\nFechas deseadas: del {in} al {out}.\n¿Tienen disponibilidad?',
         'yes': 'Sí', 'u_pers': ' pers.', 'u_m': ' m', 'u_m2': ' m²',
         'orient_sur': 'Sur', 'orient_norte': 'Norte', 'orient_este': 'Este', 'orient_oeste': 'Oeste',
         'orient_sureste': 'Sureste', 'orient_suroeste': 'Suroeste', 'orient_noreste': 'Noreste', 'orient_noroeste': 'Noroeste',
-        'floor_baja': 'Baja', 'floor_sotano': 'Sótano', 'floor_atico': 'Ático'
+        'floor_baja': 'Baja', 'floor_sotano': 'Sótano', 'floor_atico': 'Ático',
+        'type_apartamento': 'Apartamento', 'type_piso': 'Piso', 'type_atico': 'Ático',
+        'type_villa': 'Villa', 'type_chalet': 'Chalet', 'type_estudio': 'Estudio',
+        'type_casa': 'Casa', 'type_pareado': 'Pareado', 'type_adosado': 'Adosado'
     },
     'en': {
         unit_day: '/ night', unit_week: '/ week', unit_month: '/ month',
         lbl_in: 'Check-in', lbl_out: 'Check-out', 
-        btn_book: 'RESERVE', total: 'TOTAL', nights: 'nights',
+        total: 'TOTAL', nights: 'nights',
         no_data: 'Not available', plan_click: 'Click to enlarge',
-        
-        feat_capacity: 'Capacity', feat_beds: 'Bedrooms', feat_baths: 'Baths', 
+        feat_ref: 'Reference', feat_capacity: 'Capacity', feat_beds: 'Bedrooms', feat_baths: 'Baths', 
+        feat_built: 'Size', feat_plot: 'Plot', feat_terrace: 'Terrace',
+        feat_floor: 'Floor', feat_year: 'Year Built', feat_ibi: 'Tax (IBI)', feat_community: 'Community',
         feat_pool: 'Pool', feat_garage: 'Garage', feat_wifi: 'Wifi', 
-        feat_terrace: 'Terrace', feat_seaview: 'Sea Views', feat_ac: 'A/C',
-        feat_kitchen: 'Kitchen', feat_elevator: 'Elevator', feat_tv: 'TV',
+        feat_seaview: 'Sea Views', feat_ac: 'A/C',
+        feat_elevator: 'Elevator', feat_tv: 'TV',
         feat_heating: 'Heating', feat_furnished: 'Furnished',
-        feat_orient: 'Orientation', feat_built: 'Size', feat_plot: 'Plot',
-        feat_checkin: 'Check-in', feat_checkout: 'Check-out', feat_distmar: 'Dist. Beach',
-        feat_floor: 'Floor', feat_garden: 'Garden', feat_disabled: 'Disabled Access',
-        
+        feat_orient: 'Orientation', feat_checkin: 'Check-in', feat_checkout: 'Check-out', feat_distmar: 'Dist. Beach',
+        feat_garden: 'Garden', feat_disabled: 'Disabled Access',
         'role_founder': 'Founder & Agent', 'role_agent': 'Real Estate Agent',
         'role_rental': 'Rental Manager', 'agent_label': 'Listing Agent',
-        'btn_whatsapp': 'ASK ON WHATSAPP', 'txt_email': 'Email:', 'txt_phone': 'Phone:',
-        'modal_title': 'Select dates', 'modal_text': 'You must select a date range.', 'modal_btn': 'UNDERSTOOD',
+        'btn_whatsapp': 'ASK ON WHATSAPP', 
+        'txt_email': 'Email:', 'txt_phone': 'Phone:',
         'from': 'From',
-        
-        // Dynamic Values
+        'modal_title': 'Dates Required', 
+        'modal_text': 'To check availability with <strong>{agent}</strong>, please select your check-in and check-out dates first.', 
+        'modal_btn': 'UNDERSTOOD',
+        'wa_msg': 'Hello {agent}, I am interested in renting:\nProperty: {title} (Ref: {ref})\nDates: from {in} to {out}.\nIs it available?',
         'yes': 'Yes', 'u_pers': ' guests', 'u_m': ' m', 'u_m2': ' m²',
         'orient_sur': 'South', 'orient_norte': 'North', 'orient_este': 'East', 'orient_oeste': 'West',
         'orient_sureste': 'South-East', 'orient_suroeste': 'South-West', 'orient_noreste': 'North-East', 'orient_noroeste': 'North-West',
-        'floor_baja': 'Ground Floor', 'floor_sotano': 'Basement', 'floor_atico': 'Penthouse'
+        'floor_baja': 'Ground Floor', 'floor_sotano': 'Basement', 'floor_atico': 'Penthouse',
+        'type_apartamento': 'Apartment', 'type_piso': 'Flat', 'type_atico': 'Penthouse',
+        'type_villa': 'Villa', 'type_chalet': 'Chalet', 'type_estudio': 'Studio',
+        'type_casa': 'House', 'type_pareado': 'Semi-detached', 'type_adosado': 'Townhouse'
     },
     'sv': {
         unit_day: '/ natt', unit_week: '/ vecka', unit_month: '/ månad',
         lbl_in: 'Incheckning', lbl_out: 'Utcheckning', 
-        btn_book: 'BOKA', total: 'TOTALT', nights: 'nätter',
+        total: 'TOTALT', nights: 'nätter',
         no_data: 'Ej tillgänglig', plan_click: 'Klicka för att förstora',
-        
-        feat_capacity: 'Antal personer', feat_beds: 'Sovrum', feat_baths: 'Badrum', 
+        feat_ref: 'Referens', feat_capacity: 'Antal personer', feat_beds: 'Sovrum', feat_baths: 'Badrum', 
+        feat_built: 'Byggyta', feat_plot: 'Tomt', feat_terrace: 'Terrass',
+        feat_floor: 'Våning', feat_year: 'Byggår', feat_ibi: 'Skatt (IBI)', feat_community: 'Samfällighet',
         feat_pool: 'Pool', feat_garage: 'Garage', feat_wifi: 'Wifi', 
-        feat_terrace: 'Terrass', feat_seaview: 'Havsutsikt', feat_ac: 'Luftkond.',
-        feat_kitchen: 'Kök', feat_elevator: 'Hiss', feat_tv: 'TV',
+        feat_seaview: 'Havsutsikt', feat_ac: 'Luftkond.',
+        feat_elevator: 'Hiss', feat_tv: 'TV',
         feat_heating: 'Uppvärmning', feat_furnished: 'Möblerad',
-        feat_orient: 'Orientering', feat_built: 'Byggyta', feat_plot: 'Tomt',
-        feat_checkin: 'Incheckning', feat_checkout: 'Utcheckning', feat_distmar: 'Avstånd Strand',
-        feat_floor: 'Våning', feat_garden: 'Trädgård', feat_disabled: 'Handikappanpassat',
-        
+        feat_orient: 'Orientering', feat_checkin: 'Incheckning', feat_checkout: 'Utcheckning', feat_distmar: 'Avstånd Strand',
+        feat_garden: 'Trädgård', feat_disabled: 'Handikappanpassat',
         'role_founder': 'Grundare & Mäklare', 'role_agent': 'Fastighetsmäklare',
         'role_rental': 'Uthyrningschef', 'agent_label': 'Ansvarig Mäklare',
-        'btn_whatsapp': 'FRÅGA PÅ WHATSAPP', 'txt_email': 'E-post:', 'txt_phone': 'Telefon:',
-        'modal_title': 'Välj datum', 'modal_text': 'Du måste välja ett datumintervall.', 'modal_btn': 'JAG FÖRSTÅR',
+        'btn_whatsapp': 'FRÅGA PÅ WHATSAPP', 
+        'txt_email': 'E-post:', 'txt_phone': 'Telefon:',
         'from': 'Från',
-        
-        // Dynamic Values
+        'modal_title': 'Datum krävs', 
+        'modal_text': 'För att kontrollera tillgänglighet med <strong>{agent}</strong>, vänligen välj datum först.', 
+        'modal_btn': 'JAG FÖRSTÅR',
+        'wa_msg': 'Hej {agent}, jag är intresserad av att hyra:\nFastighet: {title} (Ref: {ref})\nDatum: från {in} till {out}.\nÄr den tillgänglig?',
         'yes': 'Ja', 'u_pers': ' personer', 'u_m': ' m', 'u_m2': ' m²',
         'orient_sur': 'Söder', 'orient_norte': 'Norr', 'orient_este': 'Öster', 'orient_oeste': 'Väster',
         'orient_sureste': 'Sydost', 'orient_suroeste': 'Sydväst', 'orient_noreste': 'Nordost', 'orient_noroeste': 'Nordväst',
-        'floor_baja': 'Bottenvåning', 'floor_sotano': 'Källare', 'floor_atico': 'Takvåning'
+        'floor_baja': 'Bottenvåning', 'floor_sotano': 'Källare', 'floor_atico': 'Takvåning',
+        'type_apartamento': 'Lägenhet', 'type_piso': 'Lägenhet', 'type_atico': 'Takvåning',
+        'type_villa': 'Villa', 'type_chalet': 'Chalet', 'type_estudio': 'Studio',
+        'type_casa': 'Hus', 'type_pareado': 'Parhus', 'type_adosado': 'Radhus'
     }
 };
 
@@ -130,12 +140,25 @@ function t(key) {
     return I18N_RENT_UI[lang][key] || key;
 }
 
-// HELPERS DE TRADUCCIÓN DE VALORES
+// --- HELPERS ---
+function formatPropType(rawType) {
+    if (!rawType) return '';
+    const safe = rawType.toLowerCase().trim();
+    if (safe.includes('apartamento')) return t('type_apartamento');
+    if (safe.includes('piso')) return t('type_piso');
+    if (safe.includes('ático') || safe.includes('atico')) return t('type_atico');
+    if (safe.includes('villa')) return t('type_villa');
+    if (safe.includes('chalet')) return t('type_chalet');
+    if (safe.includes('estudio')) return t('type_estudio');
+    if (safe.includes('casa')) return t('type_casa');
+    if (safe.includes('pareado')) return t('type_pareado');
+    if (safe.includes('adosado')) return t('type_adosado');
+    return rawType.charAt(0).toUpperCase() + rawType.slice(1);
+}
+
 function translateValue(val, type) {
     if (!val) return '';
     const v = val.toLowerCase().trim();
-    
-    // Mapas de traducción
     if (type === 'orient') {
         if (v.includes('sur') && v.includes('este')) return t('orient_sureste');
         if (v.includes('sur') && v.includes('oeste')) return t('orient_suroeste');
@@ -151,132 +174,98 @@ function translateValue(val, type) {
         if (v.includes('sotano') || v.includes('sótano')) return t('floor_sotano');
         if (v.includes('atico') || v.includes('ático')) return t('floor_atico');
     }
-    return val; // Si no hay traducción, devuelve original
+    return val;
 }
 
-// MODAL STYLES
+// --- MODAL DE VALIDACIÓN ---
 function injectValidationModalStyles() {
     if (document.getElementById('val-modal-styles')) return;
     const style = document.createElement('style');
     style.id = 'val-modal-styles';
-    style.innerHTML = `.val-modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:10000;opacity:0;pointer-events:none;transition:0.3s}.val-modal-overlay.active{opacity:1;pointer-events:auto}.val-modal-box{background:#fff;padding:35px;max-width:420px;width:90%;text-align:center;border-radius:4px;box-shadow:0 10px 30px rgba(0,0,0,0.2);transform:translateY(20px);transition:0.3s}.val-modal-overlay.active .val-modal-box{transform:translateY(0)}.val-modal-title{font-size:18px;font-weight:700;margin-bottom:15px;color:#000;text-transform:uppercase}.val-modal-text{font-size:14px;color:#555;line-height:1.6;margin-bottom:25px}.val-modal-btn{background:#000;color:#fff;border:none;padding:12px 25px;cursor:pointer;font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:1px}`;
+    style.innerHTML = `
+        .val-modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:10000;opacity:0;pointer-events:none;transition:0.3s}
+        .val-modal-overlay.active{opacity:1;pointer-events:auto}
+        .val-modal-box{background:#fff;padding:35px;max-width:420px;width:90%;text-align:center;border-radius:8px;box-shadow:0 10px 30px rgba(0,0,0,0.2);transform:translateY(20px);transition:0.3s}
+        .val-modal-overlay.active .val-modal-box{transform:translateY(0)}
+        .val-modal-title{font-size:18px;font-weight:700;margin-bottom:15px;color:#000;text-transform:uppercase}
+        .val-modal-text{font-size:15px;color:#555;line-height:1.6;margin-bottom:25px}
+        .val-modal-btn{background:#000;color:#fff;border:none;padding:12px 25px;cursor:pointer;font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:1px;border-radius:4px}
+    `;
     document.head.appendChild(style);
 }
 
-// --- SOPORTE TECLADO (ESC, FLECHAS) ---
+function showValidationModal(agentName) {
+    let modal = document.getElementById('val-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'val-modal';
+        modal.className = 'val-modal-overlay';
+        modal.innerHTML = `<div class="val-modal-box"><div class="val-modal-title" id="val-modal-title"></div><div class="val-modal-text" id="val-modal-text"></div><button class="val-modal-btn" id="val-modal-btn"></button></div>`;
+        document.body.appendChild(modal);
+        modal.querySelector('#val-modal-btn').addEventListener('click', () => modal.classList.remove('active'));
+        modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('active'); });
+    }
+    document.getElementById('val-modal-title').textContent = t('modal_title');
+    document.getElementById('val-modal-text').innerHTML = t('modal_text').replace('{agent}', agentName);
+    document.getElementById('val-modal-btn').textContent = t('modal_btn');
+    setTimeout(() => modal.classList.add('active'), 50);
+}
+
+// --- LIGHTBOX & NAVEGACIÓN ---
 function setupLightboxNavigation() {
     document.addEventListener('keydown', (e) => {
         const modal = document.getElementById('lightbox-modal');
         if (!modal || !modal.classList.contains('active')) return;
-
-        if (e.key === 'Escape') {
-            closeLightbox();
-        } else if (e.key === 'ArrowRight') {
-            changeLightboxSlide(1);
-        } else if (e.key === 'ArrowLeft') {
-            changeLightboxSlide(-1);
-        }
+        if (e.key === 'Escape') closeLightbox();
+        else if (e.key === 'ArrowRight') changeLightboxSlide(1);
+        else if (e.key === 'ArrowLeft') changeLightboxSlide(-1);
     });
 }
 
-// --- GENERADOR DE TÍTULOS INTELIGENTES ---
+// --- TÍTULOS & FORMATOS ---
 function generateSmartTitle(node) {
-    const lang = localStorage.getItem('preferredLang') || 'es';
-    let titleTag = 'titulo1'; 
-    let descTag = 'descrip1';
-    
-    if (lang === 'en') { titleTag = 'titulo2'; descTag = 'descrip2'; }
-    if (lang === 'sv') { titleTag = 'titulo9'; descTag = 'descrip9'; }
-
-    let title = node.querySelector(titleTag)?.textContent;
-    if (title && title.trim().length > 5) {
-        return title.replace(/<!\[CDATA\[|\]\]>/g, '').trim();
-    }
-    
-    title = node.querySelector('tituloweb')?.textContent || node.querySelector('titulo')?.textContent;
-    if (title && title.trim().length > 5) {
-        return title.replace(/<!\[CDATA\[|\]\]>/g, '').trim();
-    }
-
-    let desc = node.querySelector(descTag)?.textContent;
-    if (!desc) desc = node.querySelector('descrip1')?.textContent; 
-
-    if (desc) {
-        let cleanDesc = desc.replace(/<!\[CDATA\[|\]\]>/g, '').trim();
-        let firstPart = cleanDesc.split('~')[0].trim();
-        firstPart = firstPart.replace(/^[¡¿"-]+/, '').replace(/[!?:."]+$/, '');
-        if (firstPart.length > 10 && firstPart.length < 120) {
-            return firstPart.charAt(0).toUpperCase() + firstPart.slice(1);
-        }
-    }
-
+    const rawType = node.querySelector('tipo_ofer')?.textContent || 'Propiedad';
     const city = node.querySelector('poblacion')?.textContent || '';
-    const type = node.querySelector('tipo_ofer')?.textContent || 'Propiedad';
-    return `${type} en ${city}`;
+    const zone = node.querySelector('zona')?.textContent || '';
+    return `${formatPropType(rawType)} - ${zone || city}`;
 }
 
-// --- FORMATO INTELIGENTE DE TEXTO ---
 function smartFormatText(text) {
     if (!text) return "";
-    let html = text.replace(/<!\[CDATA\[|\]\]>/g, '')
-                   .replace(/~/g, '<br><br>')
-                   .replace(/—/g, '&mdash;')
-                   .replace(/\r\n/g, '\n');
-
+    let html = text.replace(/<!\[CDATA\[|\]\]>/g, '').replace(/~/g, '<br><br>').replace(/—/g, '&mdash;').replace(/\r\n/g, '\n');
     const listPattern = /(?:^|\n)\s*[•\-\*]\s+(.*?)(?=\n|$|<br>)/g;
     if (listPattern.test(html)) {
         html = html.replace(listPattern, '<li>$1</li>');
         html = html.replace(/(<li>.*?<\/li>)+/g, '<ul>$&</ul>');
     }
-    
     const keywords = ["Cocina", "Salón", "Dormitorio", "Baño", "Terraza", "Exterior", "Interior", "Planta baja", "Planta alta", "Ubicación", "Jardín", "Piscina", "Vistas"];
     keywords.forEach(word => {
         const regex = new RegExp(`(\\.\\s*|^|\\n|<br>)(${word})`, 'gi');
         html = html.replace(regex, '$1<strong>$2</strong>');
     });
-
-    const parts = html.split('<br><br>');
-    let finalHtml = "";
-    parts.forEach(part => {
-        let cleanPart = part.trim();
-        if (cleanPart.includes('<ul>')) finalHtml += cleanPart;
-        else if (cleanPart.length > 0) finalHtml += `<p class="desc-paragraph">${cleanPart}</p>`;
-    });
-    return finalHtml;
+    return html.split('<br><br>').map(p => p.trim()).filter(p => p.length > 0).map(p => p.includes('<ul>') ? p : `<p class="desc-paragraph">${p}</p>`).join('');
 }
 
-// --- INICIALIZACIÓN ---
+// --- INICIALIZACIÓN DE DATOS ---
 async function initRentPage() {
     const params = new URLSearchParams(window.location.search);
     const propId = params.get('id');
     if (!propId) { window.location.href = 'rent.html'; return; }
     try {
         const response = await fetch('assets/data/propiedades.xml');
-        if (!response.ok) throw new Error("XML Error");
         const str = await response.text();
-        const parser = new DOMParser();
-        const xmlDoc = parser.parseFromString(str, "text/xml");
-        const items = Array.from(xmlDoc.querySelectorAll("propiedad"));
+        const items = Array.from((new DOMParser()).parseFromString(str, "text/xml").querySelectorAll("propiedad"));
         allCachedItems = items; 
-        
-        const property = items.find(item => {
-            const idNode = item.querySelector("id");
-            return idNode && idNode.textContent.trim() === propId;
-        });
-        if (!property) throw new Error("Property not found");
-
-        currentProperty = property; // GUARDAR REFERENCIA GLOBAL PARA RE-RENDER
-
+        const property = items.find(item => item.querySelector("id")?.textContent.trim() === propId);
+        if (!property) throw new Error("Not found");
+        currentProperty = property; 
         renderRentDetails(property);
         renderRentFeatures(property);
         renderMultimediaGallery(property);
         renderSimilarRentals(property, items); 
-    } catch (e) {
-        console.error("Error:", e);
-    }
+    } catch (e) { console.error(e); }
 }
 
-// --- RENDERIZADO PRINCIPAL ---
 function renderRentDetails(node) {
     const getVal = (tags) => {
         if(!Array.isArray(tags)) tags = [tags];
@@ -288,118 +277,51 @@ function renderRentDetails(node) {
     };
 
     const lang = localStorage.getItem('preferredLang') || 'es';
-    const city = getVal(['ciudad', 'poblacion']);
-    const zone = getVal(['zona', 'area']);
-    const idRef = getVal('id');
-
-    let descTag = 'descrip1'; if(lang === 'en') descTag = 'descrip2'; if(lang === 'sv') descTag = 'descrip9';
-    let desc = getVal(descTag);
-    if(!desc || desc.length < 5) desc = getVal(['descrip1', 'descripcion']);
-
-    const catchyTitle = generateSmartTitle(node); 
-    const technicalTitle = `${getVal('tipo_ofer') || 'Propiedad'} en ${zone || city}`;
+    const city = getVal(['ciudad', 'poblacion']), zone = getVal(['zona', 'area']), idRef = getVal('id');
+    const technicalTitle = generateSmartTitle(node); 
     
     document.getElementById('prop-title').textContent = technicalTitle.toUpperCase();
     document.getElementById('prop-location').textContent = zone ? `${city} • ${zone}` : city;
     document.getElementById('prop-ref').textContent = `REF: ${idRef}`;
+    if(document.querySelector('.tab-inner-title')) document.querySelector('.tab-inner-title').textContent = technicalTitle;
+    document.getElementById('prop-description').innerHTML = smartFormatText(getVal(lang==='en'?'descrip2':(lang==='sv'?'descrip9':'descrip1')) || getVal(['descrip1', 'descripcion']));
 
-    const descTitleEl = document.querySelector('.tab-inner-title');
-    if(descTitleEl) descTitleEl.textContent = catchyTitle;
-    
-    document.getElementById('prop-description').innerHTML = smartFormatText(desc);
+    const lat = parseFloat(getVal(['latitud', 'lat'])), lng = parseFloat(getVal(['altitud', 'longitud', 'lng']));
+    if(!isNaN(lat) && !isNaN(lng) && lat !== 0) window.propCoords = { lat, lng };
+    updateTabVisibility('tab-map', !!window.propCoords);
 
-    const lat = parseFloat(getVal(['latitud', 'lat']));
-    const lng = parseFloat(getVal(['altitud', 'longitud', 'lng']));
-    let hasMap = false;
-    if(!isNaN(lat) && !isNaN(lng) && lat !== 0) { window.propCoords = { lat, lng }; hasMap = true; } 
-    updateTabVisibility('tab-map', hasMap);
+    let rentPriceVal = parseFloat(getVal(['precioalq']) || getVal('precio')) || 0;
+    rentPrice = rentPriceVal; 
 
-    const planCont = document.getElementById('plan-container');
-    let hasPlan = false;
-    let planUrl = getVal(['plano', 'plano1', 'url_plano']);
-    if (!planUrl || planUrl.length < 5) {
-        for(let i=1; i<=30; i++) {
-            const photoUrl = getVal(`foto${i}`);
-            if (photoUrl && (photoUrl.toLowerCase().includes('plan') || photoUrl.toLowerCase().includes('layout'))) {
-                planUrl = photoUrl; break;
-            }
-        }
-    }
-    if (planUrl && planUrl.length > 5 && planUrl !== '0') {
-        hasPlan = true;
-        if(planCont) planCont.innerHTML = `<div style="cursor: pointer; text-align:center; width:100%;" onclick="window.openSingleImage('${planUrl}')"><img src="${planUrl}" alt="Plano" style="max-height:500px; width:auto; max-width:100%; box-shadow: 0 5px 15px rgba(0,0,0,0.1);"><p style="margin-top: 15px; font-size: 0.9rem; color: #666; font-weight: 500;"><span style="font-size:1.2rem; vertical-align: middle;">🔍</span> ${t('plan_click')}</p></div>`;
-    }
-    updateTabVisibility('tab-plan', hasPlan);
-
-    let rawPrice = getVal(['precioalq']);
-    if(!rawPrice || rawPrice === '0') rawPrice = getVal('precio');
-    rentPrice = parseFloat(rawPrice) || 0;
-    
-    let unitLabel = t('unit_day');
-    const rawUnit = getVal('tipomensual'); 
-    if(rawUnit && rawUnit.toUpperCase().includes('SEM')) unitLabel = t('unit_week');
-    if(rawUnit && rawUnit.toUpperCase().includes('MES')) unitLabel = t('unit_month');
-
-    // PRECIO CON "DESDE"
     document.getElementById('rent-price-display').textContent = t('from') + ' ' + rentPrice + ' €';
-    
-    document.getElementById('rent-unit-display').textContent = unitLabel;
+    document.getElementById('rent-unit-display').textContent = getVal('tipomensual')?.toUpperCase().includes('SEM') ? t('unit_week') : (getVal('tipomensual')?.toUpperCase().includes('MES') ? t('unit_month') : t('unit_day'));
     document.getElementById('lbl-checkin').textContent = t('lbl_in');
     document.getElementById('lbl-checkout').textContent = t('lbl_out');
-    document.getElementById('btn-request-book').textContent = t('btn_book');
-
+    
     const agentName = getVal('agente') || 'MH Estate Team';
-    const agentPhone = getVal(['tlf_agente', 'telefono_agente']);
-    const agentEmail = getVal(['email_agente']) || 'info@mhestate.es';
     const agentPrefix = getVal('prefijo_tlf_agente') || '34';
-
-    let roleKey = 'agent_label';
-    let photoUrl = AGENT_PHOTOS['default'];
-    Object.keys(AGENT_PHOTOS).forEach(key => { if(key !== 'default' && agentName.includes(key)) photoUrl = AGENT_PHOTOS[key]; });
-    if (agentName.includes('Cecilia')) roleKey = 'role_founder';
-    else if (agentName.includes('Rebecca')) roleKey = 'role_agent';
-    else if (agentName.includes('Isidora')) roleKey = 'role_rental';
-
-    let finalPhone = agentPhone;
-    if(!finalPhone || finalPhone.trim() === "") {
-        if(agentName.includes("Rebecca")) finalPhone = "653 61 04 24"; 
-        else finalPhone = "604 12 94 65"; 
-    }
+    let finalPhone = getVal(['tlf_agente', 'telefono_agente']);
+    if(!finalPhone) finalPhone = agentName.includes("Rebecca") ? "653 61 04 24" : "604 12 94 65";
     const cleanNumber = (agentPrefix + finalPhone).replace(/\D/g, ''); 
 
-    const agentContainer = document.querySelector('.booking-agent-mini');
-    if(agentContainer) {
-        agentContainer.innerHTML = `
-            <div style="display:flex; align-items:center; gap:12px; margin-bottom:15px;">
-                <img src="${photoUrl}" class="booking-agent-img" alt="${agentName}">
-                <div>
-                    <div style="font-size:10px; text-transform:uppercase; color:#999; font-weight:700; letter-spacing:0.5px;">${t(roleKey)}</div>
-                    <h4 style="margin:0; font-size:15px; color:#000; font-weight:600;">${agentName}</h4>
-                </div>
-            </div>
-            <div style="font-size:13px; color:#555; margin-bottom:20px; border-bottom:1px solid #eee; padding-bottom:15px; line-height:1.6;">
-                <div style="margin-bottom:4px;"><strong style="color:#000;">${t('txt_email')}</strong> <br> ${agentEmail}</div>
-                <div><strong style="color:#000;">${t('txt_phone')}</strong> <br> +${agentPrefix} ${finalPhone}</div>
-            </div>
-            <a href="#" id="btn-whatsapp-dynamic" style="text-decoration:none; text-align:center; padding:15px; background:#25D366; color:#fff; font-size:13px; font-weight:700; border-radius:4px; display:flex; justify-content:center; align-items:center; gap:8px; text-transform:uppercase; transition: background 0.3s; margin-top:10px;">
-                <span style="font-size:18px;">💬</span> ${t('btn_whatsapp')}
-            </a>
-        `;
-        setTimeout(() => {
-            document.getElementById('btn-whatsapp-dynamic')?.addEventListener('click', (e) => {
-                e.preventDefault();
-                const inDate = document.getElementById('date-checkin').value;
-                const outDate = document.getElementById('date-checkout').value;
-                if(!inDate || !outDate) { showValidationModal(); } else {
-                    const msg = `Hola ${agentName}, disponibilidad:\nPropiedad: ${catchyTitle} (Ref: ${idRef})\nFechas: del ${inDate} al ${outDate}.`;
-                    window.open(`https://wa.me/${cleanNumber}?text=${encodeURIComponent(msg)}`, '_blank');
-                }
-            });
-        }, 100);
+    const bookBtn = document.getElementById('btn-request-book');
+    const inInput = document.getElementById('date-checkin'), outInput = document.getElementById('date-checkout');
+
+    if(bookBtn) {
+        bookBtn.textContent = '💬 ' + t('btn_whatsapp');
+        bookBtn.style.backgroundColor = '#25D366'; bookBtn.style.color = '#fff'; bookBtn.style.border = 'none';
+        const newBookBtn = bookBtn.cloneNode(true);
+        bookBtn.parentNode.replaceChild(newBookBtn, bookBtn);
+        newBookBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            if(!inInput.value || !outInput.value) { showValidationModal(agentName); return; }
+            let waMsg = t('wa_msg')
+                .replace('{agent}', agentName).replace('{title}', technicalTitle)
+                .replace('{ref}', idRef).replace('{in}', inInput.value).replace('{out}', outInput.value);
+            window.open(`https://wa.me/${cleanNumber}?text=${encodeURIComponent(waMsg)}`, '_blank');
+        });
     }
-    
-    const inInput = document.getElementById('date-checkin');
-    const outInput = document.getElementById('date-checkout');
+
     if(inInput && outInput) {
         const calculate = () => {
             if(inInput.value && outInput.value) {
@@ -416,136 +338,62 @@ function renderRentDetails(node) {
         inInput.addEventListener('change', calculate);
         outInput.addEventListener('change', calculate);
     }
-
-    document.getElementById('btn-request-book')?.addEventListener('click', (e) => {
-        e.preventDefault();
-        const inDate = inInput.value;
-        const outDate = outInput.value;
-        if(!inDate || !outDate) { showValidationModal(); return; }
-        const msg = `Hola ${agentName}, reservar:\nPropiedad: ${catchyTitle} (Ref: ${idRef})\nFechas: del ${inDate} al ${outDate}.`;
-        window.open(`https://wa.me/${cleanNumber}?text=${encodeURIComponent(msg)}`, '_blank');
-    });
 }
 
-// --- GALERÍA V40 (Hero + Mosaico) ---
 function renderMultimediaGallery(node) { 
     const container = document.getElementById('gallery-container');
     if(!container) return;
-    container.innerHTML = '';
     lightboxMedia = []; 
-
     const videoUrl = node.querySelector('videos video1')?.textContent?.trim();
     if (videoUrl) {
         let embedSrc = videoUrl;
-        if(videoUrl.includes('youtu')) {
-            const videoId = videoUrl.split('v=')[1]?.split('&')[0] || videoUrl.split('/').pop();
-            embedSrc = `https://www.youtube.com/embed/${videoId}`;
-        }
+        if(videoUrl.includes('youtu')) embedSrc = `https://www.youtube.com/embed/${videoUrl.split('v=')[1]?.split('&')[0] || videoUrl.split('/').pop()}`;
         lightboxMedia.push({ type: 'video', src: embedSrc });
     }
-
     for(let i=1; i<=50; i++) {
         const url = node.querySelector(`foto${i}`)?.textContent;
         if(url && url.startsWith('http')) lightboxMedia.push({ type: 'img', src: url });
     }
     if(lightboxMedia.length === 0) return;
-
-    // 1. HERO SUPERIOR
     const topItem = lightboxMedia[0];
-    let topHtml = topItem.type === 'video' 
-        ? `<div class="gallery-hero-item video-container" onclick="openLightbox(0)"><iframe src="${topItem.src}" frameborder="0" allowfullscreen style="pointer-events:none;"></iframe><div class="play-overlay">▶</div></div>`
-        : `<div class="gallery-hero-item" onclick="openLightbox(0)"><img src="${topItem.src}" alt="Principal"></div>`;
-
-    // 2. FILA INFERIOR
+    let topHtml = topItem.type === 'video' ? `<div class="gallery-hero-item video-container" onclick="openLightbox(0)"><iframe src="${topItem.src}" frameborder="0" allowfullscreen style="pointer-events:none;"></iframe><div class="play-overlay">▶</div></div>` : `<div class="gallery-hero-item" onclick="openLightbox(0)"><img src="${topItem.src}" alt="Principal"></div>`;
     let bottomRowHtml = '';
-    
     if (lightboxMedia.length > 1) {
-        const leftItem = lightboxMedia[1];
-        const leftHtml = `<div class="gallery-sub-main" onclick="openLightbox(1)"><img src="${leftItem.src}" alt="Secundaria"></div>`;
-
-        let rightGridHtml = '';
-        if (lightboxMedia.length > 2) {
-            rightGridHtml = '<div class="gallery-sub-grid">';
-            const max = Math.min(6, lightboxMedia.length); 
-            for (let i = 2; i < max; i++) {
-                let content = `<img src="${lightboxMedia[i].src}" alt="Foto">`;
-                if (i === 5 && lightboxMedia.length > 6) {
-                    content += `<div class="more-photos-overlay">+${lightboxMedia.length - 6}</div>`;
-                    rightGridHtml += `<div class="gallery-grid-item overlay-container" onclick="openLightbox(${i})">${content}</div>`;
-                } else {
-                    rightGridHtml += `<div class="gallery-grid-item" onclick="openLightbox(${i})">${content}</div>`;
-                }
-            }
-            rightGridHtml += '</div>';
-        }
-
-        bottomRowHtml = `<div class="gallery-bottom-row">${leftHtml}${rightGridHtml}</div>`;
+        let rightGridHtml = lightboxMedia.length > 2 ? `<div class="gallery-sub-grid">${lightboxMedia.slice(2, 6).map((img, i) => `<div class="gallery-grid-item ${i===3 && lightboxMedia.length > 6 ? 'overlay-container':''}" onclick="openLightbox(${i+2})"><img src="${img.src}">${i===3 && lightboxMedia.length > 6 ? `<div class="more-photos-overlay">+${lightboxMedia.length - 6}</div>`:''}</div>`).join('')}</div>` : '';
+        bottomRowHtml = `<div class="gallery-bottom-row"><div class="gallery-sub-main" onclick="openLightbox(1)"><img src="${lightboxMedia[1].src}"></div>${rightGridHtml}</div>`;
     }
-
-    container.innerHTML = `${topHtml}${bottomRowHtml}`;
+    container.innerHTML = topHtml + bottomRowHtml;
 }
 
-// --- FACTS (CON TRADUCCIÓN DINÁMICA DE VALORES) ---
 function renderRentFeatures(node) {
     const container = document.getElementById('tab-facts-content');
     if(!container) return;
     container.innerHTML = '';
+    const getVal = (tags) => { if(!Array.isArray(tags)) tags = [tags]; for(let t of tags) { const el = node.querySelector(t); if(el && el.textContent) return el.textContent.trim(); } return ''; };
+    const getNum = (tags) => { let total = 0; tags.forEach(t => { let val = parseFloat(node.querySelector(t)?.textContent || 0); if(!isNaN(val)) total += val; }); return total > 0 ? total.toString() : ''; };
+    const desc = ((node.querySelector('descrip1')?.textContent || '') + ' ' + (node.querySelector('descrip2')?.textContent || '')).toLowerCase();
     
-    const getVal = (tags) => { 
-        if(!Array.isArray(tags)) tags = [tags];
-        for(let t of tags) {
-            const el = node.querySelector(t);
-            if(el && el.textContent) return el.textContent.trim();
-        }
-        return ''; 
-    };
-
-    const getNum = (tags) => {
-        let total = 0;
-        tags.forEach(t => {
-            let val = parseFloat(node.querySelector(t)?.textContent || 0);
-            if(!isNaN(val)) total += val;
-        });
-        return total > 0 ? total.toString() : '';
-    };
-
-    // Función auxiliar para extraer solo números de un string (ej: "6 personas" -> "6")
-    const cleanToNum = (str) => {
-        if(!str) return '';
-        const match = str.match(/(\d+)/);
-        return match ? match[0] : str;
-    };
-
-    const desc = (node.querySelector('descrip1')?.textContent || '') + ' ' + (node.querySelector('descrip2')?.textContent || '');
-    const descLower = desc.toLowerCase();
-    const checkText = (keyRegex) => keyRegex.test(descLower);
-
-    // CONFIGURACIÓN DE ITEMS (Con Tipos y Sufijos Clave)
     const items = [
-        { key: 'feat_checkin', val: '16:00' }, 
-        { key: 'feat_checkout', val: '10:00' },
-        { key: 'feat_distmar', val: cleanToNum(getVal('distmar')), suffix: 'u_m' },
-        // Capacidad: Limpia el número y añade sufijo traducible
-        { key: 'feat_capacity', val: cleanToNum(getVal(['capacidad', 'personas'])) || (getNum(['habdobles', 'habitaciones']) ? (parseInt(getNum(['habdobles', 'habitaciones'])) * 2).toString() : ''), suffix: 'u_pers' },
-        
+        { key: 'feat_ref', val: getVal(['id', 'referencia']) },
+        { key: 'feat_checkin', val: '16:00' }, { key: 'feat_checkout', val: '10:00' },
+        { key: 'feat_distmar', val: (getVal('distmar').match(/(\d+)/) || [])[0], suffix: 'u_m' },
+        { key: 'feat_capacity', val: (getVal(['capacidad', 'personas']).match(/(\d+)/) || [])[0] || (getNum(['habdobles', 'habitaciones']) ? (parseInt(getNum(['habdobles', 'habitaciones'])) * 2).toString() : ''), suffix: 'u_pers' },
         { key: 'feat_beds', val: getNum(['habdobles', 'habitaciones', 'dormitorios']) },
         { key: 'feat_baths', val: getNum(['banyos', 'aseos', 'banos']) },
-        
         { key: 'feat_built', val: getVal(['m_cons', 'construido']), suffix: 'u_m2' },
         { key: 'feat_plot', val: getVal(['m_parcela', 'parcela']), suffix: 'u_m2' },
-        
-        // Floor y Orientación requieren traducción de valor
+        { key: 'feat_terrace', val: getVal(['m_terraza', 'terraza']), suffix: 'u_m2', ia: /(terraza)/ },
+        { key: 'feat_year', val: getVal(['antiguedad', 'ano_construccion']) },
+        { key: 'feat_ibi', val: getVal('ibi') ? parseFloat(getVal('ibi')).toLocaleString('de-DE') + ' €' : '' },
+        { key: 'feat_community', val: getVal(['comunidad', 'gastos_comunidad']) ? parseFloat(getVal(['comunidad'])).toLocaleString('de-DE') + ' €' : '' },
         { key: 'feat_floor', val: getVal(['planta', 'numplanta']), type: 'floor' },
-        { key: 'feat_orient', val: getVal('orientacion'), bool: false, type: 'orient' },
-        
+        { key: 'feat_orient', val: getVal('orientacion'), type: 'orient' },
         { key: 'feat_pool', val: getVal(['piscina', 'piscina_com', 'piscina_prop', 'pool']), bool: true, ia: /(piscina|pool|alberca)/ },
         { key: 'feat_garage', val: getVal(['garaje', 'parking', 'plaza_gara', 'cochera']), bool: true, ia: /(garaje|parking|aparcamiento)/ },
         { key: 'feat_wifi', val: getVal(['wifi', 'internet']), bool: true, ia: /(wifi|internet|fibra)/ },
-        { key: 'feat_terrace', val: getVal(['terraza', 'balcon', 'terrace']), bool: true, ia: /(terraza|terrace|balcon)/ },
         { key: 'feat_seaview', val: getVal(['vistasalmar', 'vistas_mar', 'primera_line']), bool: true, ia: /(vistas al mar|sea view|frente al mar)/ },
         { key: 'feat_ac', val: getVal(['aire_con', 'ac', 'airecentral']), bool: true, ia: /(aire acondicionado|air cond|a\/c|climatizaci)/ },
         { key: 'feat_heating', val: getVal(['calefaccion', 'heating']), bool: true, ia: /(calefacción|radiadores|suelo radiante)/ },
-        { key: 'feat_kitchen', val: getVal(['cocina_inde', 'cocina']), bool: true, ia: /(cocina equipada|kitchen|lavavajillas)/ },
         { key: 'feat_elevator', val: getVal('ascensor'), bool: true, ia: /(ascensor|elevator|lift)/ },
         { key: 'feat_tv', val: getVal(['tv', 'satelite']), bool: true, ia: /(tv|televisi|satelite)/ },
         { key: 'feat_furnished', val: getVal(['muebles', 'amueblado']), bool: true, ia: /(amueblado|furnished)/ },
@@ -555,93 +403,24 @@ function renderRentFeatures(node) {
 
     items.forEach(item => {
         let val = item.val;
-        
-        if (!val || val === '0' || val === '0.00' || val.trim() === '') {
-            if (item.ia && checkText(item.ia)) val = 'true'; else return; 
-        }
-
-        if (item.bool) {
-            // Check genérico de booleanos
-            if (val === '1' || val === 'true' || (parseInt(val) > 0 && val !== '0') || val === 'SI' || val === 'Sí') {
-                val = t('yes'); 
-            } else return; 
-        } else {
-            // Si no es booleano, intentar traducción de valor (orientación/planta)
-            if (item.type) {
-                val = translateValue(val, item.type);
-            }
-        }
-
-        if (item.suffix) {
-            val += t(item.suffix);
-        }
-        
-        const div = document.createElement('div');
-        div.className = 'tech-card';
-        div.innerHTML = `<span class="tech-label">${t(item.key)}</span><span class="tech-value">${val}</span>`;
-        container.appendChild(div);
+        if ((!val || val === '0' || val.trim()==='') && item.ia && item.ia.test(desc)) val = 'true';
+        if (!val || val === '0' || val.trim()==='') return;
+        if (item.bool) { if (val === '1' || val === 'true' || val === 'SI' || val === 'Sí') val = t('yes'); else return; }
+        else if (item.type) val = translateValue(val, item.type);
+        if (item.suffix) val += t(item.suffix);
+        container.innerHTML += `<div class="tech-card"><span class="tech-label">${t(item.key)}</span><span class="tech-value">${val}</span></div>`;
     });
-
-    if(container.children.length === 0) container.innerHTML = `<p style="grid-column:1/-1; text-align:center; color:#999;">${t('no_data')}</p>`;
 }
 
-// --- SIMILARES ---
 function renderSimilarRentals(current, allItems) {
     const container = document.getElementById('similar-container');
     if(!container) return;
-    const currentId = current.querySelector('id')?.textContent;
-    
-    let rentals = allItems.filter(p => {
-        const act = p.querySelector('accion')?.textContent || '';
-        const pid = p.querySelector('id')?.textContent;
-        return act.toLowerCase().includes('alquiler') && pid && pid !== currentId;
-    }).slice(0, 6);
-
-    container.innerHTML = '';
-    
-    rentals.forEach(p => {
-        const img = p.querySelector('foto1')?.textContent || 'assets/img/logo mh state negro.png';
-        const title = generateSmartTitle(p);
-        const city = p.querySelector('poblacion')?.textContent || '';
-        const price = p.querySelector('precioalq')?.textContent || p.querySelector('precio')?.textContent || '0';
-        const pid = p.querySelector('id')?.textContent;
-
-        let beds = p.querySelector('habitaciones')?.textContent;
-        if(!beds || beds === '0') beds = p.querySelector('habdobles')?.textContent;
-        if(!beds || beds === '0') beds = '-';
-
-        let baths = p.querySelector('banyos')?.textContent || p.querySelector('aseos')?.textContent || '-';
-        let size = p.querySelector('m_cons')?.textContent || '-';
-        if(size !== '-') size = Math.floor(parseFloat(size)); 
-
-        const card = document.createElement('div');
-        card.className = 'prop-card-mini';
-        card.onclick = () => window.location.href = `propiedad-rent.html?id=${pid}`;
-        
-        card.innerHTML = `
-            <div class="mini-img-wrapper">
-                <img src="${img}" alt="${title}">
-                <div class="mini-price-tag">${price} €</div>
-            </div>
-            <div class="mini-content">
-                <h4 class="mini-title">${title}</h4>
-                <p class="mini-loc">📍 ${city}</p>
-                <div class="mini-features">
-                    <span>🛏️ ${beds}</span>
-                    <span>🚿 ${baths}</span>
-                    <span>📐 ${size} m²</span>
-                </div>
-            </div>
-        `;
-        container.appendChild(card);
-    });
-
-    if(rentals.length > 3) {
-        const prev = document.getElementById('sim-prev');
-        const next = document.getElementById('sim-next');
-        if(prev) prev.onclick = () => container.scrollBy({left:-300, behavior:'smooth'});
-        if(next) next.onclick = () => container.scrollBy({left:300, behavior:'smooth'});
-    }
+    const cid = current.querySelector('id')?.textContent;
+    let rentals = allItems.filter(p => p.querySelector('accion')?.textContent.toLowerCase().includes('alquiler') && p.querySelector('id')?.textContent !== cid).slice(0, 6);
+    container.innerHTML = rentals.map(p => {
+        const id = p.querySelector('id')?.textContent;
+        return `<div class="prop-card-mini" onclick="window.location.href='propiedad-rent.html?id=${id}'"><div class="mini-img-wrapper"><img src="${p.querySelector('foto1')?.textContent || 'assets/img/logo mh state negro.png'}"><div class="mini-price-tag">${p.querySelector('precioalq')?.textContent || p.querySelector('precio')?.textContent || '0'} €</div></div><div class="mini-content"><h4 class="mini-title">${generateSmartTitle(p)}</h4><p class="mini-loc">📍 ${p.querySelector('poblacion')?.textContent || ''}</p></div></div>`;
+    }).join('');
 }
 
 function setupTabs() {
@@ -662,21 +441,32 @@ function setupTabs() {
         });
     });
 }
-function updateTabVisibility(tabName, isVisible) {
-    const btn = document.querySelector(`.tab-btn[data-tab="${tabName}"]`);
-    if(btn) btn.style.display = isVisible ? 'inline-block' : 'none';
+
+function updateTabVisibility(tabName, isVisible) { 
+    const btn = document.querySelector(`.tab-btn[data-tab="${tabName}"]`); 
+    if(btn) btn.style.display = isVisible ? 'inline-block' : 'none'; 
 }
-window.openSingleImage = (src) => {
-    const oldMedia = [...lightboxMedia]; lightboxMedia = [{type:'img', src: src}];
-    currentLightboxIndex = 0; document.getElementById('lightbox-modal').classList.add('active'); updateLightbox();
-    const modal = document.getElementById('lightbox-modal');
-    const restore = () => { lightboxMedia = oldMedia; modal.removeEventListener('click', checkClose); };
-    const checkClose = (e) => { if(e.target === modal || e.target.classList.contains('close-lightbox')) restore(); };
-    modal.addEventListener('click', checkClose);
+
+window.openSingleImage = (src) => { 
+    lightboxMedia = [{type:'img', src: src}]; 
+    currentLightboxIndex = 0; 
+    document.getElementById('lightbox-modal').classList.add('active'); 
+    updateLightbox(); 
 };
-window.openLightbox = (index) => { currentLightboxIndex = index; document.getElementById('lightbox-modal').classList.add('active'); updateLightbox(); };
+
+window.openLightbox = (index) => { 
+    currentLightboxIndex = index; 
+    document.getElementById('lightbox-modal').classList.add('active'); 
+    updateLightbox(); 
+};
+
 window.closeLightbox = () => document.getElementById('lightbox-modal').classList.remove('active');
-window.changeLightboxSlide = (n) => { currentLightboxIndex = (currentLightboxIndex + n + lightboxMedia.length) % lightboxMedia.length; updateLightbox(); };
+
+window.changeLightboxSlide = (n) => { 
+    currentLightboxIndex = (currentLightboxIndex + n + lightboxMedia.length) % lightboxMedia.length; 
+    updateLightbox(); 
+};
+
 function updateLightbox() {
     const item = lightboxMedia[currentLightboxIndex];
     document.getElementById('lightbox-media-container').innerHTML = item.type === 'video' ? `<iframe src="${item.src}?autoplay=1" frameborder="0" allowfullscreen></iframe>` : `<img src="${item.src}">`;

@@ -1,5 +1,7 @@
 /**
- * RENT.JS - V30.4 (TRANSICIÓN 5S + EFECTO SUAVE + PRECIO 'DESDE')
+ * RENT.JS - V33.0 (TÍTULOS TIPO-ZONA + LIMPIEZA)
+ * - Títulos forzados a formato: "Tipo - Zona".
+ * - Vista previa limpia (Sin Dorm, Solo Baños y Plazas).
  */
 
 const ITEMS_PER_PAGE = 6;
@@ -19,14 +21,21 @@ const I18N_RENT = {
         txt_p2: 'Contáctenos para encontrar su propiedad ideal.',
         btn_contact: 'CONTÁCTENOS',
         
-        lbl_dorm: 'DORM:', lbl_bath: 'BAÑOS:', lbl_cap: 'PLAZAS:',
+        lbl_bath: 'BAÑOS:', 
+        lbl_cap: 'PLAZAS:', 
+
         unit_night: '/ noche', unit_month: '/ mes', consult: 'Consultar',
         from: 'Desde',
 
         cat_holiday: 'VACACIONAL', cat_long: 'LARGA TEMPORADA',
         empty_title: 'No hay propiedades disponibles',
         empty_text: 'Actualmente no hay resultados para esta categoría.',
-        btn_interest: 'REGISTRAR INTERÉS'
+        btn_interest: 'REGISTRAR INTERÉS',
+
+        // Tipos para título
+        'type_apartamento': 'Apartamento', 'type_piso': 'Piso', 'type_atico': 'Ático',
+        'type_villa': 'Villa', 'type_chalet': 'Chalet', 'type_estudio': 'Estudio',
+        'type_casa': 'Casa', 'type_pareado': 'Pareado', 'type_adosado': 'Adosado'
     },
     'en': {
         title: 'For Rent', tab_all: 'DISCOVER ALL', tab_hol: 'HOLIDAY', tab_long: 'LONG TERM',
@@ -36,14 +45,18 @@ const I18N_RENT = {
         txt_p2: 'Contact us to find your perfect home.',
         btn_contact: 'CONTACT US',
         
-        lbl_dorm: 'BEDS:', lbl_bath: 'BATHS:', lbl_cap: 'GUESTS:',
+        lbl_bath: 'BATHS:', lbl_cap: 'GUESTS:',
         unit_night: '/ night', unit_month: '/ month', consult: 'On Request',
         from: 'From',
 
         cat_holiday: 'HOLIDAY', cat_long: 'LONG TERM',
         empty_title: 'No properties available',
         empty_text: 'Currently no properties in this category.',
-        btn_interest: 'REGISTER INTEREST'
+        btn_interest: 'REGISTER INTEREST',
+
+        'type_apartamento': 'Apartment', 'type_piso': 'Flat', 'type_atico': 'Penthouse',
+        'type_villa': 'Villa', 'type_chalet': 'Chalet', 'type_estudio': 'Studio',
+        'type_casa': 'House', 'type_pareado': 'Semi-detached', 'type_adosado': 'Townhouse'
     },
     'sv': {
         title: 'Uthyrning', tab_all: 'VISA ALLA', tab_hol: 'SEMESTER', tab_long: 'LÅNGTID',
@@ -53,16 +66,36 @@ const I18N_RENT = {
         txt_p2: 'Kontakta oss för att hitta ditt drömboende.',
         btn_contact: 'KONTAKTA OSS',
         
-        lbl_dorm: 'SOVR:', lbl_bath: 'BAD:', lbl_cap: 'PLATSER:',
+        lbl_bath: 'BAD:', lbl_cap: 'PLATSER:',
         unit_night: '/ natt', unit_month: '/ månad', consult: 'På begäran',
         from: 'Från',
 
         cat_holiday: 'SEMESTER', cat_long: 'LÅNGTID',
         empty_title: 'Inga bostäder tillgängliga',
         empty_text: 'För närvarande inga bostäder i denna kategori.',
-        btn_interest: 'ANMÄL DITT INTRESSE'
+        btn_interest: 'ANMÄL DITT INTRESSE',
+
+        'type_apartamento': 'Lägenhet', 'type_piso': 'Lägenhet', 'type_atico': 'Takvåning',
+        'type_villa': 'Villa', 'type_chalet': 'Chalet', 'type_estudio': 'Studio',
+        'type_casa': 'Hus', 'type_pareado': 'Parhus', 'type_adosado': 'Radhus'
     }
 };
+
+// HELPER PARA TIPO PROPIEDAD
+function formatRentType(rawType, dict) {
+    if (!rawType) return 'Propiedad';
+    const safe = rawType.toLowerCase().trim();
+    if (safe.includes('apartamento')) return dict.type_apartamento || 'Apartamento';
+    if (safe.includes('piso')) return dict.type_piso || 'Piso';
+    if (safe.includes('ático') || safe.includes('atico')) return dict.type_atico || 'Ático';
+    if (safe.includes('villa')) return dict.type_villa || 'Villa';
+    if (safe.includes('chalet')) return dict.type_chalet || 'Chalet';
+    if (safe.includes('estudio')) return dict.type_estudio || 'Estudio';
+    if (safe.includes('casa')) return dict.type_casa || 'Casa';
+    if (safe.includes('pareado')) return dict.type_pareado || 'Pareado';
+    if (safe.includes('adosado')) return dict.type_adosado || 'Adosado';
+    return rawType.charAt(0).toUpperCase() + rawType.slice(1);
+}
 
 document.addEventListener("DOMContentLoaded", () => {
     injectRentStyles(); 
@@ -100,11 +133,16 @@ function injectRentStyles() {
             grid-column: 1 / -1; text-align: center; padding: 60px 20px; 
             background: #fff; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-top: 20px;
         }
+        .slider-img {
+            opacity: 0; transition: opacity 1.5s ease-in-out; 
+        }
+        .slider-img.active {
+            opacity: 1;
+        }
     `;
     document.head.appendChild(style);
 }
 
-// --- HELPERS ---
 function getXMLValue(node, tags) {
     if (!Array.isArray(tags)) tags = [tags];
     for (const tag of tags) {
@@ -133,10 +171,11 @@ function extractNumFromDesc(text, type) {
     return null;
 }
 
-// --- CARGA DE DATOS ---
 async function fetchRentFromXML() {
     const container = document.getElementById('rent-grid');
     container.innerHTML = '<div class="loading-spinner"></div>';
+    const lang = localStorage.getItem('preferredLang') || 'es';
+    const dict = I18N_RENT[lang];
     
     try {
         const response = await fetch('assets/data/propiedades.xml');
@@ -164,20 +203,18 @@ async function fetchRentFromXML() {
                     getXMLValue(item, ['descrip2'])
                 ).toLowerCase();
 
-                // 1. TÍTULO AUTOMÁTICO (Si no hay explícito, usa ZONA - CIUDAD)
-                let title = getXMLValue(item, ['titulo', 'nombre', 'headline']);
-                if (!title) {
-                    const poblacion = getXMLValue(item, ['poblacion', 'ciudad']);
-                    const zona = getXMLValue(item, ['zona', 'area']);
-                    if (zona && poblacion) title = `${zona} – ${poblacion}`;
-                    else if (poblacion) title = poblacion;
-                    else title = "Propiedad en Alquiler";
-                }
+                // 1. TÍTULO FORZADO: TIPO - ZONA
+                const rawType = getXMLValue(item, ['tipo_ofer', 'tipo']) || 'Propiedad';
+                const zone = getXMLValue(item, ['zona', 'area']);
+                const city = getXMLValue(item, ['poblacion', 'ciudad']);
+                const typeTrans = formatRentType(rawType, dict);
+                
+                const title = `${typeTrans} - ${zone || city}`;
 
                 // 2. PRECIO
                 let price = getXMLValue(item, ['precioalq', 'precio_dia', 'precio']);
 
-                // 3. EXTRACCIÓN (Variables XML o Descripción)
+                // 3. EXTRACCIÓN
                 let dorm = getXMLValue(item, ['habitaciones', 'dormitorios']);
                 if (!dorm || dorm === '0') dorm = extractNumFromDesc(fullDesc, 'dorm');
 
@@ -185,11 +222,16 @@ async function fetchRentFromXML() {
                 if (!bath || bath === '0') bath = extractNumFromDesc(fullDesc, 'bath');
 
                 let cap = getXMLValue(item, ['personas', 'capacidad', 'camas', 'plazas']);
-                if (!cap || cap === '0') cap = extractNumFromDesc(fullDesc, 'cap');
+                if (!cap || cap === '0') {
+                    cap = extractNumFromDesc(fullDesc, 'cap');
+                    if (!cap && dorm && dorm !== '0') cap = (parseInt(dorm) * 2).toString();
+                }
 
                 allRentProperties.push({
                     id: getXMLValue(item, ['id', 'ref']),
                     name: title,
+                    rawType: rawType, // Guardamos para re-traducir si cambia idioma
+                    zone: zone || city,
                     category: accion.toLowerCase().includes("vacacional") ? "holiday" : "long_term",
                     price: price || "0",
                     dorm: dorm || "0",
@@ -229,7 +271,12 @@ function renderRentGrid() {
     if (toShow.length === 0) {
         container.innerHTML = `<div class="rent-empty-state"><h3 style="margin-bottom:10px;">${dict.empty_title}</h3><p>${dict.empty_text}</p></div>`;
     } else {
-        toShow.forEach(prop => container.appendChild(createRentCard(prop, dict)));
+        toShow.forEach(prop => {
+            // Re-generar título al renderizar por si cambió el idioma
+            const typeTrans = formatRentType(prop.rawType, dict);
+            prop.name = `${typeTrans} - ${prop.zone}`;
+            container.appendChild(createRentCard(prop, dict));
+        });
         setTimeout(initAutoSliders, 100);
     }
     
@@ -244,8 +291,7 @@ function createRentCard(prop, dict) {
     
     const finalTitle = prop.name.toUpperCase();
     const unit = prop.category === 'holiday' ? dict.unit_night : dict.unit_month;
-    // MODIFICACIÓN AQUÍ: Se añade "dict.from" antes del precio
-    const priceStr = (prop.price && prop.price !== '0') ? `${dict.from} € ${prop.price} ${unit}` : dict.consult;
+    const priceStr = (prop.price && prop.price !== '0') ? `${dict.from} ${prop.price}€ ${unit}` : dict.consult;
 
     let imagesHtml = '';
     prop.fotos.slice(0, 5).forEach((foto, index) => {
@@ -264,7 +310,6 @@ function createRentCard(prop, dict) {
                 </div>
 
                 <div class="rent-overlay-right">
-                    ${prop.dorm && prop.dorm !== '0' ? `<span><b>${dict.lbl_dorm}</b> ${prop.dorm}</span>` : ''}
                     ${prop.bath && prop.bath !== '0' ? `<span><b>${dict.lbl_bath}</b> ${prop.bath}</span>` : ''}
                     ${prop.cap && prop.cap !== '0' ? `<span><b>${dict.lbl_cap}</b> ${prop.cap}</span>` : ''}
                 </div>
@@ -281,7 +326,6 @@ function initAutoSliders() {
         const images = container.querySelectorAll('.slider-img');
         if (images.length <= 1) return;
         let currentIndex = 0;
-        // MODIFICACIÓN AQUÍ: 5000ms = 5 Segundos
         const interval = setInterval(() => {
             images[currentIndex].classList.remove('active');
             currentIndex = (currentIndex + 1) % images.length;
