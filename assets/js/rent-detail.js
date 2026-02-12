@@ -1,27 +1,27 @@
 /**
- * RENT-DETAIL.JS - V49.0 (WHATSAPP MULTI-IDIOMA & MODAL DINÁMICO)
- * - Mensaje de WhatsApp adaptado según el idioma (ES, EN, SV).
- * - Modal de validación con nombre del agente y cierre por clic/botón.
- * - Facts expandidos y Títulos técnicos "Tipo - Zona".
- * - Botón "Reservar" reemplazado por consulta directa.
+ * RENT-DETAIL.JS - V56.0 (SIMILAR CARDS MATCH RENT.HTML)
+ * - Propiedades Similares: Ahora usan el diseño .rent-layout-card (igual que rent.html).
+ * - Estilos Inyectados: Se añaden los estilos de tarjeta (gradiente, slider) dinámicamente.
+ * - Lógica Unificada: Extracción de datos para similares igual que en el listado principal.
  */
 
 document.addEventListener('DOMContentLoaded', () => {
     initRentPage();
     setupTabs();
     injectValidationModalStyles(); 
+    injectRentCardStyles(); // Nuevo: Estilos para las tarjetas similares
     setupLightboxNavigation(); 
 
-    // LISTENER PARA CAMBIO DE IDIOMA
     window.addEventListener('languageChanged', () => {
         if (currentProperty) {
             renderRentDetails(currentProperty);
             renderRentFeatures(currentProperty);
+            // Re-renderizar similares al cambiar idioma para actualizar etiquetas
+            if (allCachedItems.length > 0) renderSimilarRentals(currentProperty, allCachedItems);
         }
     });
 });
 
-// VARIABLES GLOBALES
 let lightboxMedia = []; 
 let currentLightboxIndex = 0;
 let mapInitialized = false;
@@ -38,14 +38,15 @@ const AGENT_PHOTOS = {
     'default': 'assets/img/logo mh state negro.png'
 };
 
-// TRADUCCIONES E INTERNACIONALIZACIÓN
 const I18N_RENT_UI = {
     'es': {
         unit_day: '/ noche', unit_week: '/ semana', unit_month: '/ mes',
         lbl_in: 'Llegada', lbl_out: 'Salida', 
         total: 'TOTAL', nights: 'noches',
         no_data: 'No disponible', plan_click: 'Clic para ampliar',
-        feat_ref: 'Referencia', feat_capacity: 'Capacidad', feat_beds: 'Plazas', feat_baths: 'Baños', 
+        feat_ref: 'Referencia', 
+        feat_capacity: 'Plazas', 
+        feat_beds: 'Dormitorios', feat_baths: 'Baños', 
         feat_built: 'Construido', feat_plot: 'Parcela', feat_terrace: 'Terraza', 
         feat_floor: 'Planta', feat_year: 'Año Const.', feat_ibi: 'IBI', feat_community: 'Comunidad',
         feat_pool: 'Piscina', feat_garage: 'Garaje', feat_wifi: 'Wifi', 
@@ -54,6 +55,12 @@ const I18N_RENT_UI = {
         feat_heating: 'Calefacción', feat_furnished: 'Amueblado',
         feat_orient: 'Orientación', feat_checkin: 'Check-in', feat_checkout: 'Check-out', feat_distmar: 'Dist. Playa',
         feat_garden: 'Jardín', feat_disabled: 'Acceso Adapt.',
+        feat_pets: 'Mascotas', feat_children: 'Niños',
+        
+        // ETIQUETAS PARA TARJETAS SIMILARES (Igual que rent.js)
+        lbl_card_bath: 'BAÑOS:', lbl_card_cap: 'PLAZAS:',
+        consult: 'Consultar',
+
         'role_founder': 'Fundadora y Agente', 'role_agent': 'Agente Inmobiliaria',
         'role_rental': 'Gestora de Alquileres', 'agent_label': 'Agente Responsable',
         'btn_whatsapp': 'CONSULTAR POR WHATSAPP', 
@@ -63,20 +70,24 @@ const I18N_RENT_UI = {
         'modal_text': 'Para poder consultar disponibilidad con <strong>{agent}</strong>, por favor seleccione primero las fechas de llegada y salida.', 
         'modal_btn': 'ENTENDIDO',
         'wa_msg': 'Hola {agent}, estoy interesado en alquilar:\nPropiedad: {title} (Ref: {ref})\nFechas deseadas: del {in} al {out}.\n¿Tienen disponibilidad?',
-        'yes': 'Sí', 'u_pers': ' pers.', 'u_m': ' m', 'u_m2': ' m²',
+        'yes': 'Sí', 'no': 'No', 
+        'u_m': ' m', 'u_m2': ' m²',
         'orient_sur': 'Sur', 'orient_norte': 'Norte', 'orient_este': 'Este', 'orient_oeste': 'Oeste',
         'orient_sureste': 'Sureste', 'orient_suroeste': 'Suroeste', 'orient_noreste': 'Noreste', 'orient_noroeste': 'Noroeste',
         'floor_baja': 'Baja', 'floor_sotano': 'Sótano', 'floor_atico': 'Ático',
         'type_apartamento': 'Apartamento', 'type_piso': 'Piso', 'type_atico': 'Ático',
         'type_villa': 'Villa', 'type_chalet': 'Chalet', 'type_estudio': 'Estudio',
-        'type_casa': 'Casa', 'type_pareado': 'Pareado', 'type_adosado': 'Adosado'
+        'type_casa': 'Casa', 'type_pareado': 'Pareado', 'type_adosado': 'Adosado',
+        'btn_email': 'Enviar Email'
     },
     'en': {
         unit_day: '/ night', unit_week: '/ week', unit_month: '/ month',
         lbl_in: 'Check-in', lbl_out: 'Check-out', 
         total: 'TOTAL', nights: 'nights',
         no_data: 'Not available', plan_click: 'Click to enlarge',
-        feat_ref: 'Reference', feat_capacity: 'Capacity', feat_beds: 'Bedrooms', feat_baths: 'Baths', 
+        feat_ref: 'Reference', 
+        feat_capacity: 'Beds', 
+        feat_beds: 'Bedrooms', feat_baths: 'Baths', 
         feat_built: 'Size', feat_plot: 'Plot', feat_terrace: 'Terrace',
         feat_floor: 'Floor', feat_year: 'Year Built', feat_ibi: 'Tax (IBI)', feat_community: 'Community',
         feat_pool: 'Pool', feat_garage: 'Garage', feat_wifi: 'Wifi', 
@@ -85,6 +96,11 @@ const I18N_RENT_UI = {
         feat_heating: 'Heating', feat_furnished: 'Furnished',
         feat_orient: 'Orientation', feat_checkin: 'Check-in', feat_checkout: 'Check-out', feat_distmar: 'Dist. Beach',
         feat_garden: 'Garden', feat_disabled: 'Disabled Access',
+        feat_pets: 'Pets', feat_children: 'Children',
+
+        lbl_card_bath: 'BATHS:', lbl_card_cap: 'BEDS:',
+        consult: 'On Request',
+
         'role_founder': 'Founder & Agent', 'role_agent': 'Real Estate Agent',
         'role_rental': 'Rental Manager', 'agent_label': 'Listing Agent',
         'btn_whatsapp': 'ASK ON WHATSAPP', 
@@ -94,20 +110,24 @@ const I18N_RENT_UI = {
         'modal_text': 'To check availability with <strong>{agent}</strong>, please select your check-in and check-out dates first.', 
         'modal_btn': 'UNDERSTOOD',
         'wa_msg': 'Hello {agent}, I am interested in renting:\nProperty: {title} (Ref: {ref})\nDates: from {in} to {out}.\nIs it available?',
-        'yes': 'Yes', 'u_pers': ' guests', 'u_m': ' m', 'u_m2': ' m²',
+        'yes': 'Yes', 'no': 'No', 
+        'u_m': ' m', 'u_m2': ' m²',
         'orient_sur': 'South', 'orient_norte': 'North', 'orient_este': 'East', 'orient_oeste': 'West',
         'orient_sureste': 'South-East', 'orient_suroeste': 'South-West', 'orient_noreste': 'North-East', 'orient_noroeste': 'North-West',
         'floor_baja': 'Ground Floor', 'floor_sotano': 'Basement', 'floor_atico': 'Penthouse',
         'type_apartamento': 'Apartment', 'type_piso': 'Flat', 'type_atico': 'Penthouse',
         'type_villa': 'Villa', 'type_chalet': 'Chalet', 'type_estudio': 'Studio',
-        'type_casa': 'House', 'type_pareado': 'Semi-detached', 'type_adosado': 'Townhouse'
+        'type_casa': 'House', 'type_pareado': 'Semi-detached', 'type_adosado': 'Townhouse',
+        'btn_email': 'Send Email'
     },
     'sv': {
         unit_day: '/ natt', unit_week: '/ vecka', unit_month: '/ månad',
         lbl_in: 'Incheckning', lbl_out: 'Utcheckning', 
         total: 'TOTALT', nights: 'nätter',
         no_data: 'Ej tillgänglig', plan_click: 'Klicka för att förstora',
-        feat_ref: 'Referens', feat_capacity: 'Antal personer', feat_beds: 'Sovrum', feat_baths: 'Badrum', 
+        feat_ref: 'Referens', 
+        feat_capacity: 'Sängar', 
+        feat_beds: 'Sovrum', feat_baths: 'Badrum', 
         feat_built: 'Byggyta', feat_plot: 'Tomt', feat_terrace: 'Terrass',
         feat_floor: 'Våning', feat_year: 'Byggår', feat_ibi: 'Skatt (IBI)', feat_community: 'Samfällighet',
         feat_pool: 'Pool', feat_garage: 'Garage', feat_wifi: 'Wifi', 
@@ -116,6 +136,11 @@ const I18N_RENT_UI = {
         feat_heating: 'Uppvärmning', feat_furnished: 'Möblerad',
         feat_orient: 'Orientering', feat_checkin: 'Incheckning', feat_checkout: 'Utcheckning', feat_distmar: 'Avstånd Strand',
         feat_garden: 'Trädgård', feat_disabled: 'Handikappanpassat',
+        feat_pets: 'Husdjur', feat_children: 'Barn',
+
+        lbl_card_bath: 'BAD:', lbl_card_cap: 'SÄNGAR:',
+        consult: 'På begäran',
+
         'role_founder': 'Grundare & Mäklare', 'role_agent': 'Fastighetsmäklare',
         'role_rental': 'Uthyrningschef', 'agent_label': 'Ansvarig Mäklare',
         'btn_whatsapp': 'FRÅGA PÅ WHATSAPP', 
@@ -125,13 +150,15 @@ const I18N_RENT_UI = {
         'modal_text': 'För att kontrollera tillgänglighet med <strong>{agent}</strong>, vänligen välj datum först.', 
         'modal_btn': 'JAG FÖRSTÅR',
         'wa_msg': 'Hej {agent}, jag är intresserad av att hyra:\nFastighet: {title} (Ref: {ref})\nDatum: från {in} till {out}.\nÄr den tillgänglig?',
-        'yes': 'Ja', 'u_pers': ' personer', 'u_m': ' m', 'u_m2': ' m²',
+        'yes': 'Ja', 'no': 'Nej', 
+        'u_m': ' m', 'u_m2': ' m²',
         'orient_sur': 'Söder', 'orient_norte': 'Norr', 'orient_este': 'Öster', 'orient_oeste': 'Väster',
         'orient_sureste': 'Sydost', 'orient_suroeste': 'Sydväst', 'orient_noreste': 'Nordost', 'orient_noroeste': 'Nordväst',
         'floor_baja': 'Bottenvåning', 'floor_sotano': 'Källare', 'floor_atico': 'Takvåning',
         'type_apartamento': 'Lägenhet', 'type_piso': 'Lägenhet', 'type_atico': 'Takvåning',
         'type_villa': 'Villa', 'type_chalet': 'Chalet', 'type_estudio': 'Studio',
-        'type_casa': 'Hus', 'type_pareado': 'Parhus', 'type_adosado': 'Radhus'
+        'type_casa': 'Hus', 'type_pareado': 'Parhus', 'type_adosado': 'Radhus',
+        'btn_email': 'Skicka E-post'
     }
 };
 
@@ -140,7 +167,6 @@ function t(key) {
     return I18N_RENT_UI[lang][key] || key;
 }
 
-// --- HELPERS ---
 function formatPropType(rawType) {
     if (!rawType) return '';
     const safe = rawType.toLowerCase().trim();
@@ -177,19 +203,34 @@ function translateValue(val, type) {
     return val;
 }
 
-// --- MODAL DE VALIDACIÓN ---
 function injectValidationModalStyles() {
     if (document.getElementById('val-modal-styles')) return;
     const style = document.createElement('style');
     style.id = 'val-modal-styles';
+    style.innerHTML = `.val-modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:10000;opacity:0;pointer-events:none;transition:0.3s}.val-modal-overlay.active{opacity:1;pointer-events:auto}.val-modal-box{background:#fff;padding:35px;max-width:420px;width:90%;text-align:center;border-radius:8px;box-shadow:0 10px 30px rgba(0,0,0,0.2);transform:translateY(20px);transition:0.3s}.val-modal-overlay.active .val-modal-box{transform:translateY(0)}.val-modal-title{font-size:18px;font-weight:700;margin-bottom:15px;color:#000;text-transform:uppercase}.val-modal-text{font-size:15px;color:#555;line-height:1.6;margin-bottom:25px}.val-modal-btn{background:#000;color:#fff;border:none;padding:12px 25px;cursor:pointer;font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:1px;border-radius:4px;}`;
+    document.head.appendChild(style);
+}
+
+function injectRentCardStyles() {
+    if (document.getElementById('rent-card-styles')) return;
+    const style = document.createElement('style');
+    style.id = 'rent-card-styles';
     style.innerHTML = `
-        .val-modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:10000;opacity:0;pointer-events:none;transition:0.3s}
-        .val-modal-overlay.active{opacity:1;pointer-events:auto}
-        .val-modal-box{background:#fff;padding:35px;max-width:420px;width:90%;text-align:center;border-radius:8px;box-shadow:0 10px 30px rgba(0,0,0,0.2);transform:translateY(20px);transition:0.3s}
-        .val-modal-overlay.active .val-modal-box{transform:translateY(0)}
-        .val-modal-title{font-size:18px;font-weight:700;margin-bottom:15px;color:#000;text-transform:uppercase}
-        .val-modal-text{font-size:15px;color:#555;line-height:1.6;margin-bottom:25px}
-        .val-modal-btn{background:#000;color:#fff;border:none;padding:12px 25px;cursor:pointer;font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:1px;border-radius:4px}
+        .rent-card-overlay-gradient {
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 75%;
+            background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.5) 50%, rgba(0,0,0,0) 100%);
+            z-index: 3; pointer-events: none;
+        }
+        .rent-layout-card {
+            /* Asegura que la tarjeta se vea bien en el contenedor de similares */
+            flex: 0 0 320px; /* Ancho fijo para el carrusel */
+            margin-right: 20px;
+            cursor: pointer;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #fff;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
     `;
     document.head.appendChild(style);
 }
@@ -211,7 +252,6 @@ function showValidationModal(agentName) {
     setTimeout(() => modal.classList.add('active'), 50);
 }
 
-// --- LIGHTBOX & NAVEGACIÓN ---
 function setupLightboxNavigation() {
     document.addEventListener('keydown', (e) => {
         const modal = document.getElementById('lightbox-modal');
@@ -222,7 +262,6 @@ function setupLightboxNavigation() {
     });
 }
 
-// --- TÍTULOS & FORMATOS ---
 function generateSmartTitle(node) {
     const rawType = node.querySelector('tipo_ofer')?.textContent || 'Propiedad';
     const city = node.querySelector('poblacion')?.textContent || '';
@@ -246,7 +285,23 @@ function smartFormatText(text) {
     return html.split('<br><br>').map(p => p.trim()).filter(p => p.length > 0).map(p => p.includes('<ul>') ? p : `<p class="desc-paragraph">${p}</p>`).join('');
 }
 
-// --- INICIALIZACIÓN DE DATOS ---
+// Helper para extraer números del texto (usado en similares para fallback)
+function extractNumFromDesc(text, type) {
+    if (!text) return null;
+    text = text.toLowerCase();
+    const numMap = { 'un': 1, 'una': 1, 'uno': 1, 'primer': 1, 'dos': 2, 'tres': 3, 'cuatro': 4, 'cinco': 5, 'seis': 6, 'siete': 7, 'ocho': 8, 'nueve': 9, 'diez': 10 };
+    let regex;
+    if (type === 'bath') regex = /(?:(\d+)|(un|una|dos|tres|cuatro|cinco))\s*(?:bañ|ban|aseo)/i;
+    else if (type === 'cap') regex = /(?:capacidad\s*(?:para)?\s*(\d+))|(?:(?:para|hasta)\s*(\d+)\s*personas)|(?:(\d+)\s*(?:plazas|camas|personas))/i;
+    const match = text.match(regex);
+    if (match) {
+        for (let i = 1; i < match.length; i++) {
+            if (match[i]) return numMap[match[i]] || match[i];
+        }
+    }
+    return null;
+}
+
 async function initRentPage() {
     const params = new URLSearchParams(window.location.search);
     const propId = params.get('id');
@@ -298,23 +353,61 @@ function renderRentDetails(node) {
     document.getElementById('lbl-checkin').textContent = t('lbl_in');
     document.getElementById('lbl-checkout').textContent = t('lbl_out');
     
+    // --- LÓGICA DEL AGENTE ---
     const agentName = getVal('agente') || 'MH Estate Team';
+    const agentEmail = getVal(['email_agente']) || 'info@mhestate.es';
+    const agentPhone = getVal(['tlf_agente', 'telefono_agente']);
     const agentPrefix = getVal('prefijo_tlf_agente') || '34';
-    let finalPhone = getVal(['tlf_agente', 'telefono_agente']);
-    if(!finalPhone) finalPhone = agentName.includes("Rebecca") ? "653 61 04 24" : "604 12 94 65";
+
+    let roleKey = 'agent_label';
+    let photoUrl = AGENT_PHOTOS['default'];
+    Object.keys(AGENT_PHOTOS).forEach(key => { if(key !== 'default' && agentName.includes(key)) photoUrl = AGENT_PHOTOS[key]; });
+    
+    if (agentName.includes('Cecilia')) roleKey = 'role_founder';
+    else if (agentName.includes('Rebecca')) roleKey = 'role_agent';
+    else if (agentName.includes('Isidora')) roleKey = 'role_rental';
+
+    let finalPhone = agentPhone;
+    if(!finalPhone || finalPhone.trim() === "") {
+        if(agentName.includes("Rebecca")) finalPhone = "653 61 04 24"; 
+        else finalPhone = "604 12 94 65"; 
+    }
     const cleanNumber = (agentPrefix + finalPhone).replace(/\D/g, ''); 
 
+    // Rellenar Datos
+    const labelEl = document.querySelector('.agent-label');
+    if(labelEl) labelEl.textContent = t(roleKey);
+
+    const nameEl = document.getElementById('agent-name');
+    if(nameEl) nameEl.textContent = agentName;
+
+    const imgEl = document.getElementById('agent-img');
+    if(imgEl) imgEl.src = photoUrl;
+
+    const bioEl = document.getElementById('agent-bio');
+    if(bioEl) {
+        let contactHtml = '';
+        if(agentEmail) contactHtml += `<div style="margin-bottom:5px;">✉️ ${agentEmail}</div>`;
+        if(finalPhone) contactHtml += `<div>📞 +${agentPrefix} ${finalPhone}</div>`;
+        bioEl.innerHTML = contactHtml || 'Contacta para más información.';
+        bioEl.style.fontStyle = 'normal'; bioEl.style.color = '#333';
+    }
+
+    // --- BOTÓN PRINCIPAL DE RESERVA (ARRIBA) ---
     const bookBtn = document.getElementById('btn-request-book');
     const inInput = document.getElementById('date-checkin'), outInput = document.getElementById('date-checkout');
 
     if(bookBtn) {
         bookBtn.textContent = '💬 ' + t('btn_whatsapp');
         bookBtn.style.backgroundColor = '#25D366'; bookBtn.style.color = '#fff'; bookBtn.style.border = 'none';
+        
         const newBookBtn = bookBtn.cloneNode(true);
         bookBtn.parentNode.replaceChild(newBookBtn, bookBtn);
+        
         newBookBtn.addEventListener('click', (e) => {
             e.preventDefault();
             if(!inInput.value || !outInput.value) { showValidationModal(agentName); return; }
+            
             let waMsg = t('wa_msg')
                 .replace('{agent}', agentName).replace('{title}', technicalTitle)
                 .replace('{ref}', idRef).replace('{in}', inInput.value).replace('{out}', outInput.value);
@@ -377,13 +470,15 @@ function renderRentFeatures(node) {
         { key: 'feat_ref', val: getVal(['id', 'referencia']) },
         { key: 'feat_checkin', val: '16:00' }, { key: 'feat_checkout', val: '10:00' },
         { key: 'feat_distmar', val: (getVal('distmar').match(/(\d+)/) || [])[0], suffix: 'u_m' },
-        { key: 'feat_capacity', val: (getVal(['capacidad', 'personas']).match(/(\d+)/) || [])[0] || (getNum(['habdobles', 'habitaciones']) ? (parseInt(getNum(['habdobles', 'habitaciones'])) * 2).toString() : ''), suffix: 'u_pers' },
+        { key: 'feat_capacity', val: (getVal(['capacidad', 'personas']).match(/(\d+)/) || [])[0] || (getNum(['habdobles', 'habitaciones']) ? (parseInt(getNum(['habdobles', 'habitaciones'])) * 2).toString() : ''), suffix: '' },
         { key: 'feat_beds', val: getNum(['habdobles', 'habitaciones', 'dormitorios']) },
         { key: 'feat_baths', val: getNum(['banyos', 'aseos', 'banos']) },
         { key: 'feat_built', val: getVal(['m_cons', 'construido']), suffix: 'u_m2' },
         { key: 'feat_plot', val: getVal(['m_parcela', 'parcela']), suffix: 'u_m2' },
         { key: 'feat_terrace', val: getVal(['m_terraza', 'terraza']), suffix: 'u_m2', ia: /(terraza)/ },
         { key: 'feat_year', val: getVal(['antiguedad', 'ano_construccion']) },
+        { key: 'feat_pets', val: getVal(['admitenmascotas', 'mascotas', 'animales']), isBoolExplicit: true },
+        { key: 'feat_children', val: getVal(['admitenninos', 'ninos', 'apt_ninos']), isBoolExplicit: true },
         { key: 'feat_ibi', val: getVal('ibi') ? parseFloat(getVal('ibi')).toLocaleString('de-DE') + ' €' : '' },
         { key: 'feat_community', val: getVal(['comunidad', 'gastos_comunidad']) ? parseFloat(getVal(['comunidad'])).toLocaleString('de-DE') + ' €' : '' },
         { key: 'feat_floor', val: getVal(['planta', 'numplanta']), type: 'floor' },
@@ -404,22 +499,88 @@ function renderRentFeatures(node) {
     items.forEach(item => {
         let val = item.val;
         if ((!val || val === '0' || val.trim()==='') && item.ia && item.ia.test(desc)) val = 'true';
-        if (!val || val === '0' || val.trim()==='') return;
-        if (item.bool) { if (val === '1' || val === 'true' || val === 'SI' || val === 'Sí') val = t('yes'); else return; }
-        else if (item.type) val = translateValue(val, item.type);
-        if (item.suffix) val += t(item.suffix);
+        if (!val || val.trim() === '') return;
+        if (item.isBoolExplicit) {
+            if (val === '1' || val === 'true' || val === 'SI' || val === 'Sí') val = t('yes');
+            else if (val === '0' || val === 'false' || val === 'NO' || val === 'No') val = t('no');
+            else return; 
+        } else {
+            if (val === '0' || val === '0.00' || val === '0 €' || val === '0 m²') return;
+            if (item.bool) { 
+                if (val === '1' || val === 'true' || val === 'SI' || val === 'Sí') val = t('yes'); 
+                else return; 
+            } else if (item.type) {
+                val = translateValue(val, item.type);
+            }
+            if (item.suffix) val += t(item.suffix);
+        }
         container.innerHTML += `<div class="tech-card"><span class="tech-label">${t(item.key)}</span><span class="tech-value">${val}</span></div>`;
     });
 }
 
+// --- NUEVA LÓGICA DE SIMILARES (Igual visualmente a rent.html) ---
 function renderSimilarRentals(current, allItems) {
     const container = document.getElementById('similar-container');
     if(!container) return;
-    const cid = current.querySelector('id')?.textContent;
-    let rentals = allItems.filter(p => p.querySelector('accion')?.textContent.toLowerCase().includes('alquiler') && p.querySelector('id')?.textContent !== cid).slice(0, 6);
+    
+    // Obtener valores auxiliares
+    const getVal = (n, tags) => {
+        if(!Array.isArray(tags)) tags = [tags];
+        for(let t of tags) { const el = n.querySelector(t); if(el && el.textContent) return el.textContent.trim(); }
+        return '';
+    };
+
+    const cid = getVal(current, ['id', 'referencia']);
+    
+    // Filtro: Solo alquiler, excluir actual, mostrar máx 6
+    let rentals = allItems.filter(p => {
+        const acc = getVal(p, ['accion', 'operacion']).toLowerCase();
+        const pid = getVal(p, ['id', 'referencia']);
+        return acc.includes('alquiler') && pid !== cid;
+    }).slice(0, 6);
+
+    // Generar HTML con estructura .rent-layout-card
     container.innerHTML = rentals.map(p => {
-        const id = p.querySelector('id')?.textContent;
-        return `<div class="prop-card-mini" onclick="window.location.href='propiedad-rent.html?id=${id}'"><div class="mini-img-wrapper"><img src="${p.querySelector('foto1')?.textContent || 'assets/img/logo mh state negro.png'}"><div class="mini-price-tag">${p.querySelector('precioalq')?.textContent || p.querySelector('precio')?.textContent || '0'} €</div></div><div class="mini-content"><h4 class="mini-title">${generateSmartTitle(p)}</h4><p class="mini-loc">📍 ${p.querySelector('poblacion')?.textContent || ''}</p></div></div>`;
+        const id = getVal(p, ['id', 'referencia']);
+        const title = generateSmartTitle(p);
+        const price = parseFloat(getVal(p, ['precioalq', 'precio'])).toLocaleString('de-DE') || '0';
+        const isHoliday = getVal(p, ['accion']).toLowerCase().includes('vacacional');
+        const unit = isHoliday ? t('unit_day') : t('unit_month');
+        
+        // Extracción de datos para overlay
+        let bath = getVal(p, ['banyos', 'aseos', 'banos']);
+        if (!bath || bath === '0') bath = extractNumFromDesc(getVal(p, ['descrip1', 'descripcion']), 'bath');
+        
+        // Extracción de capacidad (Plazas)
+        let cap = getVal(p, ['capacidad', 'personas']);
+        if (!cap || cap === '0') {
+            const dorm = getVal(p, ['habitaciones', 'dormitorios']);
+            if (dorm && dorm !== '0') cap = (parseInt(dorm) * 2).toString();
+        }
+
+        // Imagen (solo la primera, estática para similares para no cargar demasiado)
+        const img = getVal(p, 'foto1') || 'assets/img/logo mh state negro.png';
+
+        return `
+            <article class="rent-layout-card" onclick="window.location.href='propiedad-rent.html?id=${id}'">
+                <div class="rent-image-box" style="height:320px; position:relative;">
+                    <img src="${img}" style="width:100%; height:100%; object-fit:cover;" loading="lazy">
+                    <div class="rent-card-overlay-gradient"></div>
+                    
+                    <div class="rent-overlay-container" style="position:absolute; bottom:0; left:0; width:100%; padding:20px; display:flex; justify-content:space-between; align-items:flex-end; color:#fff; z-index:4;">
+                        <div class="rent-overlay-left">
+                            <h3 class="rent-card-title" style="margin:0; font-size:1.1rem; font-weight:600; text-shadow:0 2px 4px rgba(0,0,0,0.5);">${title.toUpperCase()}</h3>
+                            <div class="rent-card-price" style="font-size:1rem; font-weight:400; margin-top:5px; opacity:0.9;">${t('from')} ${price} € ${unit}</div>
+                        </div>
+
+                        <div class="rent-overlay-right" style="text-align:right; font-size:0.85rem; display:flex; flex-direction:column; gap:4px;">
+                            ${bath && bath !== '0' ? `<span><b>${t('lbl_card_bath')}</b> ${bath}</span>` : ''}
+                            ${cap && cap !== '0' ? `<span><b>${t('lbl_card_cap')}</b> ${cap}</span>` : ''}
+                        </div>
+                    </div>
+                </div>
+            </article>
+        `;
     }).join('');
 }
 

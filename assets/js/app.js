@@ -1,7 +1,9 @@
 /**
  * ============================================================
- * APP.JS - MOTOR V25.0 (BUSCADOR AGRESIVO MULTILINGÜE ES/EN/SV)
+ * APP.JS - MOTOR V26.0 (SOPORTE TECLA ENTER EN BUSCADOR)
  * ============================================================
+ * - Se ha actualizado initSearchLogic() para detectar la tecla ENTER
+ * dentro del formulario #search-form y ejecutar la búsqueda.
  */
 
 // --- 1. CONFIGURACIÓN Y VARIABLES GLOBALES ---
@@ -514,6 +516,7 @@ function checkSmartFeature(node, intent) {
 // ==========================================================
 
 function initSearchLogic() {
+    // 1. Manejo del clic en el botón (manteniendo la lógica previa)
     const buttons = document.querySelectorAll('button[onclick="executeSearch()"]');
     buttons.forEach(btn => {
         btn.removeAttribute('onclick'); 
@@ -522,6 +525,17 @@ function initSearchLogic() {
             handleSearchRedirect();
         });
     });
+
+    // 2. NUEVO: Detectar ENTER en todo el formulario #search-form
+    const searchForm = document.getElementById('search-form');
+    if (searchForm) {
+        searchForm.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault(); // Evita el submit tradicional del navegador
+                handleSearchRedirect();
+            }
+        });
+    }
 }
 
 function handleSearchRedirect() {

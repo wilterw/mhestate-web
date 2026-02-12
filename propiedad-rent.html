@@ -52,8 +52,7 @@
                     <button class="tab-btn active" data-tab="tab-desc" data-i18n="tab-desc">Descripción</button>
                     <button class="tab-btn" data-tab="tab-facts" data-i18n="tab-facts">Datos</button>
                     <button class="tab-btn" data-tab="tab-map" data-i18n="tab-map">Mapa</button>
-                    <button class="tab-btn" data-tab="tab-plan" data-i18n="tab-plan">Plano</button>
-                </div>
+                    </div>
             </div>
         </section>
 
@@ -95,10 +94,21 @@
                                             <span id="txt-total">0 €</span>
                                         </div>
                                     </div>
-                                    <button id="btn-request-book" class="btn-book-action">SOLICITAR RESERVA</button>
                                     
-                                    <div class="booking-agent-mini"></div>
+                                    <button id="btn-request-book" class="btn-book-action">SOLICITAR RESERVA</button>
                                 </div>
+
+                                <div style="height: 30px;"></div>
+
+                                <div class="agent-card">
+                                    <div class="agent-photo-wrapper"><img src="" id="agent-img" alt="Agente"></div>
+                                    <div class="agent-info">
+                                        <span class="agent-label">Agente Responsable</span>
+                                        <h3 id="agent-name">MH Team</h3>
+                                        <p id="agent-bio" class="agent-bio"></p> 
+                                    </div>
+                                </div>
+
                             </aside>
 
                         </div>
@@ -110,11 +120,7 @@
                     <div id="tab-map" class="tab-pane">
                         <div id="map-container" style="width: 100%; height: 450px; background: #eee; border-radius: 8px;"></div>
                     </div>
-                    <div id="tab-plan" class="tab-pane">
-                        <div id="plan-container" class="media-placeholder"><p data-i18n="no-data">Plano no disponible</p></div>
                     </div>
-
-                </div>
             </div>
         </section>
 
@@ -147,7 +153,8 @@
     <script src="assets/js/config.js"></script>
     <script src="assets/js/i18n.js"></script>
     <script src="assets/js/components.js"></script>
-    <script src="assets/js/rent-detail.js"></script> 
+    
+    <script src="assets/js/rent-detail.js?v=55"></script> 
 
 </body>
 </html>

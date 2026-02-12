@@ -1,7 +1,9 @@
 /**
- * RENT.JS - V33.0 (TÍTULOS TIPO-ZONA + LIMPIEZA)
- * - Títulos forzados a formato: "Tipo - Zona".
- * - Vista previa limpia (Sin Dorm, Solo Baños y Plazas).
+ * RENT.JS - V42.0 (CORRECCIÓN CRÍTICA: FORMULARIO DESAPARECIDO)
+ * - Bug Fix: Se elimina 'div' del selector en translateModalContent().
+ * Antes, al detectar la palabra "Contáctanos" dentro de un div contenedor,
+ * reemplazaba todo el HTML del formulario por texto plano.
+ * - Ahora solo traduce nodos de texto específicos (h1-h6, p, span, label, button).
  */
 
 const ITEMS_PER_PAGE = 6;
@@ -21,9 +23,7 @@ const I18N_RENT = {
         txt_p2: 'Contáctenos para encontrar su propiedad ideal.',
         btn_contact: 'CONTÁCTENOS',
         
-        lbl_bath: 'BAÑOS:', 
-        lbl_cap: 'PLAZAS:', 
-
+        lbl_bath: 'BAÑOS:', lbl_cap: 'PLAZAS:',
         unit_night: '/ noche', unit_month: '/ mes', consult: 'Consultar',
         from: 'Desde',
 
@@ -32,7 +32,23 @@ const I18N_RENT = {
         empty_text: 'Actualmente no hay resultados para esta categoría.',
         btn_interest: 'REGISTRAR INTERÉS',
 
-        // Tipos para título
+        long_term_title: 'Actualmente no tenemos viviendas disponibles para larga temporada.',
+        long_term_p1: 'Sin embargo, contamos con propietarios que pueden ofrecer sus viviendas por un número determinado de meses. 🏠📅',
+        long_term_p2: 'También es posible que tengamos nuevas viviendas en camino. ✨ Registra tu interés y te contactaremos tan pronto como tengamos algo que coincida con tus deseos. 🔑',
+        
+        // --- DICCIONARIO MODAL ---
+        modal_contact_header: 'CONTÁCTANOS',
+        modal_form_title: 'Contactar con el Agente',
+        modal_lbl_name: 'Nombre',
+        modal_lbl_email: 'Email',
+        modal_lbl_phone: 'Teléfono',
+        modal_lbl_msg: 'Mensaje',
+        modal_btn_send: 'ENVIAR MENSAJE',
+        
+        // ROLES
+        dept_title: 'Departamento de Alquileres',
+        role_manager: 'Gestora de Alquileres',
+
         'type_apartamento': 'Apartamento', 'type_piso': 'Piso', 'type_atico': 'Ático',
         'type_villa': 'Villa', 'type_chalet': 'Chalet', 'type_estudio': 'Estudio',
         'type_casa': 'Casa', 'type_pareado': 'Pareado', 'type_adosado': 'Adosado'
@@ -45,7 +61,7 @@ const I18N_RENT = {
         txt_p2: 'Contact us to find your perfect home.',
         btn_contact: 'CONTACT US',
         
-        lbl_bath: 'BATHS:', lbl_cap: 'GUESTS:',
+        lbl_bath: 'BATHS:', lbl_cap: 'BEDS:',
         unit_night: '/ night', unit_month: '/ month', consult: 'On Request',
         from: 'From',
 
@@ -53,6 +69,23 @@ const I18N_RENT = {
         empty_title: 'No properties available',
         empty_text: 'Currently no properties in this category.',
         btn_interest: 'REGISTER INTEREST',
+
+        long_term_title: 'Currently, we have no homes available for long-term rental.',
+        long_term_p1: 'However, we have homeowners who can offer their homes for rent for a certain number of months. 🏠📅',
+        long_term_p2: 'We may also have new homes on the way. ✨ Register your interest, and we will contact you as soon as we get something that matches your wishes. 🔑',
+
+        // --- MODAL DICTIONARY ---
+        modal_contact_header: 'CONTACT US',
+        modal_form_title: 'Contact Agent',
+        modal_lbl_name: 'Name',
+        modal_lbl_email: 'Email',
+        modal_lbl_phone: 'Phone',
+        modal_lbl_msg: 'Message',
+        modal_btn_send: 'SEND MESSAGE',
+        
+        // ROLES
+        dept_title: 'Rentals Department',
+        role_manager: 'Rental Manager',
 
         'type_apartamento': 'Apartment', 'type_piso': 'Flat', 'type_atico': 'Penthouse',
         'type_villa': 'Villa', 'type_chalet': 'Chalet', 'type_estudio': 'Studio',
@@ -66,7 +99,7 @@ const I18N_RENT = {
         txt_p2: 'Kontakta oss för att hitta ditt drömboende.',
         btn_contact: 'KONTAKTA OSS',
         
-        lbl_bath: 'BAD:', lbl_cap: 'PLATSER:',
+        lbl_bath: 'BAD:', lbl_cap: 'SÄNGAR:',
         unit_night: '/ natt', unit_month: '/ månad', consult: 'På begäran',
         from: 'Från',
 
@@ -74,6 +107,23 @@ const I18N_RENT = {
         empty_title: 'Inga bostäder tillgängliga',
         empty_text: 'För närvarande inga bostäder i denna kategori.',
         btn_interest: 'ANMÄL DITT INTRESSE',
+
+        long_term_title: 'Just nu har vi inga bostäder tillgängliga för långtidsuthyrning.',
+        long_term_p1: 'Däremot har vi bostadsägare som kan erbjuda sina bostäder för uthyrning under ett visst antal månader. 🏠📅',
+        long_term_p2: 'Vi kan även ha nya bostäder på väg in. ✨ Anmäl ditt intresse så kontaktar vi dig så snart vi får in något som matchar dina önskemål. 🔑',
+
+        // --- MODAL DICTIONARY ---
+        modal_contact_header: 'KONTAKTA OSS',
+        modal_form_title: 'Kontakta Mäklare',
+        modal_lbl_name: 'Namn',
+        modal_lbl_email: 'E-post',
+        modal_lbl_phone: 'Telefon',
+        modal_lbl_msg: 'Meddelande',
+        modal_btn_send: 'SKICKA MEDDELANDE',
+        
+        // ROLES
+        dept_title: 'Uthyrningsavdelning',
+        role_manager: 'Uthyrningschef',
 
         'type_apartamento': 'Lägenhet', 'type_piso': 'Lägenhet', 'type_atico': 'Takvåning',
         'type_villa': 'Villa', 'type_chalet': 'Chalet', 'type_estudio': 'Studio',
@@ -101,7 +151,7 @@ document.addEventListener("DOMContentLoaded", () => {
     injectRentStyles(); 
     translateRentUI();
     fetchRentFromXML(); 
-    initGlobalContactModal(); 
+    setupContactButtons(); 
 
     document.querySelectorAll('.rent-tab').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -116,6 +166,9 @@ document.addEventListener("DOMContentLoaded", () => {
     window.addEventListener('languageChanged', () => {
         translateRentUI();
         renderRentGrid(); 
+        if(document.getElementById('contact-modal') && document.getElementById('contact-modal').classList.contains('active')) {
+            translateModalContent();
+        }
     });
 });
 
@@ -203,18 +256,14 @@ async function fetchRentFromXML() {
                     getXMLValue(item, ['descrip2'])
                 ).toLowerCase();
 
-                // 1. TÍTULO FORZADO: TIPO - ZONA
                 const rawType = getXMLValue(item, ['tipo_ofer', 'tipo']) || 'Propiedad';
                 const zone = getXMLValue(item, ['zona', 'area']);
                 const city = getXMLValue(item, ['poblacion', 'ciudad']);
                 const typeTrans = formatRentType(rawType, dict);
                 
                 const title = `${typeTrans} - ${zone || city}`;
-
-                // 2. PRECIO
                 let price = getXMLValue(item, ['precioalq', 'precio_dia', 'precio']);
 
-                // 3. EXTRACCIÓN
                 let dorm = getXMLValue(item, ['habitaciones', 'dormitorios']);
                 if (!dorm || dorm === '0') dorm = extractNumFromDesc(fullDesc, 'dorm');
 
@@ -256,6 +305,42 @@ function renderRentGrid() {
     const lang = localStorage.getItem('preferredLang') || 'es';
     const dict = I18N_RENT[lang];
 
+    // --- BLOQUE INTERCEPTOR: LARGA TEMPORADA ---
+    if (currentCategory === 'long_term') {
+        container.innerHTML = `
+            <div class="long-term-message-container" style="grid-column: 1 / -1; text-align: center; padding: 80px 20px; background: #fff; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); font-family: 'Inter', sans-serif;">
+                <img src="assets/img/logo mh state negro.png" alt="MH Estate" style="max-width: 150px; display: block; margin: 0 auto 30px auto;">
+
+                <h3 style="font-size: 1.6rem; color: #000; margin-bottom: 25px; font-weight: 700; text-transform: uppercase; letter-spacing: -0.5px;">
+                    ${dict.long_term_title}
+                </h3>
+
+                <p style="font-size: 1.15rem; color: #444; max-width: 750px; margin: 0 auto 20px; line-height: 1.7;">
+                    ${dict.long_term_p1}
+                </p>
+                <p style="font-size: 1.15rem; color: #444; max-width: 750px; margin: 0 auto 40px; line-height: 1.7;">
+                    ${dict.long_term_p2}
+                </p>
+                
+                <a href="contact.html" class="btn-valuable-gold btn-contact-trigger" style="text-decoration:none; display:inline-block; font-weight: 600; letter-spacing: 1px;">
+                    ${dict.btn_interest}
+                </a>
+            </div>
+        `;
+        paginationContainer.innerHTML = "";
+        
+        // Re-asignar evento al botón dinámico
+        const newBtn = container.querySelector('.btn-contact-trigger');
+        if (newBtn) {
+            newBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                openRentModal();
+            });
+        }
+        return;
+    }
+    // --------------------------------------------------
+
     let filtered = allRentProperties;
     if (currentCategory !== 'all') filtered = allRentProperties.filter(p => p.category === currentCategory);
 
@@ -272,7 +357,6 @@ function renderRentGrid() {
         container.innerHTML = `<div class="rent-empty-state"><h3 style="margin-bottom:10px;">${dict.empty_title}</h3><p>${dict.empty_text}</p></div>`;
     } else {
         toShow.forEach(prop => {
-            // Re-generar título al renderizar por si cambió el idioma
             const typeTrans = formatRentType(prop.rawType, dict);
             prop.name = `${typeTrans} - ${prop.zone}`;
             container.appendChild(createRentCard(prop, dict));
@@ -366,32 +450,106 @@ function translateRentUI() {
     for (const [id, text] of Object.entries(map)) { const el = document.getElementById(id); if(el) el.innerText = text; }
 }
 
-function initGlobalContactModal() {
-    document.querySelectorAll('.btn-contact-trigger, .contact-trigger').forEach(btn => {
-        const newBtn = btn.cloneNode(true); btn.parentNode.replaceChild(newBtn, btn);
-        newBtn.addEventListener('click', async (e) => {
-            e.preventDefault();
-            let modal = document.getElementById('contact-modal');
-            const closeModal = () => { if(modal) { modal.classList.remove('active'); document.body.style.overflow = ''; } };
-            if (modal) { modal.classList.add('active'); document.body.style.overflow = 'hidden'; } else {
-                try {
-                    const resp = await fetch('contact-rent.html?v=' + Date.now());
-                    const html = await resp.text();
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(html, 'text/html');
-                    modal = document.createElement('div'); modal.id = 'contact-modal'; modal.className = 'modal-overlay';
-                    modal.innerHTML = `<div class="modal-container"><button class="modal-close-btn">&times;</button><div class="modal-header-logo"><img src="assets/img/logo mh state negro.png" alt="MH ESTATE" style="max-width:150px;"></div><div id="modal-content-injector"></div></div>`;
-                    const contactSection = doc.querySelector('.contact-section') || doc.querySelector('main');
-                    if (contactSection) {
-                        modal.querySelector('#modal-content-injector').innerHTML = contactSection.innerHTML;
-                        doc.querySelectorAll('script').forEach(s => { const ns = document.createElement('script'); ns.textContent = s.textContent; document.body.appendChild(ns); });
-                        document.body.appendChild(modal);
-                        modal.querySelector('.modal-close-btn').addEventListener('click', closeModal);
-                        modal.classList.add('active'); document.body.style.overflow = 'hidden';
-                        if (window.langManager) window.langManager.translatePage();
-                    }
-                } catch (error) { window.location.href = 'contact.html'; }
+// --- TRADUCTOR CONTENIDO MODAL (CORREGIDO) ---
+function translateModalContent() {
+    const lang = localStorage.getItem('preferredLang') || 'es';
+    const dict = I18N_RENT[lang];
+    const modal = document.getElementById('contact-modal');
+    if(!modal) return;
+
+    // Etiquetas Formulario
+    const selectors = [
+        { sel: 'label[for*="name"], label[for*="nombre"]', text: dict.modal_lbl_name },
+        { sel: 'label[for*="email"], label[for*="correo"]', text: dict.modal_lbl_email },
+        { sel: 'label[for*="phone"], label[for*="tel"]', text: dict.modal_lbl_phone },
+        { sel: 'label[for*="msg"], label[for*="message"], label[for*="mensaje"]', text: dict.modal_lbl_msg },
+        { sel: 'button[type="submit"]', text: dict.modal_btn_send }
+    ];
+    selectors.forEach(item => {
+        const els = modal.querySelectorAll(item.sel);
+        els.forEach(el => { if(el) el.textContent = item.text; });
+    });
+
+    // Reemplazo de Textos Específicos (Sin usar DIV para evitar borrado de bloques)
+    const textElements = modal.querySelectorAll('h1, h2, h3, h4, p, span, b, strong'); 
+    textElements.forEach(el => {
+        const txt = el.textContent.trim().toUpperCase();
+        
+        if (txt.includes('DEPARTAMENTO DE ALQUILERES')) el.textContent = dict.dept_title;
+        if (txt.includes('GESTORA DE ALQUILERES')) el.textContent = dict.role_manager;
+        
+        // TRADUCCIÓN FORZADA DE "CONTÁCTANOS" (Solo en encabezados, no en divs padres)
+        if (txt === 'CONTACTANOS' || txt === 'CONTÁCTANOS' || txt === 'CONTACT US' || txt.includes('CONTÁCTANOS')) {
+            el.textContent = dict.modal_contact_header;
+        }
+    });
+}
+
+// --- FUNCIÓN PRINCIPAL PARA ABRIR MODAL ---
+async function openRentModal() {
+    let modal = document.getElementById('contact-modal');
+    
+    // 1. Crear si no existe
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'contact-modal';
+        modal.className = 'modal-overlay';
+        modal.innerHTML = `<div class="modal-container"><button class="modal-close-btn">&times;</button><div class="modal-header-logo"><img src="assets/img/logo mh state negro.png" alt="MH ESTATE" style="max-width:150px;"></div><div id="modal-content-injector"></div></div>`;
+        document.body.appendChild(modal);
+        
+        modal.querySelector('.modal-close-btn').addEventListener('click', () => {
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+        });
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.classList.remove('active');
+                document.body.style.overflow = '';
             }
+        });
+    }
+
+    // 2. Verificar contenido y cargar si es necesario
+    const injector = modal.querySelector('#modal-content-injector');
+    if (injector && injector.innerHTML.trim().length < 50) {
+        try {
+            const resp = await fetch('contact-rent.html');
+            if (resp.ok) {
+                const html = await resp.text();
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const contactSection = doc.querySelector('.contact-section') || doc.querySelector('main') || doc.body;
+                
+                injector.innerHTML = contactSection.innerHTML;
+                
+                doc.querySelectorAll('script').forEach(s => {
+                    const ns = document.createElement('script');
+                    ns.textContent = s.textContent;
+                    document.body.appendChild(ns);
+                });
+            } else {
+                throw new Error('Fetch failed');
+            }
+        } catch (e) {
+            console.error(e);
+            window.location.href = 'contact.html';
+            return;
+        }
+    }
+
+    // 3. Traducir y Mostrar
+    translateModalContent();
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function setupContactButtons() {
+    document.querySelectorAll('.btn-contact-trigger, .contact-trigger').forEach(btn => {
+        if(btn.dataset.hasModalListener) return;
+        btn.dataset.hasModalListener = "true";
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            openRentModal();
         });
     });
 }
