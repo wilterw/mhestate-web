@@ -1,9 +1,10 @@
 /**
  * ============================================================
- * APP.JS - MOTOR V26.0 (SOPORTE TECLA ENTER EN BUSCADOR)
+ * APP.JS - MOTOR V27.0 (WEBHOOK CONTACTO + ENTER BUSCADOR)
  * ============================================================
- * - Se ha actualizado initSearchLogic() para detectar la tecla ENTER
- * dentro del formulario #search-form y ejecutar la búsqueda.
+ * - Se integra la lógica de envío de formulario al Webhook n8n.
+ * - Soporte para Contacto General y Alquileres.
+ * - Mantiene búsqueda con ENTER y lógica previa.
  */
 
 // --- 1. CONFIGURACIÓN Y VARIABLES GLOBALES ---
@@ -17,6 +18,9 @@ let currentPage = 0;
 let homeCurrentPage = 0;  
 
 let propertiesPerPage = 2; 
+
+// URL DEL WEBHOOK (n8n)
+const WEBHOOK_URL = "https://paneln8n.econos.io/webhook/correo-mhestate";
 
 // Traducciones de Tipos
 const I18N_TYPES = {
@@ -80,7 +84,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
         setupFilterInteractions(); 
         initSearchLogic();         
-        initFormValidation();
+        initContactFormLogic(); // NUEVA FUNCIÓN DE ENVÍO
 
         await loadAndStoreProperties();
         populateCitySelect();
@@ -752,29 +756,75 @@ window.applyLocationFilter = function(locs) {
     window.location.href = `buy.html?loc=${encodeURIComponent(locs)}`;
 };
 
-// --- VALIDACIÓN DE FORMULARIO (EMAIL O TELÉFONO) ---
-function initFormValidation() {
-    document.addEventListener('submit', function(e) {
+// --- ENVÍO DE FORMULARIO A WEBHOOK (VALIDACIÓN + FETCH) ---
+function initContactFormLogic() {
+    // Usamos delegación de eventos en el document para capturar 
+    // tanto el formulario estático como el dinámico (modal)
+    document.addEventListener('submit', async function(e) {
         if (e.target && e.target.classList.contains('contact-form')) {
+            e.preventDefault();
             const form = e.target;
-            const emailInput = form.querySelector('input[type="email"]');
-            const phoneInput = form.querySelector('input[type="tel"]');
             
-            const emailVal = emailInput ? emailInput.value.trim() : '';
-            const phoneVal = phoneInput ? phoneInput.value.trim() : '';
-
-            if (emailVal === '' && phoneVal === '') {
-                e.preventDefault(); 
+            // 1. Recolección de Datos
+            const name = form.querySelector('input[data-i18n="ph-name"]')?.value || '';
+            const lastname = form.querySelector('input[data-i18n="ph-lastname"]')?.value || '';
+            const email = form.querySelector('input[type="email"]')?.value || '';
+            const phone = form.querySelector('input[type="tel"]')?.value || '';
+            const message = form.querySelector('textarea')?.value || '';
+            
+            // 2. Validación Básica
+            if (email.trim() === '' && phone.trim() === '') {
                 alert("Por favor, proporcione al menos un método de contacto (Email o Teléfono).");
-                if(emailInput) emailInput.style.borderColor = "red";
-                if(phoneInput) phoneInput.style.borderColor = "red";
-                
-                const clearError = (ev) => ev.target.style.borderColor = "";
-                if(emailInput) emailInput.oninput = clearError;
-                if(phoneInput) phoneInput.oninput = clearError;
+                return;
+            }
+
+            // 3. Preparación UI
+            const btn = form.querySelector('button[type="submit"]');
+            const originalText = btn.innerText;
+            btn.disabled = true;
+            btn.innerText = "ENVIANDO...";
+
+            // 4. Payload para n8n
+            const payload = {
+                nombre: name,
+                apellido: lastname,
+                email: email,
+                telefono: phone,
+                mensaje: message,
+                origen: window.location.pathname, // Identifica si viene de Rent o Contact
+                fecha: new Date().toISOString()
+            };
+
+            // 5. Envío
+            try {
+                const response = await fetch(WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (response.ok) {
+                    alert("Mensaje enviado con éxito. Nos pondremos en contacto pronto.");
+                    form.reset();
+                } else {
+                    throw new Error('Error en el envío');
+                }
+            } catch (error) {
+                console.error("Error webhook:", error);
+                alert("Hubo un error al enviar el mensaje. Por favor, intente más tarde o contáctenos por WhatsApp.");
+            } finally {
+                btn.disabled = false;
+                btn.innerText = originalText;
             }
         }
     });
+}
+
+// --- FUNCIÓN ANTIGUA DE VALIDACIÓN (REEMPLAZADA PERO MANTENIDA POR COMPATIBILIDAD SI OTRO SCRIPT LA LLAMA) ---
+function initFormValidation() {
+    // Esta función ahora está integrada en initContactFormLogic mediante delegación de eventos.
+    // Se mantiene vacía o con log para evitar errores si algo más la invoca.
+    // console.log("Form validation initialized via initContactFormLogic");
 }
 
 // --- CREATE CARD ---
