@@ -5,6 +5,8 @@
 /* --- RESET & GLOBALES (COLOR NEGRO POR DEFECTO) --- */
 section { margin: 0; padding: 0; box-sizing: border-box; }
 img { max-width: 100%; height: auto; display: block; }
+h1, h2, h3, p, span { color: #000; }
+.container-compact { max-width: 1200px; margin: 0 auto; padding: 0 40px; }
 
 /* Forzamos negro en todo el sitio excepto el statement */
 h1, h2, h3, p, span { color: #000; }
@@ -130,18 +132,17 @@ p { font-family: 'Inter'; font-size: 16px; line-height: 1.6; color: #000; }
     margin: 0 auto;
     width: 100%;
 }
-/* --- SOLD PROPERTIES SECTION --- */
+/* --- SOLD PROPERTIES SECTION (ACTUALIZADO) --- */
 .sold-section {
-    padding: 60px 0 0 0; /* Padding inferior a 0 para pegar al footer */
+    padding: 60px 0 80px 0;
     background-color: #fff;
     width: 100%;
 }
 
 .sold-container {
-    max-width: 1800px;
-    width: 98%;
+    max-width: 1200px; /* Ajustado para alinear con el resto del contenido */
     margin: 0 auto;
-    padding: 0;
+    padding: 0 40px;
 }
 
 .sold-section h2 {
@@ -150,23 +151,108 @@ p { font-family: 'Inter'; font-size: 16px; line-height: 1.6; color: #000; }
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 2px;
-    margin-bottom: 0;  /* Margen cero para pegar a la imagen */
-    margin-left: 20px;
+    margin-bottom: 40px;  
     text-align: left;
     color: #000;
     line-height: 1;
     padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+/* GRID DE 2 COLUMNAS (Igual que Index) */
+.sold-grid-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Forzamos 2 columnas */
+    gap: 40px; /* Espacio generoso entre tarjetas */
+    width: 100%;
+    margin-bottom: 50px;
+}
+
+/* --- TARJETA ESPECÍFICA DE VENDIDAS (.sold-card) --- */
+.sold-card {
+    display: flex;
+    flex-direction: column;
+    /* No cursor pointer, no hover effects */
+    cursor: default; 
+}
+
+.sold-img-box {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 3/2; /* Proporción de imagen consistente */
+    overflow: hidden;
+    background-color: #f0f0f0;
 }
 
 .sold-img {
     width: 100%;
-    height: auto;
-    display: block;
+    height: 100%;
     object-fit: cover;
-    margin-top: 0;
-    margin-bottom: 0; /* Aseguramos que no haya margen inferior en la imagen */
+    transition: transform 0.5s ease;
 }
 
+/* Zoom muy sutil solo estético, sin función */
+.sold-card:hover .sold-img {
+    transform: scale(1.02);
+}
+
+/* ETIQUETA VENDIDA (Estilo Diagonal o Rectangular) */
+/* Aquí usamos estilo Rectangular Top-Left Blanco/Negro como pediste en texto */
+.tag-sold-badge {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background-color: #ffffff;
+    color: #000000;
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 8px 16px;
+    z-index: 10;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.sold-info-box {
+    padding-top: 20px;
+    text-align: left;
+}
+
+.sold-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    color: #000;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+}
+
+.sold-price {
+    font-family: 'Inter', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: #666; /* Gris oscuro para el precio */
+}
+
+/* Paginación (Reutilizamos estilos globales pero aseguramos margen) */
+#sold-pagination {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    .sold-grid-layout {
+        grid-template-columns: 1fr; /* 1 columna en móvil */
+        gap: 30px;
+    }
+    .sold-container {
+        padding: 0 20px;
+    }
+}
 /* =========================================
    RESPONSIVE (AJUSTES MÓVILES)
    ========================================= */
@@ -208,5 +294,9 @@ p { font-family: 'Inter'; font-size: 16px; line-height: 1.6; color: #000; }
     /* IMÁGENES */
     .grid-image, .ceo-img, .full-width-img {
         height: 300px; /* Menor altura para que no sea infinito */
+    }
+    
+    .sold-grid-layout {
+        grid-template-columns: 1fr; /* Una columna en móvil */
     }
 }
