@@ -361,19 +361,13 @@ function generatePaginationButtons(containerId, current, total, onPageClick) {
 // --- CREACIÓN DE TARJETAS ---
 // ==========================================================
 
-// 1. TARJETA VENDIDA (Minimalista, Sin Click)
+// 1. TARJETA VENDIDA (Minimalista, Sin Precio, Sin Click)
 function createSoldCard(xmlNode) {
     const lang = getCurrentLang();
     const dict = I18N_TYPES[lang] || {};
     const ui = I18N_UI[lang];
 
     const get = (tags) => getNodeValue(xmlNode, tags);
-
-    // Precio
-    const priceRaw = get(['precioinmo', 'precio']).replace(/\D/g, '');
-    const price = parseFloat(priceRaw) || 0;
-    const formatter = new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 });
-    const formattedPrice = formatter.format(price);
 
     // Título
     let typeRaw = get(['tipo', 'type', 'tipo_ofer']);
@@ -386,7 +380,7 @@ function createSoldCard(xmlNode) {
     // Foto (Solo la primera)
     const photo = get(['foto1']) || 'assets/img/logo mh state negro.png';
 
-    // Construcción del HTML
+    // Construcción del HTML (Sin la etiqueta de precio)
     const article = document.createElement('article');
     article.className = 'sold-card'; // Clase CSS específica
     
@@ -397,7 +391,6 @@ function createSoldCard(xmlNode) {
         </div>
         <div class="sold-info-box">
             <h3 class="sold-title">${displayTitle}</h3>
-            <div class="sold-price">${formattedPrice}</div>
         </div>
     `;
 
