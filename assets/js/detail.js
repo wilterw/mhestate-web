@@ -1,5 +1,5 @@
 /* =========================================
-   DETAIL.JS - V13.0 (CAMBIO DORMITORIOS -> PLAZAS EN ESPAÑOL)
+   DETAIL.JS - V13.5 (Filtro "Vender" + Fecha en Similares)
    ========================================= */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -29,14 +29,14 @@ const TRANSLATIONS = {
         'feat_ref': 'Referencia', 'feat_price': 'Precio', 'feat_type': 'Tipo',
         'feat_town': 'Ciudad', 'feat_zone': 'Zona', 
         
-        // CAMBIO V13.0: Dormitorios -> Plazas
         'feat_beds': 'Plazas', 
         
         'feat_baths': 'Baños', 'feat_toilets': 'Aseos', 'feat_built': 'Construido',
         'feat_useful': 'Útil', 'feat_terrace': 'Terraza', 'feat_plot': 'Parcela',
         'feat_pool': 'Piscina', 'feat_garage': 'Garaje', 
         'feat_year': 'Año Const.', 'feat_floors': 'Plantas',
-        'feat_ibi': 'IBI', 'feat_community': 'Comunidad',
+        
+        'feat_ibi': 'IBI', 'feat_community': 'Cuota Comunitaria',
         
         'feat_ac': 'Aire Acond.',
         'feat_seaview': 'Vistas al Mar',
@@ -74,7 +74,8 @@ const TRANSLATIONS = {
         'feat_useful': 'Useful', 'feat_terrace': 'Terrace', 'feat_plot': 'Plot',
         'feat_pool': 'Pool', 'feat_garage': 'Garage', 
         'feat_year': 'Year Built', 'feat_floors': 'Floors',
-        'feat_ibi': 'Tax (IBI)', 'feat_community': 'Community',
+        
+        'feat_ibi': 'Tax (IBI)', 'feat_community': 'Community Fees',
         
         'feat_ac': 'Air Cond.',
         'feat_seaview': 'Sea Views',
@@ -112,7 +113,8 @@ const TRANSLATIONS = {
         'feat_useful': 'Användbar', 'feat_terrace': 'Terrass', 'feat_plot': 'Tomt',
         'feat_pool': 'Pool', 'feat_garage': 'Garage', 
         'feat_year': 'Byggår', 'feat_floors': 'Våningar',
-        'feat_ibi': 'Skatt (IBI)', 'feat_community': 'Samfällighet',
+        
+        'feat_ibi': 'Skatt (IBI)', 'feat_community': 'Föreningsavgift',
         
         'feat_ac': 'Luftkond.',
         'feat_seaview': 'Havsutsikt',
@@ -549,7 +551,6 @@ function renderFeatures(node) {
     
     container.innerHTML = ''; 
 
-    // Combinar todas las descripciones para buscar mejor
     const descText = (node.querySelector('descrip1')?.textContent || '') + ' ' + (node.querySelector('descrip2')?.textContent || '');
 
     const getVal = (tags) => {
@@ -588,16 +589,14 @@ function renderFeatures(node) {
         { key: 'feat_year', tags: ['antiguedad', 'ano_construccion', 'year'] },
         { key: 'feat_floors', tags: ['num_plantas', 'floors'] },
         
-        { key: 'feat_ibi', tags: ['ibi'], isPrice: true },
-        
-        { key: 'feat_community', tags: ['comunidad', 'community_fees'], suffix: ' €' }
+        { key: 'feat_ibi', tags: ['ibi'] },
+        { key: 'feat_community', tags: ['gastos_com'] }
     ];
 
     let itemsFound = 0;
     allSpecs.forEach(item => {
         let val = getVal(item.tags);
 
-        // --- FIX DORMITORIOS (Suma) ---
         if(item.key === 'feat_beds') {
             const simples = parseInt(getVal(['Simple', 'simple', 'hab_simples', 'simples'])) || 0;
             const dobles = parseInt(getVal(['Double', 'double', 'hab_dobles', 'dobles'])) || 0;
@@ -605,7 +604,6 @@ function renderFeatures(node) {
             if(total > (parseInt(val) || 0)) val = total.toString();
         }
 
-        // --- FIX DORMITORIOS (IA Texto) ---
         if ((item.key === 'feat_beds' || item.key === 'feat_baths') && (!val || val === '0')) {
             const extracted = extractNumFromDesc(descText, item.key === 'feat_beds' ? 'beds' : 'baths');
             if (extracted) {
@@ -635,6 +633,18 @@ function renderFeatures(node) {
         else if (item.isPrice) val = formatPrice(val);
         else if (item.suffix) val += item.suffix;
 
+        // Formato específico y seguro para IBI y Comunidad
+        if (item.key === 'feat_ibi' || item.key === 'feat_community') {
+            if (!val.includes('€')) {
+                const parsed = parseFloat(val);
+                if (!isNaN(parsed)) {
+                    val = parsed.toLocaleString('de-DE') + ' €';
+                } else {
+                    val = val + ' €';
+                }
+            }
+        }
+
         const div = document.createElement('div');
         div.className = 'tech-card';
         div.innerHTML = `<span class="tech-label">${t(item.key)}</span><span class="tech-value">${val}</span>`;
@@ -647,7 +657,7 @@ function renderFeatures(node) {
     }
 }
 
-// --- UTILS (RESTO IGUAL) ---
+// --- UTILS ---
 function setupTabs() {
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -683,8 +693,12 @@ function initMap(lat, lng) {
 }
 
 function setTextSafe(id, txt) { const el = document.getElementById(id); if(el) el.textContent = txt; }
-function formatPrice(v) { return v ? parseFloat(v).toLocaleString('de-DE') + ' €' : t('val_consult'); }
-// La funcion formatRichText anterior ya no se usa, reemplazada por smartFormatText
+function formatPrice(v) { 
+    if (!v) return t('val_consult');
+    const num = parseFloat(v);
+    if (isNaN(num) || num <= 0) return t('val_consult');
+    return num.toLocaleString('de-DE') + ' €'; 
+}
 
 function renderMultimediaGallery(node) { 
     const container = document.getElementById('gallery-container');
@@ -752,30 +766,50 @@ function renderSimilarProperties(currentProp, allProps) {
     const container = document.getElementById('similar-container');
     if (!container) return;
 
-    const getVal = (n, tag) => {
-        const el = n.querySelector(tag);
-        return el ? el.textContent.trim() : '';
+    // Ajustado para manejar múltiples etiquetas de forma segura
+    const getVal = (n, tags) => {
+        if(!Array.isArray(tags)) tags = [tags];
+        for(let t of tags) {
+            const el = n.querySelector(t);
+            if(el && el.textContent && el.textContent.trim() !== '') return el.textContent.trim();
+        }
+        return '';
     };
     
-    const currentId = getVal(currentProp, 'id');
-    const currentType = getVal(currentProp, 'tipo_ofer');
-    const currentCity = getVal(currentProp, 'ciudad');
+    const currentId = getVal(currentProp, ['id', 'ref']);
+    const currentType = getVal(currentProp, ['tipo_ofer', 'tipo']);
+    const currentCity = getVal(currentProp, ['ciudad', 'poblacion']);
 
+    // Función auxiliar para saber si es "Venta"
+    const isVenta = (p) => {
+        const accion = getVal(p, ['accion', 'operacion']).toLowerCase();
+        return accion.includes('vender') || accion.includes('venta');
+    };
+
+    // Filtro estricto por Tipo, Ciudad y Acción = Vender
     let similar = allProps.filter(p => {
-        const pId = getVal(p, 'id');
-        const pType = getVal(p, 'tipo_ofer');
-        const pCity = getVal(p, 'ciudad');
-        return pId !== currentId && pType === currentType && pCity === currentCity;
+        const pId = getVal(p, ['id', 'ref']);
+        const pType = getVal(p, ['tipo_ofer', 'tipo']);
+        const pCity = getVal(p, ['ciudad', 'poblacion']);
+        return pId !== currentId && pType === currentType && pCity === currentCity && isVenta(p);
     });
 
+    // Si hay menos de 3, ampliamos la búsqueda (solo ciudad y acción = vender)
     if (similar.length < 3) {
         const more = allProps.filter(p => {
-            const pId = getVal(p, 'id');
-            const pCity = getVal(p, 'ciudad');
-            return pId !== currentId && pCity === currentCity && !similar.includes(p);
+            const pId = getVal(p, ['id', 'ref']);
+            const pCity = getVal(p, ['ciudad', 'poblacion']);
+            return pId !== currentId && pCity === currentCity && isVenta(p) && !similar.includes(p);
         });
         similar = similar.concat(more);
     }
+
+    // Ordenar por fecha (las más actualizadas / recientes primero)
+    similar.sort((a, b) => {
+        const dateA = getVal(a, ['fecha_actualizacion', 'fecha_modificacion', 'fecha']);
+        const dateB = getVal(b, ['fecha_actualizacion', 'fecha_modificacion', 'fecha']);
+        return dateB.localeCompare(dateA); 
+    });
 
     similar = similar.slice(0, 10);
 
@@ -804,20 +838,18 @@ function renderSimilarProperties(currentProp, allProps) {
     }
     
     similar.forEach(p => {
-        const pId = getVal(p, 'id');
+        const pId = getVal(p, ['id', 'ref']);
         const pImg = getVal(p, 'foto1') || 'assets/img/logo mh state negro.png';
-        const pPrice = formatPrice(getVal(p, 'precioinmo'));
-        const typeTrans = formatPropType(getVal(p, 'tipo_ofer'));
+        const pPrice = formatPrice(getVal(p, ['precioinmo', 'precio']));
+        const typeTrans = formatPropType(getVal(p, ['tipo_ofer', 'tipo']));
         const pZone = getVal(p, ['zona', 'area']);
-        const pCity = getVal(p, 'ciudad');
+        const pCity = getVal(p, ['ciudad', 'poblacion']);
         
-        // Título técnico en similares también
         let pTitle = `${typeTrans} - ${pZone || pCity}`;
 
-        const excluVal = getVal(p, 'exclu') || getVal(p, 'exclusiva');
-        const conservationVal = getVal(p, 'conservacion') || getVal(p, 'estado');
+        const excluVal = getVal(p, ['exclu', 'exclusiva']);
+        const conservationVal = getVal(p, ['conservacion', 'estado']);
         
-        // --- DETECCIÓN DE ESTADO EN SIMILARES ---
         const status = getPropertyStatus(p);
         
         let tagHtml = '';

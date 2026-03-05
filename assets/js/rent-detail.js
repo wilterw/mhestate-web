@@ -1,22 +1,22 @@
 /**
- * RENT-DETAIL.JS - V56.0 (SIMILAR CARDS MATCH RENT.HTML)
+ * RENT-DETAIL.JS - V56.1 (Añadido Mascotas, Niños y Ascensor Condicional)
  * - Propiedades Similares: Ahora usan el diseño .rent-layout-card (igual que rent.html).
  * - Estilos Inyectados: Se añaden los estilos de tarjeta (gradiente, slider) dinámicamente.
  * - Lógica Unificada: Extracción de datos para similares igual que en el listado principal.
+ * - Nuevos Filtros: Mascotas (Sí/No), Niños (Sí/No), Ascensor (Sí/No si Plantas >= 2).
  */
 
 document.addEventListener('DOMContentLoaded', () => {
     initRentPage();
     setupTabs();
     injectValidationModalStyles(); 
-    injectRentCardStyles(); // Nuevo: Estilos para las tarjetas similares
+    injectRentCardStyles(); 
     setupLightboxNavigation(); 
 
     window.addEventListener('languageChanged', () => {
         if (currentProperty) {
             renderRentDetails(currentProperty);
             renderRentFeatures(currentProperty);
-            // Re-renderizar similares al cambiar idioma para actualizar etiquetas
             if (allCachedItems.length > 0) renderSimilarRentals(currentProperty, allCachedItems);
         }
     });
@@ -55,9 +55,10 @@ const I18N_RENT_UI = {
         feat_heating: 'Calefacción', feat_furnished: 'Amueblado',
         feat_orient: 'Orientación', feat_checkin: 'Check-in', feat_checkout: 'Check-out', feat_distmar: 'Dist. Playa',
         feat_garden: 'Jardín', feat_disabled: 'Acceso Adapt.',
-        feat_pets: 'Mascotas', feat_children: 'Niños',
         
-        // ETIQUETAS PARA TARJETAS SIMILARES (Igual que rent.js)
+        // --- TEXTOS ACTUALIZADOS ---
+        feat_pets: 'Se Aceptan Mascotas', feat_children: 'Se Aceptan Niños',
+        
         lbl_card_bath: 'BAÑOS:', lbl_card_cap: 'PLAZAS:',
         consult: 'Consultar',
 
@@ -87,7 +88,7 @@ const I18N_RENT_UI = {
         no_data: 'Not available', plan_click: 'Click to enlarge',
         feat_ref: 'Reference', 
         feat_capacity: 'Beds', 
-        feat_beds: 'Bedrooms', feat_baths: 'Baths', 
+        feat_beds: 'Bedrooms', feat_baths: 'Bathrooms', 
         feat_built: 'Size', feat_plot: 'Plot', feat_terrace: 'Terrace',
         feat_floor: 'Floor', feat_year: 'Year Built', feat_ibi: 'Tax (IBI)', feat_community: 'Community',
         feat_pool: 'Pool', feat_garage: 'Garage', feat_wifi: 'Wifi', 
@@ -96,7 +97,9 @@ const I18N_RENT_UI = {
         feat_heating: 'Heating', feat_furnished: 'Furnished',
         feat_orient: 'Orientation', feat_checkin: 'Check-in', feat_checkout: 'Check-out', feat_distmar: 'Dist. Beach',
         feat_garden: 'Garden', feat_disabled: 'Disabled Access',
-        feat_pets: 'Pets', feat_children: 'Children',
+        
+        // --- TEXTOS ACTUALIZADOS ---
+        feat_pets: 'Pets Allowed', feat_children: 'Children Allowed',
 
         lbl_card_bath: 'BATHS:', lbl_card_cap: 'BEDS:',
         consult: 'On Request',
@@ -136,7 +139,9 @@ const I18N_RENT_UI = {
         feat_heating: 'Uppvärmning', feat_furnished: 'Möblerad',
         feat_orient: 'Orientering', feat_checkin: 'Incheckning', feat_checkout: 'Utcheckning', feat_distmar: 'Avstånd Strand',
         feat_garden: 'Trädgård', feat_disabled: 'Handikappanpassat',
-        feat_pets: 'Husdjur', feat_children: 'Barn',
+        
+        // --- TEXTOS ACTUALIZADOS ---
+        feat_pets: 'Husdjur Tillåtna', feat_children: 'Barn Tillåtna',
 
         lbl_card_bath: 'BAD:', lbl_card_cap: 'SÄNGAR:',
         consult: 'På begäran',
@@ -222,8 +227,7 @@ function injectRentCardStyles() {
             z-index: 3; pointer-events: none;
         }
         .rent-layout-card {
-            /* Asegura que la tarjeta se vea bien en el contenedor de similares */
-            flex: 0 0 320px; /* Ancho fijo para el carrusel */
+            flex: 0 0 320px; 
             margin-right: 20px;
             cursor: pointer;
             border-radius: 8px;
@@ -285,7 +289,8 @@ function smartFormatText(text) {
     return html.split('<br><br>').map(p => p.trim()).filter(p => p.length > 0).map(p => p.includes('<ul>') ? p : `<p class="desc-paragraph">${p}</p>`).join('');
 }
 
-// Helper para extraer números del texto (usado en similares para fallback)
+// --- ACTUALIZACIÓN DE EXTRACTOR LIGERO ---
+// Permite extraer baños, capacidad y PLANTAS
 function extractNumFromDesc(text, type) {
     if (!text) return null;
     text = text.toLowerCase();
@@ -293,6 +298,8 @@ function extractNumFromDesc(text, type) {
     let regex;
     if (type === 'bath') regex = /(?:(\d+)|(un|una|dos|tres|cuatro|cinco))\s*(?:bañ|ban|aseo)/i;
     else if (type === 'cap') regex = /(?:capacidad\s*(?:para)?\s*(\d+))|(?:(?:para|hasta)\s*(\d+)\s*personas)|(?:(\d+)\s*(?:plazas|camas|personas))/i;
+    else if (type === 'plantas') regex = /(?:(\d+)|(un|una|dos|tres|cuatro|cinco|seis|siete|ocho))\s*(?:plantas|pisos|niveles)/i;
+    
     const match = text.match(regex);
     if (match) {
         for (let i = 1; i < match.length; i++) {
@@ -458,14 +465,47 @@ function renderMultimediaGallery(node) {
     container.innerHTML = topHtml + bottomRowHtml;
 }
 
+// ==========================================
+// RENDER FEATURES - ACTUALIZADO CON MASCOTAS, NIÑOS Y ASCENSOR
+// ==========================================
 function renderRentFeatures(node) {
     const container = document.getElementById('tab-facts-content');
     if(!container) return;
     container.innerHTML = '';
+    
     const getVal = (tags) => { if(!Array.isArray(tags)) tags = [tags]; for(let t of tags) { const el = node.querySelector(t); if(el && el.textContent) return el.textContent.trim(); } return ''; };
     const getNum = (tags) => { let total = 0; tags.forEach(t => { let val = parseFloat(node.querySelector(t)?.textContent || 0); if(!isNaN(val)) total += val; }); return total > 0 ? total.toString() : ''; };
-    const desc = ((node.querySelector('descrip1')?.textContent || '') + ' ' + (node.querySelector('descrip2')?.textContent || '')).toLowerCase();
     
+    const desc = ((node.querySelector('descrip1')?.textContent || '') + ' ' + (node.querySelector('descrip2')?.textContent || '')).toLowerCase();
+
+    // 1. Extraer Plantas para Condicionar Ascensor
+    const numPlantas = parseInt(getVal(['num_plantas', 'plantas', 'plantas_edificio']) || extractNumFromDesc(desc, 'plantas') || 1);
+
+    // 2. IA Ligera para Mascotas
+    let petsVal = getVal(['admitenmascotas', 'mascotas', 'animales']);
+    if (!petsVal) {
+        if (/(no mascot|no animal|no pet|no se admiten mascot|inga husdjur)/.test(desc)) petsVal = '0';
+        else if (/(mascotas|pet friendly|se admiten mascot|pets allowed|husdjur tillåtna)/.test(desc)) petsVal = '1';
+    }
+
+    // 3. IA Ligera para Niños
+    let childVal = getVal(['admitenninos', 'ninos', 'niños', 'apt_ninos']);
+    if (!childVal) {
+        if (/(no niñ|no nin|no children|inga barn)/.test(desc)) childVal = '0';
+        else if (/(ideal famil|se admiten niñ|children allowed|barn tillåtna)/.test(desc)) childVal = '1';
+    }
+
+    // 4. IA Ligera para Ascensor
+    let ascensorVal = getVal(['ascensor', 'elevador']);
+    if (!ascensorVal || ascensorVal === '0') {
+        if (/(ascensor|elevator|lift|hiss)/.test(desc) && !/(sin ascensor|no elevator|no lift|ingen hiss)/.test(desc)) {
+            ascensorVal = '1';
+        }
+    }
+
+    let isAscensorYes = (ascensorVal === '1' || ascensorVal === 'true' || ascensorVal === 'SI' || ascensorVal.toLowerCase() === 'sí');
+    let showElevator = (numPlantas >= 2) || isAscensorYes; // Mostrar si hay 2+ plantas O si tiene ascensor en piso 1.
+
     const items = [
         { key: 'feat_ref', val: getVal(['id', 'referencia']) },
         { key: 'feat_checkin', val: '16:00' }, { key: 'feat_checkout', val: '10:00' },
@@ -477,8 +517,11 @@ function renderRentFeatures(node) {
         { key: 'feat_plot', val: getVal(['m_parcela', 'parcela']), suffix: 'u_m2' },
         { key: 'feat_terrace', val: getVal(['m_terraza', 'terraza']), suffix: 'u_m2', ia: /(terraza)/ },
         { key: 'feat_year', val: getVal(['antiguedad', 'ano_construccion']) },
-        { key: 'feat_pets', val: getVal(['admitenmascotas', 'mascotas', 'animales']), isBoolExplicit: true },
-        { key: 'feat_children', val: getVal(['admitenninos', 'ninos', 'apt_ninos']), isBoolExplicit: true },
+        
+        // Atributos forzados a decir siempre Sí/No
+        { key: 'feat_pets', val: petsVal, forceSiNo: true },
+        { key: 'feat_children', val: childVal, forceSiNo: true },
+        
         { key: 'feat_ibi', val: getVal('ibi') ? parseFloat(getVal('ibi')).toLocaleString('de-DE') + ' €' : '' },
         { key: 'feat_community', val: getVal(['comunidad', 'gastos_comunidad']) ? parseFloat(getVal(['comunidad'])).toLocaleString('de-DE') + ' €' : '' },
         { key: 'feat_floor', val: getVal(['planta', 'numplanta']), type: 'floor' },
@@ -489,7 +532,10 @@ function renderRentFeatures(node) {
         { key: 'feat_seaview', val: getVal(['vistasalmar', 'vistas_mar', 'primera_line']), bool: true, ia: /(vistas al mar|sea view|frente al mar)/ },
         { key: 'feat_ac', val: getVal(['aire_con', 'ac', 'airecentral']), bool: true, ia: /(aire acondicionado|air cond|a\/c|climatizaci)/ },
         { key: 'feat_heating', val: getVal(['calefaccion', 'heating']), bool: true, ia: /(calefacción|radiadores|suelo radiante)/ },
-        { key: 'feat_elevator', val: getVal('ascensor'), bool: true, ia: /(ascensor|elevator|lift)/ },
+        
+        // Ascensor sujeto a validación de plantas
+        { key: 'feat_elevator', val: ascensorVal, forceSiNo: true, customShow: showElevator },
+        
         { key: 'feat_tv', val: getVal(['tv', 'satelite']), bool: true, ia: /(tv|televisi|satelite)/ },
         { key: 'feat_furnished', val: getVal(['muebles', 'amueblado']), bool: true, ia: /(amueblado|furnished)/ },
         { key: 'feat_garden', val: getVal('jardin'), bool: true, ia: /(jardin|garden)/ },
@@ -498,14 +544,21 @@ function renderRentFeatures(node) {
 
     items.forEach(item => {
         let val = item.val;
+        
         if ((!val || val === '0' || val.trim()==='') && item.ia && item.ia.test(desc)) val = 'true';
-        if (!val || val.trim() === '') return;
-        if (item.isBoolExplicit) {
-            if (val === '1' || val === 'true' || val === 'SI' || val === 'Sí') val = t('yes');
-            else if (val === '0' || val === 'false' || val === 'NO' || val === 'No') val = t('no');
-            else return; 
+        
+        // Ocultar características que no pasen el filtro custom (ej. ascensor sin plantas suficientes)
+        if (item.customShow === false) return;
+
+        if (item.forceSiNo) {
+            // Fuerza respuesta a Sí o No, no permite desaparecer.
+            if (val === '1' || val === 'true' || val === 'SI' || val === 'Sí' || val === true) val = t('yes');
+            else val = t('no');
         } else {
+            // Lógica estándar para el resto
+            if (!val || val.trim() === '') return;
             if (val === '0' || val === '0.00' || val === '0 €' || val === '0 m²') return;
+            
             if (item.bool) { 
                 if (val === '1' || val === 'true' || val === 'SI' || val === 'Sí') val = t('yes'); 
                 else return; 
@@ -514,16 +567,15 @@ function renderRentFeatures(node) {
             }
             if (item.suffix) val += t(item.suffix);
         }
+        
         container.innerHTML += `<div class="tech-card"><span class="tech-label">${t(item.key)}</span><span class="tech-value">${val}</span></div>`;
     });
 }
 
-// --- NUEVA LÓGICA DE SIMILARES (Igual visualmente a rent.html) ---
 function renderSimilarRentals(current, allItems) {
     const container = document.getElementById('similar-container');
     if(!container) return;
     
-    // Obtener valores auxiliares
     const getVal = (n, tags) => {
         if(!Array.isArray(tags)) tags = [tags];
         for(let t of tags) { const el = n.querySelector(t); if(el && el.textContent) return el.textContent.trim(); }
@@ -532,14 +584,12 @@ function renderSimilarRentals(current, allItems) {
 
     const cid = getVal(current, ['id', 'referencia']);
     
-    // Filtro: Solo alquiler, excluir actual, mostrar máx 6
     let rentals = allItems.filter(p => {
         const acc = getVal(p, ['accion', 'operacion']).toLowerCase();
         const pid = getVal(p, ['id', 'referencia']);
         return acc.includes('alquiler') && pid !== cid;
     }).slice(0, 6);
 
-    // Generar HTML con estructura .rent-layout-card
     container.innerHTML = rentals.map(p => {
         const id = getVal(p, ['id', 'referencia']);
         const title = generateSmartTitle(p);
@@ -547,18 +597,15 @@ function renderSimilarRentals(current, allItems) {
         const isHoliday = getVal(p, ['accion']).toLowerCase().includes('vacacional');
         const unit = isHoliday ? t('unit_day') : t('unit_month');
         
-        // Extracción de datos para overlay
         let bath = getVal(p, ['banyos', 'aseos', 'banos']);
         if (!bath || bath === '0') bath = extractNumFromDesc(getVal(p, ['descrip1', 'descripcion']), 'bath');
         
-        // Extracción de capacidad (Plazas)
         let cap = getVal(p, ['capacidad', 'personas']);
         if (!cap || cap === '0') {
             const dorm = getVal(p, ['habitaciones', 'dormitorios']);
             if (dorm && dorm !== '0') cap = (parseInt(dorm) * 2).toString();
         }
 
-        // Imagen (solo la primera, estática para similares para no cargar demasiado)
         const img = getVal(p, 'foto1') || 'assets/img/logo mh state negro.png';
 
         return `
