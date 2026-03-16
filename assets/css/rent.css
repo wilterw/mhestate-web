@@ -153,7 +153,8 @@
     padding-top: 80px; 
 }
 .valuable-col-title { border-right: none; padding-right: 0; }
-.valuable-col-title h1 { 
+.valuable-col-title h1,
+.valuable-col-title h2 { 
     font-family: 'Inter', sans-serif; font-weight: 700; font-size: 3.5rem; 
     color: #000; text-align: left; line-height: 1.1; margin: 0; 
 }

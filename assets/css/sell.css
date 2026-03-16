@@ -46,7 +46,7 @@ h1, h2, h3, p, span { color: #000; }
 
 /* Textos */
 .exp-col-right, .craft-text-col, .vi-text-col { display: flex; flex-direction: column; justify-content: center; padding: 40px; }
-h1 { font-family: 'Gilda Display'; font-size: 42px; line-height: 1.1; margin-bottom: 20px; font-weight: 700; color: #000; }
+h1, h2 { font-family: 'Gilda Display'; font-size: 42px; line-height: 1.1; margin-bottom: 20px; font-weight: 700; color: #000; }
 p { font-family: 'Inter'; font-size: 16px; line-height: 1.6; color: #000; }
 
 /* Imágenes */
@@ -83,7 +83,8 @@ p { font-family: 'Inter'; font-size: 16px; line-height: 1.6; color: #000; }
 .vi-block { margin-bottom: 60px; } /* Aumentamos separación entre bloques */
 
 /* MODIFICACIÓN PRINCIPAL AQUÍ */
-.vi-block h1 { 
+.vi-block h1,
+.vi-block h2 { 
     font-family: 'Inter'; 
     font-size: 64px;       /* Aumentado considerablemente */
     font-weight: 600; 
@@ -114,7 +115,8 @@ p { font-family: 'Inter'; font-size: 16px; line-height: 1.6; color: #000; }
     margin: 0 auto;
 }
 
-.marketing-section h1 {
+.marketing-section h1,
+.marketing-section h2 {
     font-family: 'Gilda Display', serif;
     font-size: 52px;       
     font-weight: 400;
@@ -281,13 +283,13 @@ p { font-family: 'Inter'; font-size: 16px; line-height: 1.6; color: #000; }
     }
 
     /* TÍTULOS GIGANTES (REDUCCIÓN) */
-    .vi-block h1 {
+    .vi-block h1, .vi-block h2 {
         font-size: 36px; /* Reducido de 64px */
     }
     .prof-giant-title {
         font-size: 32px; /* Reducido de 46px */
     }
-    .marketing-section h1 {
+    .marketing-section h1, .marketing-section h2 {
         font-size: 36px; /* Reducido de 52px */
     }
 
