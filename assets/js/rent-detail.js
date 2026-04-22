@@ -534,7 +534,7 @@ function renderRentFeatures(node) {
         { key: 'feat_heating', val: getVal(['calefaccion', 'heating']), bool: true, ia: /(calefacción|radiadores|suelo radiante)/ },
         
         // Ascensor sujeto a validación de plantas
-        { key: 'feat_elevator', val: ascensorVal, forceSiNo: true, customShow: showElevator },
+        { key: 'feat_elevator', val: ascensorVal, forceSiNo: true },
         
         { key: 'feat_tv', val: getVal(['tv', 'satelite']), bool: true, ia: /(tv|televisi|satelite)/ },
         { key: 'feat_furnished', val: getVal(['muebles', 'amueblado']), bool: true, ia: /(amueblado|furnished)/ },
